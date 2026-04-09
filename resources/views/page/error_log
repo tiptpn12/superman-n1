@@ -1,0 +1,4 @@
+[24-Feb-2024 23:08:51 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/page/home_notifikasi.blade.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/page/home_notifikasi.blade.php on line 9

@@ -1,0 +1,36 @@
+[18-Dec-2023 09:50:30 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanExport.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanExport.php on line 17
+[19-Dec-2023 09:13:58 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/ExportPembayaran.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/ExportPembayaran.php on line 37
+[19-Dec-2023 15:15:52 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSemuaExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSemuaExport.php on line 7
+[28-Dec-2023 09:03:52 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPnExport.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPnExport.php on line 17
+[28-Dec-2023 11:10:50 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSemuaExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSemuaExport.php on line 7
+[10-Jan-2024 16:14:39 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPnExport.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPnExport.php on line 17
+[01-Feb-2024 06:40:47 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/ExportPembayaran.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/ExportPembayaran.php on line 37
+[10-Feb-2024 10:49:38 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPbExport.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPbExport.php on line 17
+[19-Feb-2024 22:47:51 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromView" not found in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPbExport.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Exports/LaporanSPPbExport.php on line 17

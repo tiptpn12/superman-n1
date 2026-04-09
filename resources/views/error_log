@@ -1,0 +1,100 @@
+[24-Dec-2023 09:00:49 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[27-Dec-2023 12:00:46 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[01-Jan-2024 17:56:27 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard.blade.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard.blade.php on line 2
+[08-Jan-2024 20:18:31 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard.blade.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard.blade.php on line 2
+[29-Jan-2024 08:19:12 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[01-Feb-2024 22:38:15 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[02-Feb-2024 08:28:13 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard_a.blade.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard_a.blade.php on line 6
+[07-Feb-2024 05:21:33 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[24-Feb-2024 18:40:18 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[25-Feb-2024 18:42:11 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[03-Mar-2024 19:11:14 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[04-Mar-2024 22:14:04 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[05-Mar-2024 23:45:41 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[07-Mar-2024 02:06:47 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[09-Mar-2024 06:17:50 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[10-Mar-2024 08:26:14 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[11-Mar-2024 10:26:50 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[11-Mar-2024 23:42:52 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[12-Mar-2024 15:43:22 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[13-Mar-2024 17:56:33 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[28-Mar-2024 11:10:53 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard_a.blade.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/dashboard_a.blade.php on line 6
+[28-Mar-2024 19:18:02 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[28-Mar-2024 20:03:07 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[02-Apr-2024 23:09:54 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5
+[07-Apr-2024 11:12:38 UTC] PHP Fatal error:  Uncaught Error: Class "Session" not found in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/resources/views/main.blade.php on line 5

@@ -1,0 +1,12 @@
+[05-Jan-2024 16:50:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php on line 7
+[29-Jan-2024 08:32:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php on line 7
+[07-Feb-2024 11:34:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Http/Kernel.php on line 7

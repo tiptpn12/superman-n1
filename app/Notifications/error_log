@@ -1,0 +1,8 @@
+[09-Feb-2024 09:55:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/ossplanter/public_html/superman_ho_fix/app/Notifications/NewSppNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Notifications/NewSppNotification.php on line 10
+[11-Feb-2024 17:18:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/ossplanter/public_html/superman_ho_fix/app/Notifications/NewSppNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/app/Notifications/NewSppNotification.php on line 10

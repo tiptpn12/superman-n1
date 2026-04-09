@@ -1,0 +1,8 @@
+[29-Jan-2024 01:17:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/ossplanter/public_html/superman_ho_fix/database/migrations/2022_06_21_232514_sppb_tidak_transfer.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/database/migrations/2022_06_21_232514_sppb_tidak_transfer.php on line 7
+[25-Feb-2024 10:48:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/ossplanter/public_html/superman_ho_fix/database/migrations/2022_06_21_231607_sppb_tidak.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/ossplanter/public_html/superman_ho_fix/database/migrations/2022_06_21_231607_sppb_tidak.php on line 7
