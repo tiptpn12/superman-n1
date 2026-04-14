@@ -28,7 +28,7 @@ class MasterAPIController extends Controller
 
         try {
             $data = DB::table('spp')->where('spp.master_bagian_id', '=', $bagian)
-                ->where('spp.sppd_posisi', $akses)
+                // ->where('spp.sppd_posisi', $akses)
                 ->whereBetween('spp.sppd_status', [0, 2])
                 ->where('spp.flow_id', $flow)
                 ->where('spp.spp_apk_bpd', 1)
@@ -56,7 +56,7 @@ class MasterAPIController extends Controller
             $updated = DB::table('spp')
                 ->where('spp_id', $spp_id)
                 ->update([
-                    'sppd_status' => 5  
+                    'sppd_status' => 5
                 ]);
 
             if ($updated) {
@@ -429,7 +429,7 @@ class MasterAPIController extends Controller
     public function getBagianCreateSPP()
     {
         try {
-            $data = Bagian::where('master_bagian_id', '=', '1')->get();
+            $data = Bagian::with(['company', 'company.companyDetail'])->where('master_bagian_id', '=', '219')->get();
 
             return response()->json(['data' => $data], 200);
         } catch (\Exception $e) {

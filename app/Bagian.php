@@ -14,4 +14,8 @@ class Bagian extends Model
     // {
     //     return $this->hasMany(User::class, 'foreign_key', 'master_bagian_id');
     // }
+
+    public function company() {
+        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+    }
 }

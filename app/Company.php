@@ -29,4 +29,12 @@ class Company extends Model
     // {
     //     return $this->hasMany(User::class, 'foreign_key', 'master_bagian_id');
     // }
+
+    public function companyDetail() {
+        return $this->hasMany(CompanyDetail::class, 'company_id', 'company_id');
+    }
+
+    public function bagian() {
+        return $this->hasMany(Bagian::class, 'company_id', 'company_id');
+    }
 }

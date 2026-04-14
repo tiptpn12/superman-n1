@@ -75,7 +75,7 @@ class APIPushSPPController extends Controller
                 ->first();
 
             $urutansppb = $nomor_surat->maxno + 1;
-            $nomor = $kodebagian . "/SPPb/" . $urutansppb . "/" . $tahun;
+            $nomor = $kodebagian . "/SPPb/" . $urutansppb . "/" . $bulan . "/" . $tahun;
 
             // Simpan data SPPB
             $validatedSppb['sppb_no'] = $nomor;
