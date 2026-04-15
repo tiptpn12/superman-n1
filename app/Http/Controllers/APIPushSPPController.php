@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Spp;
 use App\Sppb;
 use App\Bagian;
+use App\FakturPajak;
 use App\IsiSppb;
 use App\RekamJejak;
 use App\IsiUraianSppb;
@@ -20,6 +21,7 @@ class APIPushSPPController extends Controller
     public function createSPPnSPPB(Request $request)
     {
         try {
+            DB::beginTransaction();
             // Validasi input untuk SPPB
             $validatedSppb = $request->validate([
                 'master_user_id' => 'required|integer',
@@ -122,6 +124,12 @@ class APIPushSPPController extends Controller
             $spp = new Spp($validatedSpp);
             $spp->save();
 
+            // Simpan faktur pajak dari sppb
+            $validatedFakturPajak['sppb_id'] = $sppb->sppb_id;
+            $validatedFakturPajak['faktur_pajak_nomor'] = $sppb->sppb_faktur_pajak;
+            $fakturPajak = new FakturPajak($validatedFakturPajak);
+            $fakturPajak->save();
+
             // ** menyimpan rekam jejak **
             $dataRekamJejak = [
                 'spp_id' => $spp->spp_id,
@@ -147,6 +155,8 @@ class APIPushSPPController extends Controller
             $rekening = new NamaKaryawanModel($validatedRekening);
             $rekening->save();
 
+            DB::commit();
+
             // Mengembalikan respons JSON jika berhasil
             return response()->json([
                 'dataSpp' => $spp,
@@ -156,11 +166,13 @@ class APIPushSPPController extends Controller
                 'dataIsiSppb' => $validatedIsiSppb['isi_sppb'],
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json([
                 'error' => 'Data yang dikirimkan tidak valid.',
                 'messages' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'error' => 'Terjadi kesalahan saat insert tabel.',
                 'message' => $e->getMessage()
