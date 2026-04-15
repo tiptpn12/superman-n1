@@ -25,9 +25,12 @@ class MasterAPIController extends Controller
         $bagian = $request->input('bagian');
         $akses = $request->input('akses');
         $flow = $request->input('flow'); // Pastikan ini berupa array atau set sesuai kebutuhan
+        $page = $request->input('page');
+        $pageSize = $request->input('pageSize');
+        $keyword = $request->input('keyword');
 
         try {
-            $data = DB::table('spp')->where('spp.master_bagian_id', '=', $bagian)
+            $baseQuery = DB::table('spp')->where('spp.master_bagian_id', '=', $bagian)
                 // ->where('spp.sppd_posisi', $akses)
                 ->whereBetween('spp.sppd_status', [0, 2])
                 ->where('spp.flow_id', $flow)
@@ -38,11 +41,18 @@ class MasterAPIController extends Controller
                 ->leftJoin('master_bagian', 'spp.master_bagian_id', '=', 'master_bagian.master_bagian_id')
                 ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
                 ->select('master_hak_akses_nama', 'spp_no_dokumen', 'spp_id', 'spp.sppb_id', 'spp.sppn_id', 'sppd_revisi', 'sppd_status', 'sppd_posisi', 'sppd_proses', 'spp_kabag', 'master_bagian_nama', 'spp_status_proses', 'spp_status_posisi', DB::raw("DATE_FORMAT(spp.spp_tanggal,'%d-%m-%Y') as tanggal"), 'sppb_no', 'sppb_tanggal', 'sppb_total', 'sppn_no', 'sppn_tanggal', 'sppn_jumlah', 'sppd_status', DB::raw("GROUP_CONCAT(DISTINCT sppb_uraian_uraian SEPARATOR ',') as sppb_uraian2"), DB::raw("GROUP_CONCAT(DISTINCT sppn_uraian_uraian SEPARATOR ',') as sppn_uraian2"))
-                ->groupBy('spp_id', 'tanggal')
-                ->orderBy('spp_tanggal', 'desc')
-                ->get();
+                ->groupBy('spp_id', 'spp_tanggal')
+                ->havingRaw("CONCAT(coalesce(spp_no_dokumen, ''), coalesce(sppb_no, ''), coalesce(tanggal, ''), coalesce(sppb_tanggal, ''), coalesce(sppb_total, ''), coalesce(sppn_tanggal, ''), coalesce(sppn_jumlah, ''), coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%" . $keyword . "%'");
 
-            return response()->json(['data' => $data], 200);
+            $total = (clone $baseQuery)->get()->count();
+
+
+            $data = $baseQuery->orderBy('spp_tanggal', 'desc')
+                    ->offset(($page - 1) * $pageSize)
+                    ->limit($pageSize)
+                    ->get();
+
+            return response()->json(['data' => compact('total', 'data')], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data. ' . $e->getMessage()], 500);
         }
