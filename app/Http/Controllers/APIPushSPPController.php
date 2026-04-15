@@ -100,6 +100,8 @@ class APIPushSPPController extends Controller
                 if (isset($isi['sppb_uraian'])) {
                     foreach ($isi['sppb_uraian'] as $uraian) {
                         $uraian['sppb_isi_id'] = $isiSppb->sppb_isi_id;
+                        $uraian['sppb_nominal_pajak'] = 0;
+                        $uraian['sppb_nominal_akhir'] = $uraian['sppb_uraian_nominal'];
                         IsiUraianSppb::create($uraian);
                     }
                 }
