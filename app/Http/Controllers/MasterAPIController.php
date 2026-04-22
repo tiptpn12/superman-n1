@@ -436,10 +436,11 @@ class MasterAPIController extends Controller
         }
     }
 
-    public function getBagianCreateSPP()
+    public function getBagianCreateSPP(Request $request)
     {
         try {
-            $data = Bagian::with(['company', 'company.companyDetail'])->where('master_bagian_id', '=', '219')->get();
+            $bagianId = $request->input('bagianId');
+            $data = Bagian::with(['company', 'company.companyDetail'])->where('master_bagian_id', '=', $bagianId)->get();
 
             return response()->json(['data' => $data], 200);
         } catch (\Exception $e) {
