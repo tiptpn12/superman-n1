@@ -105,6 +105,20 @@ class APIPushSPPController extends Controller
                         IsiUraianSppb::create($uraian);
                     }
                 }
+
+                if (count($validatedIsiSppb['isi_sppb']) <= 3) {
+                    // Simpan data rekening dengan data inputan
+                    $validatedRekening = [
+                        'karyawan_nama' => $isi['karyawan_nama'],
+                        'karyawan_nama_bank' => $isi['karyawan_nama_bank'],
+                        'karyawan_no_rek' => $isi['karyawan_no_rek'],
+                        'karyawan_alamat' => $isi['karyawan_alamat'],
+                    ];
+
+                    $validatedRekening['sppb_id'] = $sppb->sppb_id;
+                    $rekening = new NamaKaryawanModel($validatedRekening);
+                    $rekening->save();
+                }
             }
 
             // Validasi input untuk SPP
@@ -145,17 +159,19 @@ class APIPushSPPController extends Controller
             $rekamJejak = new RekamJejak($dataRekamJejak);
             $rekamJejak->save();
 
-            // Simpan data rekening
-            $validatedRekening = $request->validate([
-                'karyawan_nama' => 'nullable|string',
-                'karyawan_nama_bank' => 'nullable|string',
-                'karyawan_no_rek' => 'nullable|string',
-                'karyawan_alamat' => 'nullable|string',
-            ]);
+            if (count($isi['sppb_uraian']) > 3) {
+                // Simpan data rekening dengan data terlampir
+                $validatedRekening = $request->validate([
+                    'karyawan_nama' => 'nullable|string',
+                    'karyawan_nama_bank' => 'nullable|string',
+                    'karyawan_no_rek' => 'nullable|string',
+                    'karyawan_alamat' => 'nullable|string',
+                ]);
 
-            $validatedRekening['sppb_id'] = $sppb->sppb_id;
-            $rekening = new NamaKaryawanModel($validatedRekening);
-            $rekening->save();
+                $validatedRekening['sppb_id'] = $sppb->sppb_id;
+                $rekening = new NamaKaryawanModel($validatedRekening);
+                $rekening->save();
+            }
 
             DB::commit();
 
