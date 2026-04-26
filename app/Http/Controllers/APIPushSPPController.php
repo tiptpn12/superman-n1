@@ -159,7 +159,7 @@ class APIPushSPPController extends Controller
             $rekamJejak = new RekamJejak($dataRekamJejak);
             $rekamJejak->save();
 
-            if (count($isi['sppb_uraian']) > 3) {
+            if (count($validatedIsiSppb['isi_sppb']) > 3) {
                 // Simpan data rekening dengan data terlampir
                 $validatedRekening = $request->validate([
                     'karyawan_nama' => 'nullable|string',
