@@ -388,6 +388,18 @@ class MasterAPIController extends Controller
         }
     }
 
+    public function getCashFlowPpn()
+    {
+        try {
+            $data = CashFlow::where('master_cash_flow_key', '=', 'A0205004')->get();
+
+
+            return response()->json(['data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data. ' . $e->getMessage()], 500);
+        }
+    }
+
     public function getSapGL()
     {
         try {

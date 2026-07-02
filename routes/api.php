@@ -70,6 +70,7 @@ Route::get('/getSapVendor', [MasterAPIController::class, 'getSapVendor']);
 
 // Master Cashflow
 Route::get('/getCashFlow', [MasterAPIController::class, 'getCashFlow']);
+Route::get('/getCashFlowPpn', [MasterAPIController::class, 'getCashFlowPpn']);
 
 // Master Sumber Dana
 Route::get('/getSumberDana', [MasterAPIController::class, 'getSumberDana']);
