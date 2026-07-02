@@ -542,6 +542,9 @@ class SppbController extends Controller
                 $tahun = Carbon::createFromFormat('d-m-Y', $tanggal)->year;
                 $month = Carbon::createFromFormat('d-m-Y', $tanggal)->month;
                 $day = Carbon::createFromFormat('d-m-Y', $tanggal)->day;
+
+
+
                 $bulan = $bulanromawi[$month];
 
                 $nomor_surat = DB::table('sppb')
@@ -600,8 +603,7 @@ class SppbController extends Controller
                     'sppb_status' => 0,
                     'sppb_total' => 0,
                     'sppb_data_metpen' => $data_metpen,
-                    'sppb_tidak_transfer' => $tidak,
-                    'alasan_tidak_tf' => $request->karyawan_tidak_transfer
+                    'sppb_tidak_transfer' => $tidak
                 ]);
 
                 $request->request->add(['sppb_id' => $sppb->sppb_id]);
@@ -1034,7 +1036,6 @@ class SppbController extends Controller
                     'sppn_catatan' => $request->catatan_sppn,
                     'sppn_status' => 0,
                     'sppn_jumlah' => 0,
-                    'alasan_tidak_tf' => $request->karyawan_tidak_transfer_sppn
                 ]);
                 // ddd($sppn);
 
@@ -1265,7 +1266,7 @@ class SppbController extends Controller
                         }
                     } else {
                         $karyawan = $request->karyawan_sppn;
-                        if ($request->pilih_data_sppn == 'input_data' || $request->pilih_data_sppn == 'master_data') {
+                        if ($request->pilih_data_sppn == 'input_data') {
                             foreach ($karyawan as $key => $value) {
                                 $krywn = new NamaKaryawanModel;
                                 $krywn->sppb_id = null;
@@ -1454,8 +1455,7 @@ class SppbController extends Controller
                     'sppb_status' => 0,
                     'sppb_total' => 0,
                     'sppb_data_metpen' => $data_metpen,
-                    'sppb_tidak_transfer' => $request->tidak_transfer_cat,
-                    'alasan_tidak_tf' => $request->karyawan_tidak_transfer
+                    'sppb_tidak_transfer' => $request->tidak_transfer_cat
                 ]);
                 // dd($sppb);
                 $request->request->add(['sppb_id' => $sppb->sppb_id]);
@@ -1677,11 +1677,9 @@ class SppbController extends Controller
                     'sppn_sp_opl' => $request->sp_opl_sppn,
                     'sppn_catatan' => $request->catatan_sppn,
                     'sppn_status' => 0,
-                    'sppn_jumlah' => 0,
-                    'sppn_metode_pembayaran' => $request->metode_pembayaran_sppn,
-                    'alasan_tidak_tf' => $request->karyawan_tidak_transfer_sppn
+                    'sppn_jumlah' => 0
                 ]);
-                    //dd($request->all());
+
                 $request->request->add(['sppn_id' => $sppn->sppn_id]);
                 $dokumenpendukungsppn = $request->file('dokumen_pendukung_sppn');
                 if ($dokumenpendukungsppn != null) {
@@ -1926,7 +1924,7 @@ class SppbController extends Controller
                         }
                     } else {
                         $karyawan = $request->karyawan_sppn;
-                        if ($request->pilih_data_sppn == 'input_data' || $request->pilih_data_sppn == 'master_data') {
+                        if ($request->pilih_data_sppn == 'input_data') {
                             foreach ($karyawan as $key => $value) {
                                 $krywn = new NamaKaryawanModel;
                                 $krywn->sppb_id = null;

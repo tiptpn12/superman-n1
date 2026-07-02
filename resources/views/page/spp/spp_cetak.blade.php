@@ -250,8 +250,7 @@
                                                                 </div>
                                                             </div>
                                                         @endif
-                                                    @elseif($company_jenis == "REG")
-														<!-- REGIONAL -->
+                                                    @else
                                                         <div class="col-sm-5 invoice-col">
                                                             <div style="text-align:left">
                                                                 <b>Kepada Yth.</b>
@@ -266,20 +265,7 @@
                                                                 @endif
                                                             </div>
                                                         </div>
-													@else
-														<!-- UNIT -->
-														<div class="col-sm-5 invoice-col">
-															<div style="text-align:left">
-																<b>Kepada Yth.</b>
-																<br>
-																	<b>Manajer Kebun
-																	@php
-																	  $last = trim(last(explode('-', $company)));
-																	@endphp
-																	{{ $last }}</b>
-															</div>
-														</div>
-													@endif
+                                                    @endif
                                                     <!-- /.col -->
                                                 </div>
                                                 <!-- /.row -->
@@ -296,7 +282,8 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <table class="table table-bordered table-responsive" style="width:99.92%">
+                                                <table class="table table-bordered table-responsive"
+                                                    style="width:99.92%">
                                                     <thead>
                                                         <tr>
                                                             <th
@@ -772,8 +759,7 @@
                                                 </div>
                                             </div>
                                         @endif
-									@elseif($company_jenis == "REG")
-										<!-- REGIONAL -->
+                                    @else
                                         <div class="col-sm-5 invoice-col">
                                             <div style="text-align:left">
                                                 <b>Kepada Yth.</b>
@@ -786,19 +772,6 @@
                                                         <b> {{ $kotak->tujuan_kepada }}</b>
                                                     @endforeach
                                                 @endif
-                                            </div>
-                                        </div>
-									@else
-										<!-- UNIT -->
-                                        <div class="col-sm-5 invoice-col">
-                                            <div style="text-align:left">
-                                                <b>Kepada Yth.</b>
-                                                <br>
-                                                    <b>Manajer Kebun
-													@php
-													  $last = trim(last(explode('-', $company)));
-													@endphp
-													{{ $last }}</b>
                                             </div>
                                         </div>
                                     @endif
@@ -818,7 +791,7 @@
                                     <div class="col-xs-12 table-responsive">
                                         Dengan ini dimohon bantuannya untuk dibayarkan tagihan sebagai berikut :
 
-                                        <table class="table table-bordered table-responsive" style="width:99.92%">
+                                        <table class="table table-bordered" style="width:79%">
                                             <thead>
                                                 <tr>
                                                     <th style="vertical-align:middle; text-align:left; width:49.96%">
@@ -848,7 +821,7 @@
                                                 </tr>
                                             </thead>
                                         </table>
-                                        <table class="table table-bordered table-responsive" style="width:99.92%">
+                                        <table class="table table-bordered" style="width:79%">
                                             <thead>
                                                 <tr>
                                                     <th colspan="4" style="text-align:center"> KODE </th>
@@ -1129,7 +1102,8 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
+                </div>
+                @endif
             </div>
         </div>
     </div>

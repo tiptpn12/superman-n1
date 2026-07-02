@@ -139,14 +139,6 @@
                                         @endif
                                     </div>
                                 </div>
-                                 @if (isset($sppb['sppb_metode_pembayaran']) && $sppb['sppb_metode_pembayaran'] != null)
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 col-form-label">Metode Pembayaran SPPb</label>
-                                        <div class="col-sm-10">
-                                            <p>{{ $sppb['sppb_metode_pembayaran'] }}</p>
-                                        </div>
-                                    </div>
-                                @endif
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Catatan</label>
                                     <div class="col-sm-10">
@@ -345,14 +337,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                @if (isset($sppn['sppn_metode_pembayaran']) && $sppn['sppn_metode_pembayaran'] != null)
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 col-form-label">Metode Pembayaran SPPn</label>
-                                        <div class="col-sm-10">
-                                            <p>{{ $sppn['sppn_metode_pembayaran'] }}</p>
-                                        </div>
-                                    </div>
-                                @endif
+
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Catatan</label>
                                     <div class="col-sm-10">

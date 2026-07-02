@@ -160,7 +160,7 @@
                             <!-- FORM SPPB -->
                             <div class="panel" id="panel_sppb" style="display:none ">
                                 <div class="panel-heading">
-                                    Form SPPb
+                                    Form PPb
                                 </div>
                                 <div class="panel-body">
                                     <div class="custom-tabs-line tabs-line-bottom left-aligned">
@@ -437,7 +437,7 @@
                                                     <div id="alasan_tidak_transfer">
                                                         <div class="col-sm-10">
                                                             <textarea class="form-control" id="alasan_tidak_transfer" name="karyawan_tidak_transfer"
-                                                                placeholder="Alasan tidak transfer SPPB"></textarea>
+                                                                placeholder="Alasan tidak transfer"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1260,6 +1260,10 @@
                                                                     id="pasal4" value="0.10">
                                                             </div>
                                                         </div>
+
+
+
+
                                                         <!-- END GRUP INFO PERSEN PPh-->
                                                         <!-- GRUP NOMINAL SPPB -->
                                                         <div class="form-group row" id="manual_sppb_1_1"
@@ -1372,7 +1376,7 @@
                             <!-- FORM SPPN -->
                             <div class="panel" id="panel_sppn" style="display: none">
                                 <div class="panel-heading">
-                                    Form SPPn
+                                    Form PPn
                                 </div>
                                 <div class="panel-body">
 
@@ -1386,14 +1390,14 @@
                                     <div class="tab-content">
 
                                         <!-- TAB INFORMASI -->
-                                        <div class="tab-pane fade in active" id="tab-informasi-sppn">
-                                            <div class="form-group row">
-                                                <div class="col-sm-10">
-                                                    <input type="hidden" id="hakakses" name="hakakses"
-                                                        class="form-control" placeholder="{{ $bagianid }}"
-                                                        value="{{ $bagianid }}" autocomplete="off">
-                                                </div>
+                                        <div class="form-group row">
+                                            <div class="col-sm-10">
+                                                <input type="hidden" id="hakakses" name="hakakses"
+                                                    class="form-control" placeholder="{{ $bagianid }}"
+                                                    value="{{ $bagianid }}" autocomplete="off">
                                             </div>
+                                        </div>
+                                        <div class="tab-pane fade in active" id="tab-informasi-sppn">
                                             <div class="form-group row" id="form_kwitansi_sppn">
                                                 <label class="col-sm-2 col-form-label" id="label_kwitansi_sppn">Kwitansi
                                                     dan/atau Invoice *</label>
@@ -1500,74 +1504,35 @@
                                                     </div>
                                                 </div>
                                             @endif
-                                            <div class="form-group row">
+                                            {{-- <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Metode Pembayaran *</label>
                                             <div class="col-sm-10">
                                                 <select class="form-control validate_sppn validate_spp_all"
                                                     id="metode_pembayaran_sppn" name="metode_pembayaran_sppn" required>
-                                                    <option value="" disabled selected>-- Pilih Transfer --
+                                                    <option value="" disabled selected>-- Pilih Metode
+                                                        Pembayaran --
                                                     </option>
-                                                    <option value="bank">Transfer</option>
-                                                    <option value="tidak_transfer">Tidak Transfer</option>
+                                                    <option value="kas">Kas</option>
+                                                    <option value="bank">Bank</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group row" style="display:none;" id="pilih_lampirkan_sppn"
-                                            onclick="pilih_data_sppn_karyawan()">
+                                            onclick="pilih_data_sppn()">
                                             <label class="col-sm-2 col-form-label"></label>
                                             <div class="col-sm-10">
-                                                <div class="col-sm-2" id="karyawan_input_manual_sppn">
+                                                <div class="col-sm-2">
                                                     <label class="fancy-radio">
                                                         <input name="pilih_data_sppn" id="input_data_sppn"
-                                                            value="input_data" type="radio" checked>
-                                                        <span style="font-size:17px"><i></i>Data diinputkan manual
-                                                        </span>
+                                                            value="input_data" type="radio">
+                                                        <span style="font-size:17px"><i></i>Data diinputkan </span>
                                                     </label>
                                                 </div>
-                                                <div class="col-sm-2" id="karyawan_dari_master_sppn">
-                                                    <label class="fancy-radio">
-                                                        <input name="pilih_data_sppn" id="master_data_sppn_karyawan"
-                                                            value="master_data" type="radio" onclick="show1_sppn()">
-                                                        <span style="font-size:17px"><i></i>Data dari master </span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-sm-2" id="karyawan_tidak_transfer_sppn">
+                                                <div class="col-sm-2">
                                                     <label class="fancy-radio">
                                                         <input name="pilih_data_sppn" id="lampirkan_data_sppn"
-                                                            value="alasan_tidak_transfer" type="radio"
-                                                            onclick="show2_sppn()">
-                                                        <span style="font-size:17px"><i></i>Catatan Tidak
-                                                            Transfer</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row" style="display:none;" id="pilih_lampirkan_sppn_vendor"
-                                            onclick="pilih_data_sppn_vendor()">
-                                            <label class="col-sm-2 col-form-label"></label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2" id="vendor_input_manual_sppn">
-                                                    <label class="fancy-radio">
-                                                        <input name="pilih_data_sppn_vendor" id="input_data_sppn_vendor"
-                                                            value="input_data" type="radio" checked>
-                                                        <span style="font-size:17px"><i></i>Data diinputkan manual
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-sm-2" id="vendor_dari_master_sppn">
-                                                    <label class="fancy-radio">
-                                                        <input name="pilih_data_sppn_vendor" id="master_data_sppn"
-                                                            value="master_data" type="radio" onclick="show1_sppn()">
-                                                        <span style="font-size:17px"><i></i>Data dari master </span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-sm-2" id="vendor_tidak_transfer_sppn_radio">
-                                                    <label class="fancy-radio">
-                                                        <input name="pilih_data_sppn_vendor" id="lampirkan_data_sppn_vendor"
-                                                            value="alasan_tidak_transfer" type="radio"
-                                                            onclick="show2_sppn()">
-                                                        <span style="font-size:17px"><i></i>Alasan Tidak
-                                                            Transfer</span>
+                                                            value="lampirkan_data" type="radio" checked="checked">
+                                                        <span style="font-size:17px"><i></i>Data dilampirkan</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -1580,13 +1545,12 @@
                                                         name="atas_nama_bank_sppn_kas[1]">
                                                         <option value="" disabled selected>--Pilih Karyawan--
                                                         </option>
-                                                        {{-- @foreach ($karyawan as $k) --}}
-                                                        {{-- <option value="{{ $k->karyawan_nama }}"> --}}
-                                                            {{-- {{ $k->karyawan_nama }} --}}
-                                                            </option>
-                                                        {{-- @endforeach --}}
-                                                    </select>
-                                                </div> -->
+                                                        @foreach ($karyawan as $k)
+                                                        <option value="{{ $k->karyawan_nama }}">
+                                                            {{ $k->karyawan_nama }}</option>
+                                                        @endforeach
+                                                    </select> -->
+                                                </div>
                                                 <div class="col-sm-2" id="btn_karyawan_kas_sppn_1">
                                                     <button type="button" class="btn btn-success btn-sm"
                                                         onclick="tambah_karyawan_kas_sppn(1)">+</button>
@@ -1611,7 +1575,7 @@
                                                 <div class="col-sm-10">
                                                     <input type="text" id="nama_bank_sppn_vendor"
                                                         name="nama_bank_sppn_vendor" class="form-control"
-                                                        onclick="data_bank_sppn(1)" placeholder="Nama Rekening Bank SPPn"
+                                                        onclick="data_bank_sppn(1)" placeholder="Nama Rekening Bank"
                                                         autocomplete="off">
                                                 </div>
                                             </div>
@@ -1624,17 +1588,8 @@
                                                         placeholder="Nomor Rekening Bank SPPn" autocomplete="off">
                                                 </div>
                                             </div>
-                                             <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Alamat *</label>
-                                                    <div id="kas_karyawan_input">
-                                                        <div class="col-sm-10">
-                                                            <input type="text" class="form-control"
-                                                                id="alamat_bank_sppn_vendor"
-                                                                name="karyawan_alamat_sppn_input"
-                                                                Placeholder="Alamat" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
+
                                         </div>
                                         <div id="bank_sppn_karyawan" style="display: none">
                                             <div class="form-group row" id="atas_nama_karyawan_bank_sppn">
@@ -1670,20 +1625,8 @@
                                                 </div>
                                             </div>
 
-                                        </div>
-                                        <div class="alasan_tidak_transfer_sppn" id="catatan_tidak_transfer_sppn"
-                                                style="display:none ;">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Catatan Tidak Transfer</label>
-                                                    <div id="alasan_tidak_transfer_div_sppn">
-                                                        <div class="col-sm-10">
-                                                            <textarea class="form-control" id="alasan_tidak_transfer_sppn" name="karyawan_tidak_transfer_sppn"
-                                                                placeholder="Alasan tidak transfer SPPN"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- <div id="diterima_sppn_input" style="display:none;">
+                                        </div> --}}
+                                            <div id="diterima_sppn_input" style="display:none;">
                                                 <div class="form-group row">
                                                     <label class="col-sm-2 col-form-label">Diterima dari *</label>
                                                     <div id="kas_karyawan_input">
@@ -1694,10 +1637,10 @@
                                                             <span style="font-size: 10px;color:red;">Tulis "Terlampir"
                                                                 jika data lebih dari 1 (satu)</span>
                                                         </div>
-                                                        <div class="col-sm-2" id="btn_karyawan_kas_sppb_input_1">
+                                                        {{-- <div class="col-sm-2" id="btn_karyawan_kas_sppb_input_1">
                                                         <button type="button" class="btn btn-success btn-sm"
                                                             onclick="tambah_karyawan_kas_sppb_input(1)">+</button>
-                                                    </div>
+                                                    </div> --}}
                                                     </div>
                                                 </div>
                                                 <div class="form-group row" id="alamat_karyawan_kas_input_1">
@@ -1710,13 +1653,13 @@
                                                             <span style="font-size: 10px;color:red;">Tulis "Terlampir"
                                                                 jika data lebih dari 1 (satu)</span>
                                                         </div>
-                                                         <div class="col-sm-2" id="btn_karyawan_kas_sppb_input_1">
+                                                        {{-- <div class="col-sm-2" id="btn_karyawan_kas_sppb_input_1">
                                                         <button type="button" class="btn btn-success btn-sm"
                                                             onclick="tambah_karyawan_kas_sppb_input(1)">+</button>
-                                                    </div>
+                                                    </div> --}}
                                                     </div>
                                                 </div>
-                                            </div> --}}
+                                            </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Catatan</label>
                                                 <div class="col-sm-10">
@@ -7929,45 +7872,45 @@
             $('#btn_karyawan_bank_sppb_input_' + a).show();
         }
 
-        function tambah_karyawan_bank_sppn(index){
-        	index++;
-        	$('#bank_sppn_karyawan').append(`<div id="bank_karyawan_sppn_${index}">
-    										<div class="form-group row" id="atas_nama_karyawan_bank_sppn_${index}">
-    												<label class="col-sm-2 col-form-label">Atas Nama Rekening ${index}*</label>
-    												<div class="col-sm-8">
-    													<input type="text" id="atas_nama_bank_sppn_karyawan_${index}"  onclick="bank_karyawan_sppn(${index})" name="karyawan_sppn[${index}][nama]" class="form-control"  placeholder="Atas Nama Bank ${index}" autocomplete="off">
-    												</div>
-    												<div class="col-sm-2" id="btn_karyawan_bank_sppn_${index}">
-    													<button type="button" class="btn btn-success btn-sm" onclick="tambah_karyawan_bank_sppn(${index})">+</button>
-    													<button type="button" class="btn btn-danger btn-sm" onclick="hapus_karyawan_bank_sppn(${index})">x</button>
+        // function tambah_karyawan_bank_sppn(index){
+        // 	index++;
+        // 	$('#bank_sppn_karyawan').append(`<div id="bank_karyawan_sppn_${index}">
+    // 										<div class="form-group row" id="atas_nama_karyawan_bank_sppn_${index}">
+    // 												<label class="col-sm-2 col-form-label">Atas Nama Rekening ${index}*</label>
+    // 												<div class="col-sm-8">
+    // 													<input type="text" id="atas_nama_bank_sppn_karyawan_${index}"  onclick="bank_karyawan_sppn(${index})" name="karyawan_sppn[${index}][nama]" class="form-control"  placeholder="Atas Nama Bank ${index}" autocomplete="off">
+    // 												</div>
+    // 												<div class="col-sm-2" id="btn_karyawan_bank_sppn_${index}">
+    // 													<button type="button" class="btn btn-success btn-sm" onclick="tambah_karyawan_bank_sppn(${index})">+</button>
+    // 													<button type="button" class="btn btn-danger btn-sm" onclick="hapus_karyawan_bank_sppn(${index})">x</button>
 
-    												</div>
-    										</div>
-    										<div class="form-group row">
-    											<label class="col-sm-2 col-form-label">Nama Bank ${index}*</label>
-    											<div class="col-sm-8">
-    											<input type="text" id="nama_bank_sppn_karyawan_${index}" name="karyawan_sppn[${index}][bank]" onclick="bank_karyawan_sppn(${index})" class="form-control" placeholder="Nama Rekening Bank ${index}" autocomplete="off">
-    											</div>
+    // 												</div>
+    // 										</div>
+    // 										<div class="form-group row">
+    // 											<label class="col-sm-2 col-form-label">Nama Bank ${index}*</label>
+    // 											<div class="col-sm-8">
+    // 											<input type="text" id="nama_bank_sppn_karyawan_${index}" name="karyawan_sppn[${index}][bank]" onclick="bank_karyawan_sppn(${index})" class="form-control" placeholder="Nama Rekening Bank ${index}" autocomplete="off">
+    // 											</div>
 
-    										</div>
-    										<div class="form-group row">
-    											<label class="col-sm-2 col-form-label">Nomor Rekening ${index}*</label>
-    											<div class="col-sm-8">
-    												<input type="text" id="rekening_bank_sppn_karyawan_${index}" name="karyawan_sppn[${index}][no_rek]" onclick="bank_karyawan_sppn(${index})" class="form-control" placeholder="Nomor Rekening Bank ${index}" autocomplete="off">
-    											</div>
-    										</div>
+    // 										</div>
+    // 										<div class="form-group row">
+    // 											<label class="col-sm-2 col-form-label">Nomor Rekening ${index}*</label>
+    // 											<div class="col-sm-8">
+    // 												<input type="text" id="rekening_bank_sppn_karyawan_${index}" name="karyawan_sppn[${index}][no_rek]" onclick="bank_karyawan_sppn(${index})" class="form-control" placeholder="Nomor Rekening Bank ${index}" autocomplete="off">
+    // 											</div>
+    // 										</div>
 
-    									</div>`);
-        	var a = index-1;
-        	$('#btn_karyawan_bank_sppn_'+a).hide();
+    // 									</div>`);
+        // 	var a = index-1;
+        // 	$('#btn_karyawan_bank_sppn_'+a).hide();
 
-        }
-        function hapus_karyawan_bank_sppn(index){
-        	var a = index-1;
-        	$('#bank_karyawan_sppn_'+index).remove();
-        	$('#btn_karyawan_bank_sppn_'+a).show();
+        // }
+        // function hapus_karyawan_bank_sppn(index){
+        // 	var a = index-1;
+        // 	$('#bank_karyawan_sppn_'+index).remove();
+        // 	$('#btn_karyawan_bank_sppn_'+a).show();
 
-        }
+        // }
         function validateInput() {
             if (this.value == null || this.value == "") {
                 this.style.cssText = "border-width:2px;border-color:red;border-style:solid;border-radius:1px;";
@@ -8398,6 +8341,9 @@
                 $('#dokumen_pendukung_sppn').val(dokumen_pendukung_sppn);
             });
 
+            $('')
+
+
             $('#jenis_form').change(function(event) {
                 // $.ajaxSetup({
                 //     headers: {
@@ -8453,13 +8399,13 @@
                     $('#panel_sppn').hide();
                     $('#panel_sppb_sppn').hide();
                     $('#diterima_sppn_input').hide();
-                    $("#metode_pembayaran_sppn").attr('required',false);
+                    // $("#metode_pembayaran_sppn").attr('required',false);
                     $("#dokumen_pendukung_sppb").attr('required', true);
                     $("#dokumen_pendukung_sppn").attr('required', false);
                     $("#rekening_sppn_1").attr('required', false);
                     $("#jumlah_sppn_1_1").attr('required', false);
-                    $('#nama_diterima_sppn_input').attr('class', 'form-control');
-                    $('#alamat_diterima_sppn_input').attr('class', 'form-control');
+                    document.getElementById("nama_diterima_sppn_input").className = "form-control";
+                    document.getElementById("alamat_diterima_sppn_input").className = "form-control";
 
                 } else if ($(this).val() == 'sppn') {
                     $('#form_kwitansi_sppn').show();
@@ -8473,8 +8419,10 @@
                     $('#panel_sppb').hide();
                     $('#diterima_sppn_input').show();
                     $('#panel_sppn').show();
-                    $('#nama_diterima_sppn_input').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#alamat_diterima_sppn_input').attr('class', 'form-control validate_sppn validate_spp_all');
+                    document.getElementById("nama_diterima_sppn_input").className =
+                        "form-control validate_sppn validate_spp_all";
+                    document.getElementById("alamat_diterima_sppn_input").className =
+                        "form-control validate_sppn validate_spp_all";
                     $('#panel_sppb_sppn').hide();
                     $('#panel_dokumen_pendukung').show();
                 } else {
@@ -8491,8 +8439,10 @@
                     $('#form_faktur_pajak_sppn').hide();
                     $('#form_sp_opl_sppn').show();
                     //$('#dpp_sppb_1_1').show();
-                    $('#nama_diterima_sppn_input').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#alamat_diterima_sppn_input').attr('class', 'form-control validate_sppn validate_spp_all');
+                    document.getElementById("nama_diterima_sppn_input").className =
+                        "form-control validate_sppn validate_spp_all";
+                    document.getElementById("alamat_diterima_sppn_input").className =
+                        "form-control validate_sppn validate_spp_all";
                 }
                 $('#panel_submit').show();
             });
@@ -8578,10 +8528,8 @@
                     $('#vendor_input_manual').show();
                     $('#catatan_tidak_transfer').hide();
                 } else {
-                    //alert("tidak tf");
                     $('#vendor_dari_master').hide();
                     $('#vendor_input_manual').hide();
-                    $('#vendor_tidak_transfer_sppn').show();
                     $('#catatan_tidak_transfer').show();
                 }
                 if ($('#metode_pembayaran_sppb').val() !== 'kas_negara' && $('#metode_pembayaran_sppb').val() !==
@@ -9196,84 +9144,77 @@
         }
         $('#metode_pembayaran_sppn').change(function(event) {
             if ($('#jenis_spp').val() == 'karyawan') {
-                $('#pilih_lampirkan_sppn_vendor').hide();
-
-                // RADIO BUTTON TRANSFER
-                if (this.value !== 'tidak_transfer') {
-                    $('#karyawan_dari_master_sppn').show();
-                    $('#karyawan_input_manual_sppn').show();
-                    $('#catatan_tidak_transfer_sppn').hide();
-                } else {
-                    $('#karyawan_dari_master_sppn').hide();
-                    $('#karyawan_input_manual_sppn').hide();
-                    $('#karyawan_tidak_transfer_sppn').show();
-                    $('#lampirkan_data_sppn').prop('checked', true);
-                    $('#catatan_tidak_transfer_sppn').show();
-                }
-
-                if ($('#metode_pembayaran_sppn').val() == 'bank') {
-                    $('#pilih_lampirkan_sppn').show();
-                } else {
-                    $('#pilih_lampirkan_sppn').hide();
-                }
-                pilih_data_sppn_karyawan.call();
+                $('#pilih_lampirkan_sppn').show();
+                pilih_data_sppn.call();
             } else {
                 $('#pilih_lampirkan_sppn').hide();
-
-                // RADIO BUTTON TRANSFER
-                if (this.value !== 'tidak_transfer') {
-                    $('#vendor_dari_master_sppn').show();
-                    $('#vendor_input_manual_sppn').show();
-                    $('#catatan_tidak_transfer_sppn').hide();
-                } else {
-                    $('#vendor_dari_master_sppn').hide();
-                    $('#vendor_input_manual_sppn').hide();
-                    $('#vendor_tidak_transfer_sppn_radio').show();
-                    $('#lampirkan_data_sppn_vendor').prop('checked', true);
-                    $('#catatan_tidak_transfer_sppn').show();
-                }
-                
                 if ($('#metode_pembayaran_sppn').val() == 'bank') {
-                    $('#pilih_lampirkan_sppn_vendor').show();
+                    $('#bank_sppn').show();
+                    $('#kas_sppn').hide();
+                    $('#bank_sppn_karyawan').hide();
+                    document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("nama_bank_sppn_vendor").className =
+                        "form-control validate_sppn validate_spp_all";
+                    document.getElementById("rekening_bank_sppn_vendor").className =
+                        "form-control validate_sppn validate_spp_all";
+                    document.getElementById("atas_nama_bank_sppn_vendor").className =
+                        "form-control validate_sppn validate_spp_all";
+                    document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
                 } else {
-                    $('#pilih_lampirkan_sppn_vendor').hide();
+                    $('#kas_sppn').hide();
+                    document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+                    document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
                 }
-                pilih_data_sppn_vendor.call();
             }
         });
 
-        function show1_sppn() {
-            $('#catatan_tidak_transfer_sppn').hide();
-        }
-
-        function show2_sppn() {
-            $('#catatan_tidak_transfer_sppn').show();
-        }
-
-        function pilih_data_sppn_karyawan() {
+        function pilih_data_sppn() {
             var radio_check_val = "";
             for (var i = 0; i < document.getElementsByName('pilih_data_sppn').length; i++) {
                 if (document.getElementsByName('pilih_data_sppn')[i].checked) {
                     radio_check_val = document.getElementsByName('pilih_data_sppn')[i].value;
                 }
             }
-            if (radio_check_val === 'input_data') {
-                if ($('#metode_pembayaran_sppn').val() === 'bank') {
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').show();
-                    $('#bank_sppn').hide();
-                    
-                    document.getElementById("nama_bank_sppn_karyawan_1").onclick = null;
-                    document.getElementById("rekening_bank_sppn_karyawan_1").onclick = null;
-                    document.getElementById("atas_nama_bank_sppn_karyawan_1").onclick = null;
-                    
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
+            if (radio_check_val == 'input_data') {
+                if ($('#metode_pembayaran_sppn').val() == 'bank') {
+                    if ($('#jenis_spp').val() == 'karyawan') {
+                        $('#kas_sppn').hide();
+                        $('#bank_sppn_karyawan').show();
+                        $('#bank_sppn').hide();
+                        document.getElementById("nama_bank_sppn_karyawan_1").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("rekening_bank_sppn_karyawan_1").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("atas_nama_bank_sppn_karyawan_1").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+
+                    } else {
+                        $('#bank_sppn').show();
+                        $('#kas_sppn').hide();
+                        $('#bank_sppn_karyawan').hide();
+                        document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("nama_bank_sppn_vendor").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("rekening_bank_sppn_vendor").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("atas_nama_bank_sppn_vendor").className =
+                            "form-control validate_sppn validate_spp_all";
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+                    }
+
 
                     var inputs = document.getElementsByClassName("validate_sppn");
                     if (inputs) {
@@ -9283,148 +9224,67 @@
                         }
                     }
                 } else {
-                    // Jika tidak transfer
-                    $('#bank_sppn_karyawan').hide();
-                    $('#bank_sppn').hide();
-                    $('#kas_sppn').hide();
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                }
-            } else if (radio_check_val === 'master_data') {
-                if ($('#metode_pembayaran_sppn').val() === 'bank') {
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').show();
-                    $('#bank_sppn').hide();
-                    
-                    document.getElementById("nama_bank_sppn_karyawan_1").onclick = function() { bank_karyawan_sppn(1) };
-                    document.getElementById("rekening_bank_sppn_karyawan_1").onclick = function() { bank_karyawan_sppn(1) };
-                    document.getElementById("atas_nama_bank_sppn_karyawan_1").onclick = function() { bank_karyawan_sppn(1) };
-                    
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
+                    if ($('#jenis_spp').val() == 'karyawan') {
+                        $('#kas_sppn').show();
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className =
+                            "form-control validate_sppn validate_spp_all";
 
-                    var inputs = document.getElementsByClassName("validate_sppn");
-                    if (inputs) {
-                        for (var i = 0; i < inputs.length; i++) {
-                            inputs[i].addEventListener("change", validateInput);
-                            inputs[i].addEventListener("focus", validateInput);
-                        }
+                    } else {
+                        $('#kas_sppn').hide();
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
                     }
-                } else {
-                    $('#bank_sppn_karyawan').hide();
                     $('#bank_sppn').hide();
-                    $('#kas_sppn').hide();
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                }
-            } else {
-                // hide all bank/kas related
-                $('#kas_sppn').hide();
-                $('#bank_sppn').hide();
-                $('#bank_sppn_karyawan').hide();
-                $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
-            }
-        }
+                    $('#bank_sppn_karyawan').hide();
 
-        function pilih_data_sppn_vendor() {
-            var radio_check_val = "";
-            for (var i = 0; i < document.getElementsByName('pilih_data_sppn_vendor').length; i++) {
-                if (document.getElementsByName('pilih_data_sppn_vendor')[i].checked) {
-                    radio_check_val = document.getElementsByName('pilih_data_sppn_vendor')[i].value;
-                }
-            }
-            if (radio_check_val === 'input_data') {
-                if ($('#metode_pembayaran_sppn').val() === 'bank') {
-                    $('#bank_sppn').show();
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').hide();
-                    
-                    document.getElementById("nama_bank_sppn_vendor").onclick = null;
-                    document.getElementById("rekening_bank_sppn_vendor").onclick = null;
-                    document.getElementById("atas_nama_bank_sppn_vendor").onclick = null;
-                    
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
-                    
-                    var inputs = document.getElementsByClassName("validate_sppn");
-                    if (inputs) {
-                        for (var i = 0; i < inputs.length; i++) {
-                            inputs[i].addEventListener("change", validateInput);
-                            inputs[i].addEventListener("focus", validateInput);
-                        }
-                    }
-                } else {
-                    $('#bank_sppn').hide();
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').hide();
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
-                }
-            } else if (radio_check_val === 'master_data') {
-                if ($('#metode_pembayaran_sppn').val() === 'bank') {
-                    $('#bank_sppn').show();
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').hide();
-                    
-                    document.getElementById("nama_bank_sppn_vendor").onclick = function() { data_bank_sppn(1) };
-                    document.getElementById("rekening_bank_sppn_vendor").onclick = function() { data_bank_sppn(1) };
-                    document.getElementById("atas_nama_bank_sppn_vendor").onclick = function() { data_bank_sppn(1) };
-                    
-                    $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control validate_sppn validate_spp_all');
-                    $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
-                    
-                    var inputs = document.getElementsByClassName("validate_sppn");
-                    if (inputs) {
-                        for (var i = 0; i < inputs.length; i++) {
-                            inputs[i].addEventListener("change", validateInput);
-                            inputs[i].addEventListener("focus", validateInput);
-                        }
-                    }
-                } else {
-                    $('#bank_sppn').hide();
-                    $('#kas_sppn').hide();
-                    $('#bank_sppn_karyawan').hide();
-                    $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                    $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
+                    document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
                 }
             } else {
                 $('#kas_sppn').hide();
                 $('#bank_sppn').hide();
                 $('#bank_sppn_karyawan').hide();
-                $('#nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#rekening_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_karyawan_1').attr('class', 'form-control');
-                $('#nama_bank_sppn_vendor').attr('class', 'form-control');
-                $('#rekening_bank_sppn_vendor').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_vendor').attr('class', 'form-control');
-                $('#atas_nama_bank_sppn_kas_1').attr('class', 'form-control');
+                if ($('#metode_pembayaran_sppn').val() == 'bank') {
+                    if ($('#jenis_spp').val() == 'karyawan') {
+                        document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+
+                    } else {
+                        document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                        document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+                    }
+
+                } else {
+                    if ($('#jenis_spp').val() == 'karyawan') {
+
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+
+                    } else {
+                        document.getElementById("atas_nama_bank_sppn_kas_1").className = "form-control";
+                    }
+                    document.getElementById("nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_karyawan_1").className = "form-control";
+                    document.getElementById("nama_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("rekening_bank_sppn_vendor").className = "form-control";
+                    document.getElementById("atas_nama_bank_sppn_vendor").className = "form-control";
+                }
             }
-        }
+
+        };
 
         function bank_karyawan_sppb(isi) {
             $('#modal_karyawan_sppb').modal('show');
