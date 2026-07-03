@@ -173,7 +173,7 @@
     
 
     tabel = $('#table').DataTable({
-      processing: false,
+      processing: true,
       serverSide: true,
       destroy: true,
       scrollX: true,
@@ -182,16 +182,16 @@
             'url' : '{{ url('rkap/getdata') }}',
             'type' : 'get',
         },
-        order: [],
+        order: [[4, 'desc']],
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'master_gl_kode', name: 'master_gl_kode' },
             { data: 'master_bagian_nama', name: 'master_bagian_nama' },
-            { data: 'jumlah_budget', name: 'jumlah_budget', render: function(data) { return 'Rp. ' + data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); } },
+            { data: 'jumlah_budget', name: 'jumlah_budget', render: function(data) { return 'Rp. ' + (data ? data.toString() : '0').replace(/\B(?=(\d{3})+(?!\d))/g, "."); } },
             { data: 'budget_tahun', name: 'budget_tahun' },
             { data: 'budget_status', name: 'budget_status', render : function(data) { return data == 1 ? 'Aktif' : 'Tidak Aktif' } },
             { data: 'master_gl_kode', name: 'master_gl_kode', render: function(data, type, full, meta) {
-                string_json = JSON.stringify(full);
+                string_json = JSON.stringify(full).replace(/'/g, "&apos;");
                 return `
                     <button type="button" class="btn btn-warning btn-sm" onclick='ubah(${string_json})' title="Edit Data"><i class="fa fa-pencil" aria-hidden="true"></i> Ubah Data</button>
                     <button type="button" class="btn btn-danger btn-sm" onclick="hapus(${full.budget_id}, '${full.budget_status}')" title="Hapus Data"><i class="fa fa-trash-o" aria-hidden="true"></i> Ubah Status</button>

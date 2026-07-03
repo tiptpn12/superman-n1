@@ -62,8 +62,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="signin-password" class="control-label sr-only">Password</label>
-                                    <input type="password" class="form-control" id="signin-password" name="password"
-                                        placeholder="password">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="signin-password" name="password"
+                                            placeholder="password">
+                                        <span class="input-group-addon" id="togglePassword" style="cursor: pointer;">
+                                            <i class="fa fa-eye" id="eyeIcon"></i>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="form-group element-left">
                                     <div class="captcha">
@@ -193,6 +198,16 @@
         				}
         			}, 1000);
         		}
+
+                // Password visibility (hold to view)
+                $('#togglePassword').on('mousedown touchstart', function(e) {
+                    e.preventDefault();
+                    $('#signin-password').attr('type', 'text');
+                    $('#eyeIcon').removeClass('fa-eye').addClass('fa-eye-slash');
+                }).on('mouseup mouseleave touchend', function() {
+                    $('#signin-password').attr('type', 'password');
+                    $('#eyeIcon').removeClass('fa-eye-slash').addClass('fa-eye');
+                });
         	});
         </script>
 </body>

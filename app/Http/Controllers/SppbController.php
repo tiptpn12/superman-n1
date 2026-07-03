@@ -370,6 +370,11 @@ class SppbController extends Controller
         $bagian_id = Bagian::where('master_bagian_id', $bagian)->first(); // biarkan
         $bagianall = Bagian::where('master_bagian_id', '!=', 10)->get(); // biarkan
 
+        
+        if ($company == 5 && $bagian != 121) {
+            return back(); //kembalikan ke halaman sebelumnya
+        }
+
         $thn = date('Y');
 
         // $gl = DB::table('master_budget')->where('master_budget.bagian_id', '=', $bagian)
@@ -547,17 +552,29 @@ class SppbController extends Controller
 
                 $bulan = $bulanromawi[$month];
 
-                $nomor_surat = DB::table('sppb')
-                    ->select('sppb_urutan', 'sppb_tahun', DB::raw('MAX(sppb_urutan) as maxno'))
-                    // ->where('sppb_tahun', $tahun)
-                    ->where('master_bagian_id', $request->bagian_sppb)
-                    ->first();
+                // Logika pencarian max urutan SPPb:
+                // - Deteksi gap terbesar di antara urutan setelah 9 Jan
+                // - Entry di bawah gap = bersih (sequence baru), di atas gap = terkontaminasi
 
-                if ($day == 3 && $month == 1 && $tahun != $nomor_surat->sppb_tahun) {
-                    $urutansppb = 1;
+                if ($tanggals >= '2026-01-09') {
+                    // === SEQUENCE BARU (setelah 9 Jan 2026) ===
+                    $cleanMaxSppb = $this->getCleanMaxUrutan('sppb', 'sppb_urutan', 'sppb_tanggal', 'master_bagian_id', $request->bagian_sppb);
+                    $urutansppb = $cleanMaxSppb + 1;
+                    
+                    \Log::info('SPPb Urutan (new): tanggal=' . $tanggals . ', bagian=' . $request->bagian_sppb . ', cleanMax=' . $cleanMaxSppb . ', urutan=' . $urutansppb);
+                    
                 } else {
-                    $urutansppb = $nomor_surat->maxno + 1;
+                    // === SEQUENCE LAMA (sebelum 9 Jan 2026) ===
+                    $maxOldSequence = DB::table('sppb')
+                        ->where('master_bagian_id', $request->bagian_sppb)
+                        ->whereDate('sppb_tanggal', '<', '2026-01-09')
+                        ->max('sppb_urutan') ?? 0;
+
+                    $urutansppb = $maxOldSequence + 1;
+                    
+                    \Log::info('SPPb Urutan (old): tanggal=' . $tanggals . ', bagian=' . $request->bagian_sppb . ', max=' . $maxOldSequence . ', urutan=' . $urutansppb);
                 }
+                // }
                 // dd($kodebagian);
 
 
@@ -1002,15 +1019,26 @@ class SppbController extends Controller
 
                 $bulan = $bulanromawi[$month];
 
-                $nomor_surat_sppn = DB::table('sppn')
-                    ->select('sppn_urutan', 'sppn_tahun', DB::raw('MAX(sppn_urutan) as maxnosppn'))
-                    // ->where('sppn_tahun', $tahun)
-                    ->where('master_bagian_id', $request->bagian_sppn)
-                    ->first();
-                if ($day == 3 && $month == 1 && $tahun != $nomor_surat_sppn->sppn_tahun) {
-                    $urutansppn = 1;
+                // Logika pencarian max urutan SPPn:
+                // - Deteksi gap terbesar untuk memisahkan sequence bersih vs terkontaminasi
+
+                if ($tanggals >= '2026-01-09') {
+                    // === SEQUENCE BARU SPPn (setelah 9 Jan 2026) ===
+                    $cleanMaxSppn = $this->getCleanMaxUrutan('sppn', 'sppn_urutan', 'sppn_tanggal', 'master_bagian_id', $request->bagian_sppn);
+                    $urutansppn = $cleanMaxSppn + 1;
+                    
+                    \Log::info('SPPn Urutan (new): tanggal=' . $tanggals . ', bagian=' . $request->bagian_sppn . ', cleanMax=' . $cleanMaxSppn . ', urutan=' . $urutansppn);
+                    
                 } else {
-                    $urutansppn = $nomor_surat_sppn->maxnosppn + 1;
+                    // === SEQUENCE LAMA SPPn (sebelum 9 Jan 2026) ===
+                    $maxOldSequenceSppn = DB::table('sppn')
+                        ->where('master_bagian_id', $request->bagian_sppn)
+                        ->whereDate('sppn_tanggal', '<', '2026-01-09')
+                        ->max('sppn_urutan') ?? 0;
+
+                    $urutansppn = $maxOldSequenceSppn + 1;
+                    
+                    \Log::info('SPPn Urutan (old): tanggal=' . $tanggals . ', bagian=' . $request->bagian_sppn . ', max=' . $maxOldSequenceSppn . ', urutan=' . $urutansppn);
                 }
                 $nomor = $kodebagian . "/SPPn/" . $urutansppn . "/" . $bulan . "/" . $tahun;
                 // $nomor=$kodebagian."/PP/".$urutansppn."/".$tahun;
@@ -1396,27 +1424,32 @@ class SppbController extends Controller
                 $bulan = $bulanromawi[$month];
 
 
-                $nomor_surat_sppb = DB::table('sppb')
-                    ->select('sppb_urutan', 'sppb_tahun', DB::raw('MAX(sppb_urutan) as maxno'))
-                    // ->where('sppb_tahun', $tahun)
-                    ->where('master_bagian_id', $request->bagian_sppb)
-                    ->first();
-                $nomor_surat_sppn = DB::table('sppn')
-                    ->select('sppn_urutan', 'sppn_tahun', DB::raw('MAX(sppn_urutan) as maxnosppn'))
-                    // ->where('sppn_tahun', $tahun)
-                    ->where('master_bagian_id', $request->bagian_sppn)
-                    ->first();
-                if ($day == 3 && $month == 1 && $tahun != $nomor_surat_sppb->sppb_tahun) {
-                    $urutansppb = 1;
-                    if ($day == 3 && $month == 1 && $tahun != $nomor_surat_sppn->sppn_tahun) {
-                        $urutansppn = 1;
-                    } else {
-                        $urutansppn = $nomor_surat_sppn->maxnosppn + 1;
-                    }
-                    // dd($urutansppn,$urutansppb);
+                // Logika pencarian max urutan SPPb (form gabungan):
+                // - Deteksi gap terbesar untuk memisahkan sequence bersih vs terkontaminasi
+
+                if ($tanggals >= '2026-01-09') {
+                    $cleanMaxSppbGab = $this->getCleanMaxUrutan('sppb', 'sppb_urutan', 'sppb_tanggal', 'master_bagian_id', $request->bagian_sppb);
+                    $urutansppb = $cleanMaxSppbGab + 1;
                 } else {
-                    $urutansppb = $nomor_surat_sppb->maxno + 1;
-                    $urutansppn = $nomor_surat_sppn->maxnosppn + 1;
+                    $maxOldSequenceSppb = DB::table('sppb')
+                        ->where('master_bagian_id', $request->bagian_sppb)
+                        ->whereDate('sppb_tanggal', '<', '2026-01-09')
+                        ->max('sppb_urutan') ?? 0;
+                    $urutansppb = $maxOldSequenceSppb + 1;
+                }
+
+                // Logika pencarian max urutan SPPn (form gabungan):
+                // - Deteksi gap terbesar untuk memisahkan sequence bersih vs terkontaminasi
+
+                if ($tanggals >= '2026-01-09') {
+                    $cleanMaxSppnGab = $this->getCleanMaxUrutan('sppn', 'sppn_urutan', 'sppn_tanggal', 'master_bagian_id', $request->bagian_sppn);
+                    $urutansppn = $cleanMaxSppnGab + 1;
+                } else {
+                    $maxOldSequenceSppn = DB::table('sppn')
+                        ->where('master_bagian_id', $request->bagian_sppn)
+                        ->whereDate('sppn_tanggal', '<', '2026-01-09')
+                        ->max('sppn_urutan') ?? 0;
+                    $urutansppn = $maxOldSequenceSppn + 1;
                 }
 
                 $nomorsppb = $kodebagiansppb . "/SPPb/" . $urutansppb . "/" . $bulan . "/" . $tahun;
@@ -2098,5 +2131,200 @@ class SppbController extends Controller
                     ->with('error_code', 5);
             }
         }
+    }
+
+    /**
+     * AJAX: Cek anomali urutan sebelum simpan
+     * Mengecek trend urutan 2 minggu terakhir untuk mendeteksi lonjakan tidak wajar
+     */
+    public function checkUrutanAnomaly(Request $request)
+    {
+        $jenisForm = $request->jenis_form; // sppb, sppn, sppb_sppn
+        $bagianSppb = $request->bagian_sppb;
+        $bagianSppn = $request->bagian_sppn;
+        $tanggal = $request->tanggal; // format d-m-Y
+        $tanggals = date('Y-m-d', strtotime($tanggal));
+        
+        $warnings = [];
+        
+        // === CEK SPPb ===
+        if (in_array($jenisForm, ['sppb', 'sppb_sppn']) && $bagianSppb) {
+            $sppbWarnings = $this->analyzeUrutanTrend('sppb', 'sppb_urutan', 'sppb_tanggal', 'master_bagian_id', $bagianSppb, $tanggals);
+            $warnings = array_merge($warnings, $sppbWarnings);
+        }
+        
+        // === CEK SPPn ===
+        if (in_array($jenisForm, ['sppn', 'sppb_sppn']) && $bagianSppn) {
+            $sppnWarnings = $this->analyzeUrutanTrend('sppn', 'sppn_urutan', 'sppn_tanggal', 'master_bagian_id', $bagianSppn, $tanggals);
+            $warnings = array_merge($warnings, $sppnWarnings);
+        }
+        
+        return response()->json([
+            'has_anomaly' => count($warnings) > 0,
+            'warnings' => $warnings,
+        ]);
+    }
+    
+    /**
+     * Cari max urutan "bersih" setelah 9 Jan untuk suatu bagian.
+     * 
+     * Strategi: cek per bulan mulai dari bulan ini, mundur ke belakang.
+     * Di setiap bulan:
+     *   1. Gap detection: jika ada gap > 100 antar urutan, pisahkan bersih vs terkontaminasi
+     *   2. Contamination check: jika semua entry di bulan itu punya urutan jauh lebih tinggi 
+     *      dari total jumlah entry sejak reset, anggap terkontaminasi → mundur ke bulan sebelumnya
+     * 
+     * Contoh bagian 167:
+     *   Maret: [148, 149, 1645, 1646] → gap 149→1645 → cleanMax = 149 ✅
+     * 
+     * Contoh bagian 178 (semua terkontaminasi):
+     *   Maret: [2392, 2393] → min=2392, totalEntries=20 → 2392 >> 20 → mundur
+     *   Februari: [2380, 2381] → sama → mundur  
+     *   Januari: [2391, ...] → sama → mundur
+     *   Tidak ada data bersih → return 0 → urutan mulai dari 1 ✅
+     */
+    private function getCleanMaxUrutan($table, $urutanCol, $tanggalCol, $bagianCol, $bagianId)
+    {
+        $resetDate = '2026-01-09';
+        $now = Carbon::now();
+        
+        // Hitung total entry sejak reset - dipakai untuk contamination check
+        $totalEntriesSinceReset = DB::table($table)
+            ->where($bagianCol, $bagianId)
+            ->whereDate($tanggalCol, '>=', $resetDate)
+            ->count();
+        
+        // Mulai dari bulan ini, mundur per bulan
+        for ($monthsBack = 0; $monthsBack <= 14; $monthsBack++) {
+            $checkDate = $now->copy()->subMonths($monthsBack);
+            $monthStart = $checkDate->copy()->startOfMonth()->format('Y-m-d');
+            $monthEnd = $checkDate->copy()->endOfMonth()->format('Y-m-d');
+            
+            // Jangan mundur melewati tanggal reset
+            if ($monthEnd < $resetDate) break;
+            if ($monthStart < $resetDate) $monthStart = $resetDate;
+            
+            // Ambil urutan unik di bulan ini
+            $monthUrutan = DB::table($table)
+                ->where($bagianCol, $bagianId)
+                ->whereDate($tanggalCol, '>=', $monthStart)
+                ->whereDate($tanggalCol, '<=', $monthEnd)
+                ->pluck($urutanCol)
+                ->unique()
+                ->sort()
+                ->values()
+                ->toArray();
+            
+            if (empty($monthUrutan)) continue; // Tidak ada data bulan ini, mundur
+            
+            // === GAP DETECTION ===
+            if (count($monthUrutan) >= 2) {
+                $biggestGap = 0;
+                $biggestGapIndex = -1;
+                
+                for ($i = 1; $i < count($monthUrutan); $i++) {
+                    $gap = $monthUrutan[$i] - $monthUrutan[$i - 1];
+                    if ($gap > $biggestGap) {
+                        $biggestGap = $gap;
+                        $biggestGapIndex = $i;
+                    }
+                }
+                
+                // Gap > 100 = ada pemisahan antara sequence bersih dan terkontaminasi
+                if ($biggestGap > 100 && $biggestGapIndex > 0) {
+                    $cleanMax = $monthUrutan[$biggestGapIndex - 1];
+                    \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart}, gap={$biggestGap}, cleanMax={$cleanMax}");
+                    return $cleanMax;
+                }
+            }
+            
+            // === CONTAMINATION CHECK ===
+            // Jika min urutan >> total entry count, berarti entry ini melanjutkan sequence lama (terkontaminasi)
+            // Contoh: 20 entry total, tapi min urutan = 2392 → jelas terkontaminasi
+            // Contoh: 310 entry total, min urutan = 308 → wajar, bersih
+            $minVal = $monthUrutan[0];
+            $maxVal = end($monthUrutan);
+            
+            if ($totalEntriesSinceReset > 0 && $minVal > $totalEntriesSinceReset * 3 && $minVal > 100) {
+                \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart} terkontaminasi (min={$minVal}, totalEntries={$totalEntriesSinceReset}), mundur");
+                continue; // Bulan ini semua terkontaminasi, mundur
+            }
+            
+            // Entry bersih ditemukan!
+            \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart}, cleanMax={$maxVal}, entries=" . count($monthUrutan));
+            return $maxVal;
+        }
+        
+        // Tidak ada data bersih sama sekali → mulai dari 0
+        \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: tidak ada data bersih, return 0");
+        return 0;
+    }
+
+    
+    /**
+     * Analisis trend urutan untuk mendeteksi anomali (untuk warning sebelum simpan)
+     */
+    private function analyzeUrutanTrend($table, $urutanCol, $tanggalCol, $bagianCol, $bagianId, $tanggals)
+    {
+        $warnings = [];
+        $twoWeeksAgo = date('Y-m-d', strtotime($tanggals . ' -14 days'));
+        $tableLabel = strtoupper($table);
+        
+        // Gunakan getCleanMaxUrutan untuk mendapatkan max bersih
+        $cleanMax = $this->getCleanMaxUrutan($table, $urutanCol, $tanggalCol, $bagianCol, $bagianId);
+        $predictedUrutan = $cleanMax + 1;
+        
+        // Ambil semua urutan setelah 9 Jan untuk analisis
+        $allUrutan = DB::table($table)
+            ->where($bagianCol, $bagianId)
+            ->whereDate($tanggalCol, '>=', '2026-01-09')
+            ->pluck($urutanCol)
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+        
+        if (empty($allUrutan)) {
+            return $warnings;
+        }
+        
+        // Cek apakah ada entry terkontaminasi (di atas gap)
+        $contaminatedEntries = array_filter($allUrutan, function($val) use ($cleanMax) {
+            return $val > $cleanMax && ($val - $cleanMax) > 100;
+        });
+        
+        if (count($contaminatedEntries) > 0) {
+            $warnings[] = [
+                'type' => 'info',
+                'message' => "[{$tableLabel}] Ditemukan " . count($contaminatedEntries) . " entry terkontaminasi (urutan > {$cleanMax}). Entry ini diabaikan dalam perhitungan urutan baru."
+            ];
+        }
+        
+        // Cek duplikat urutan (2 minggu terakhir saja)
+        $recentDuplicates = DB::table($table)
+            ->where($bagianCol, $bagianId)
+            ->whereDate($tanggalCol, '>=', $twoWeeksAgo)
+            ->whereDate($tanggalCol, '<=', $tanggals)
+            ->where($urutanCol, '<=', $cleanMax)
+            ->select($urutanCol, DB::raw('COUNT(*) as cnt'))
+            ->groupBy($urutanCol)
+            ->having('cnt', '>', 1)
+            ->pluck('cnt', $urutanCol);
+        
+        if ($recentDuplicates->count() > 0) {
+            $dupNumbers = $recentDuplicates->keys()->take(5)->implode(', ');
+            $warnings[] = [
+                'type' => 'warning',
+                'message' => "[{$tableLabel}] Ditemukan urutan duplikat: {$dupNumbers}. Kemungkinan ada entry yang ndobel."
+            ];
+        }
+        
+        // Info: urutan yang akan digunakan
+        $warnings[] = [
+            'type' => 'info',
+            'message' => "[{$tableLabel}] Urutan yang akan digunakan: {$predictedUrutan} (max bersih: {$cleanMax})"
+        ];
+        
+        return $warnings;
     }
 }

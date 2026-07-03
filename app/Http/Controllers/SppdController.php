@@ -2979,7 +2979,7 @@ class SppdController extends Controller
                         // ]);
                         $dokumenpendukungsppnsppn = new DokumenPendukungSppn;
                         $dokumenpendukungsppnsppn->sppn_id = $request->sppn_id;
-                        $dokumenpendukungsppnsppn->dokumen_pendukung_sppn_nama = $dokumenpendukungs;
+                        $dokumenpendukungsppnsppn->dokumen_pendukung_sppn_nama = $dokumenpendukungsppns;
                         $dokumenpendukungsppnsppn->save();
                     }
                 }
@@ -3291,6 +3291,7 @@ class SppdController extends Controller
             $dokpensppn = DB::table('dokumen_pendukung_sppn')->where('sppn_id', '=', $datasppn->sppn_id)
                 ->select('dokumen_pendukung_sppn.*')->get();
 
+            $sppnuraian = []; // Inisialisasi array
             foreach ($sppnisi as $a => $value1) {
                 $sppnuraian[] = DB::table('sppn_uraian')->where('sppn_uraian.sppn_isi_id', '=', $value1->sppn_isi_id)->select('sppn_uraian.*')->get();
             }
@@ -3511,13 +3512,12 @@ class SppdController extends Controller
                 $sppnuraian[] = DB::table('sppn_uraian')->where('sppn_uraian.sppn_isi_id', '=', $value1->sppn_isi_id)->select('sppn_uraian.*')->get();
             }
 
-            $isisppn = [];
-            foreach ($sppnisi as $s => $val) {
-                $isisppn[] = collect($val)->push($sppnuraian[$s]);
-            }
+            $sppnisi->each(function($item, $key) use ($sppnuraian) {
+                $item->uraian = $sppnuraian[$key] ?? [];
+            });
 
             $data_sppn = [];
-            $data_sppn = collect($datasppn)->push($isisppn)->push($faktur_pajak_sppn);
+            $data_sppn = collect($datasppn)->put('isi', $sppnisi)->put('faktur_pajak', $faktur_pajak_sppn);
             // dd($data_sppb,$data_sppn);
         } else {
             $data_sppn = null;
@@ -3654,8 +3654,11 @@ class SppdController extends Controller
     public function cetak($id)
     {
         $idspp = DB::table('spp')->where('spp.spp_id', '=', $id)->select('spp.*')->first();
-        $perusahaan = DB::table('master_company')->where('company_id', '=', $idspp->company_id)->select('company_nama')->first();
-        dd($perusahaan);
+        $perusahaan = DB::table('master_company')->where('company_id', '=', $idspp->company_id)->first();
+        
+        $kotak_cetak = DB::table('master_cetak_spp')->where('company_id', '=', $idspp->company_id)
+            ->where('status', '!=', '0')->select('master_cetak_spp.*')->get();
+
         $doktam = DB::table('dokumen_tambahan')->where('dokumen_tambahan.spp_id', '=', $id)
             ->join('master_hak_akses', 'dokumen_tambahan.master_hak_akses_id', '=', 'master_hak_akses.master_hak_akses_id')
             ->select('dokumen_tambahan.*', 'master_hak_akses.*')->get();
@@ -3706,17 +3709,17 @@ class SppdController extends Controller
                 ->select('sppn_isi.*', 'master_rekening.*', 'master_cost_center.*', 'master_profit_center.*', 'master_cash_flow.*', 'master_gl.*', 'master_customer.*')->get();
             $faktur_pajak_sppn = DB::table('faktur_pajak')->where('faktur_pajak.sppn_id', '=', $datasppn->sppn_id)->select('faktur_pajak_nomor')->get();
 
+            $sppnuraian = []; // Inisialisasi array
             foreach ($sppnisi as $a => $value1) {
                 $sppnuraian[] = DB::table('sppn_uraian')->where('sppn_uraian.sppn_isi_id', '=', $value1->sppn_isi_id)->select('sppn_uraian.*')->get();
             }
 
-            $isisppn = [];
-            foreach ($sppnisi as $s => $val) {
-                $isisppn[] = collect($val)->push($sppnuraian[$s]);
-            }
+            $sppnisi->each(function($item, $key) use ($sppnuraian) {
+                $item->uraian = $sppnuraian[$key] ?? [];
+            });
 
             $data_sppn = [];
-            $data_sppn = collect($datasppn)->push($isisppn)->push($faktur_pajak_sppn);
+            $data_sppn = collect($datasppn)->put('isi', $sppnisi)->put('faktur_pajak', $faktur_pajak_sppn);
         } else {
             $data_sppn = null;
         }
@@ -3840,10 +3843,13 @@ class SppdController extends Controller
             'karyawan_sppb' => $karyawan_sppb,
             'karyawan_sppn' => $karyawan_sppn,
             'id' => bin2hex($id_validasi),
-            'company' => $perusahaan,
+            'company' => $perusahaan->company_nama,
+            'company_jenis' => $perusahaan->company_jenis ?? null,
+            'kotak_cetak' => $kotak_cetak,
+            'flowid' => $idspp->flow_id
         );
         //dd($data_sppb,$data_sppn);
-        dd($data);
+        // dd($data);
         return view('page.spp.spp_cetak', $data);
     }
 
@@ -4332,6 +4338,7 @@ class SppdController extends Controller
                 if ($data_sppb) {
                     if ($isSppbBankMethod) {
                         $query->where('bukti_kas.is_bank', true);
+                        $query->where('bukti_kas.lebih_dari_25_jt', false);
                         if ($total_jumlah_sppb > 5000000000) {
                             $query->where('bukti_kas.lebih_dari_5_m', true);
                         } else {
@@ -4339,6 +4346,7 @@ class SppdController extends Controller
                         }
                     } else {
                         $query->where('bukti_kas.is_bank', false);
+                        $query->where('bukti_kas.lebih_dari_5_m', false);
                         if ($total_jumlah_sppb > 25000000) {
                             $query->where('bukti_kas.lebih_dari_25_jt', true);
                         } else {
@@ -4346,9 +4354,8 @@ class SppdController extends Controller
                         }
                     }
                 }
-            })->first();
-            //dd($total_jumlah_sppb);
-            //dd($data_penandatangan_sppb);
+            })
+            ->first();
 
         $data_penandatangan_sppn = DB::table('master_cetak_bukti_kas as bukti_kas')
             ->where('bukti_kas.company_id', $perusahaan->company_id)
@@ -4356,6 +4363,7 @@ class SppdController extends Controller
                 if ($data_sppn) {
                     if ($isSppnBankMethod) {
                         $query->where('bukti_kas.is_bank', true);
+                        $query->where('bukti_kas.lebih_dari_25_jt', false);
                         if ($total_jumlah_sppn > 5000000000) {
                             $query->where('bukti_kas.lebih_dari_5_m', true);
                         } else {
@@ -4363,6 +4371,7 @@ class SppdController extends Controller
                         }
                     } else {
                         $query->where('bukti_kas.is_bank', false);
+                        $query->where('bukti_kas.lebih_dari_5_m', false);
                         if ($total_jumlah_sppn > 25000000) {
                             $query->where('bukti_kas.lebih_dari_25_jt', true);
                         } else {
@@ -4370,9 +4379,36 @@ class SppdController extends Controller
                         }
                     }
                 }
-            })->first();
+            })
+            ->first();
 
-         //dd($data_penandatangan_sppb, $data_sppb);
+        if (!$data_penandatangan_sppb) {
+            $data_penandatangan_sppb = (object)[
+                'dibuat_sub_bagian' => null,
+                'dibuat_sub_bagian_nama' => null,
+                'diperiksa_oleh_sub_bagian' => null,
+                'diperiksa_oleh_sub_bagian_nama' => null,
+                'diperiksa_oleh_bagian' => null,
+                'diperiksa_oleh_bagian_nama' => null,
+                'disetujui_oleh' => null,
+                'disetujui_oleh_nama' => null
+            ];
+        }
+
+        if (!$data_penandatangan_sppn) {
+            $data_penandatangan_sppn = (object)[
+                'dibuat_sub_bagian' => null,
+                'dibuat_sub_bagian_nama' => null,
+                'diperiksa_oleh_sub_bagian' => null,
+                'diperiksa_oleh_sub_bagian_nama' => null,
+                'diperiksa_oleh_bagian' => null,
+                'diperiksa_oleh_bagian_nama' => null,
+                'disetujui_oleh' => null,
+                'disetujui_oleh_nama' => null
+            ];
+        }
+
+        // dd($data_penandatangan_sppb, $data_sppb);
         $data = array(
             'spp' => $spp,
             'sppb_tanggal_pembuatan' => $sppb_tanggal_pembuatan,
@@ -4403,7 +4439,7 @@ class SppdController extends Controller
             'data_penandatangan_sppb' => $data_penandatangan_sppb,
             'data_penandatangan_sppn' => $data_penandatangan_sppn
         );
-         //dd($data);
+        // dd($data);
 
         return view('page.cetak_bukti_kas', $data);
     }

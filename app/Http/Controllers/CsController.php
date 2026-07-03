@@ -30,13 +30,15 @@ class CsController extends Controller
     }
     public function index()
     {
-        $customer = Customer::All();
+        return view('page.customer.customer');
+    }
 
-        $data = array(
-            'customer' => $customer,
-        );
+    public function getDataTableAll()
+    {
+        $data = Customer::query();
+        $datatable = datatables()->of($data)->addIndexColumn()->toJson();
 
-        return view('page.customer.customer', $data);
+        return $datatable;
     }
 
     public function store(Request $request)

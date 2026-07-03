@@ -111,9 +111,32 @@ class UserController extends Controller
         $data = User::whereRaw('master_user_name = ?', [$username])->first();
 
         if ($data) {
-            $result = @file_get_contents("https://ipinfo.io/?token=6718d4ac50f02a");
+            try {
+                $result = @file_get_contents("http://ipinfo.io/?token=6718d4ac50f02a");
+                if ($result === false) {
+                    // Jika gagal mengakses API, isi data default
+                    $result = json_encode([
+                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '-',
+                        'hostname' => '-',
+                        'city' => '-',
+                        'region' => '-',
+                        'country' => '-',
+                        'loc' => '-'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Jika terjadi exception, isi data default
+                $result = json_encode([
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? '-',
+                    'hostname' => '-',
+                    'city' => '-',
+                    'region' => '-',
+                    'country' => '-',
+                    'loc' => '-'
+                ]);
+            }
 
-            $ipaddress = $_SERVER['REMOTE_ADDR'];
+            $ipaddress = $_SERVER['REMOTE_ADDR'] ?? '-';
             $agent = new Agent();
             $browser = $agent->browser();
             $os = $agent->platform();
@@ -155,7 +178,15 @@ class UserController extends Controller
                     $detail_login->detail_login_region = $ip->region;
                     $detail_login->detail_login_country_code = $ip->country;
                     $detail_login->detail_login_loc = $ip->loc;
-                    $detail_login->detail_login_country = country_name($ip->country);
+                    $countryName = '-';
+                    if (isset($ip->country) && $ip->country != '-' && $ip->country != '') {
+                        try {
+                            $countryName = country_name($ip->country);
+                        } catch (\Exception $e) {
+                            $countryName = '-';
+                        }
+                    }
+                    $detail_login->detail_login_country = $countryName;
                     $detail_login->detail_login_browser = $browser;
                     $detail_login->detail_login_os = $os;
                     $detail_login->save();

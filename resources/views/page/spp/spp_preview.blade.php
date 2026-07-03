@@ -216,19 +216,21 @@
                                                             <br>
                                                             AU.53 No : {{ $sppb['sppb_au_53'] }}
                                                         </th>
-                                                        <th style="vertical-align:middle">
-                                                            <span class="col-xs-4">Nomor Faktur Pajak </span> :
-                                                            {{ $sppb[1][0]->faktur_pajak_nomor }}
-                                                            <br>
-                                                            @for ($i = 1; $i < count($sppb[1]); $i++)
-                                                                <span class="col-xs-4"></span>:
-                                                                {{ $sppb[1][$i]->faktur_pajak_nomor }}
-                                                                <br>
-                                                            @endfor
-                                                            <span class="col-xs-4">Nomor SP/OPL/SPK/Perjanjian </span>:
-                                                            {{ $sppb['sppb_sp_opl'] }}
-
-                                                        </th>
+                                                         <th style="vertical-align:middle">
+                                                             <span class="col-xs-4">Nomor Faktur Pajak </span> :
+                                                             {{ $sppb[1][0]->faktur_pajak_nomor ?? '-' }}
+                                                             <br>
+                                                             @if (isset($sppb[1]) && count($sppb[1]) > 1)
+                                                                 @for ($i = 1; $i < count($sppb[1]); $i++)
+                                                                     <span class="col-xs-4"></span>:
+                                                                     {{ $sppb[1][$i]->faktur_pajak_nomor }}
+                                                                     <br>
+                                                                 @endfor
+                                                             @endif
+                                                             <span class="col-xs-4">Nomor SP/OPL/SPK/Perjanjian </span>:
+                                                             {{ $sppb['sppb_sp_opl'] }}
+ 
+                                                         </th>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -472,23 +474,25 @@
                                             <br>
                                             BA / AU 58 No : {{ $sppn['sppn_ba_au_53'] }}
                                         </th>
-                                        <th colspan = "2">
-                                            <div class="col-xs-4">Nomor Faktur Pajak </div>
-                                            :{{ $sppn[1][0]->faktur_pajak_nomor }}
-                                            <br>
-                                            @for ($i = 1; $i < count($sppn[1]); $i++)
-                                                <div class="col-xs-4"></div>{{ $sppn[1][$i]->faktur_pajak_nomor }}
-                                                <br>
-                                            @endfor
-
-                                            @if (isset($sppb['sppb_no']))
-                                                <div class="col-xs-4">Nomor SPPb</div>
-                                                : {{ $sppb['sppb_no'] }}
-                                            @else
-                                                <div class="col-xs-4">Nomor SPPb</div>
-                                                : -
-                                            @endif
-                                        </th>
+                                         <th colspan = "2">
+                                             <div class="col-xs-4">Nomor Faktur Pajak </div>
+                                             :{{ $sppn[1][0]->faktur_pajak_nomor ?? '-' }}
+                                             <br>
+                                             @if (isset($sppn[1]) && count($sppn[1]) > 1)
+                                                 @for ($i = 1; $i < count($sppn[1]); $i++)
+                                                     <div class="col-xs-4"></div>{{ $sppn[1][$i]->faktur_pajak_nomor }}
+                                                     <br>
+                                                 @endfor
+                                             @endif
+ 
+                                             @if (isset($sppb['sppb_no']))
+                                                 <div class="col-xs-4">Nomor SPPb</div>
+                                                 : {{ $sppb['sppb_no'] }}
+                                             @else
+                                                 <div class="col-xs-4">Nomor SPPb</div>
+                                                 : -
+                                             @endif
+                                         </th>
 
                                     </tr>
                                 </thead>

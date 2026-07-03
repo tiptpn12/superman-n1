@@ -37,6 +37,7 @@
     $bagian = Session::get('bagian');
     $level = Session::get('level');
     $company = session::get('company');
+    $master_user_id = Session::get('id');
     ?>
     <!-- MAIN -->
     <style>
@@ -68,8 +69,8 @@
                         <!-- TABLE -->
                         <div class="panel">
 
-                            @if ($grup_id == 8)
-                                {{-- TAB Admin --}}
+                            @if ($grup_id == 8 || $grup_id == 9)
+                                {{-- TAB Admin --}} 
                                 <!-- <h2>{{ $company }}</h2> -->
                                 <div class="tab-pane fade in active" id="tab-operator-bagian">
                                     <div class="panel-heading">
@@ -123,6 +124,7 @@
                                                         </tr>
                                                         <tr>
                                                             <th>No</th>
+
                                                             <th>Uraian</th>
                                                             <th>Jumlah</th>
                                                             <th>No</th>
@@ -255,11 +257,12 @@
                                 <!-- <h2>{{ $company }}</h2> -->
                                 <div class="tab-pane fade in active" id="tab-operator-bagian">
                                     <div class="panel-heading">
-                                        <h3 class="panel-title">Tabel PPb / PPn</h3>
+                                        <h3 class="panel-title">Tabel PPn / PPn</h3>
                                     </div>
                                     <div class="panel-body">
-                                        <a class="btn btn-primary" href="{{ url('spp/tambah') }}"
-                                            style="margin-bottom: 15px">Buat PP</a>
+                                        @if ($company != 5 || $bagian == 129)
+                                            <a class="btn btn-primary" href="{{ url('spp/tambah') }}" style="margin-bottom: 15px">Buat PP</a>
+                                        @endif
                                         <br>
                                         {{-- <button class="btn btn-primary" onclick="advanced_search(1,1)"
                                             style="margin-bottom: 15px">Advanced Search</button> --}}
@@ -1671,7 +1674,7 @@
                         <div class="form-group" id="file_bukti_kas">
                             <a href="#" target="_blank" id="bukti_kas_lama"></a>
                             <button type="button" class="btn btn-warning btn-sm" id="remove_bukti_kas"
-                                onclick="edit_bukti_kas()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                onclick="edit_bukti_kas_upload()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1944,12 +1947,39 @@
     <script type="text/javascript">
         var grupId = {{ $grup_id }};
         var hakAkses = {{ $akses }};
+        var masterUserId = {{ $master_user_id ?? 0 }};
         var index_adv = {{ $index }};
 
         var index_cetak = {{ $index_cetak }};
         var id_cetak = {{ $id_cetak }};
 
         console.log(index_adv, index_cetak, id_cetak);
+
+
+
+        window.toggleReadMore = function(link) {
+            // Cari container - bisa di td (DataTable) atau strong atau parent langsung
+            var container = link.closest('td') || link.closest('strong') || link.parentElement;
+            
+            // Cari elemen dengan class text-short dan text-full
+            var shortText = container.querySelector('.text-short');
+            var fullText = container.querySelector('.text-full');
+
+            if (!shortText || !fullText) {
+                console.error("Elements not found. Container:", container);
+                return;
+            }
+
+            if (shortText.style.display === 'none') {
+                shortText.style.display = 'inline';
+                fullText.style.display = 'none';
+                link.innerHTML = 'Read more';
+            } else {
+                shortText.style.display = 'none';
+                fullText.style.display = 'block';
+                link.innerHTML = 'Read less';
+            }
+        }
 
         function dataColumnsToDo() {
             var columns = [{
@@ -1963,7 +1993,8 @@
                 }
             }];
 
-            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8) {
+            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8 ||
+                grupId == 9) {
                 if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7) {
                     columns.push({
                         data: 'master_bagian_nama',
@@ -1999,12 +2030,13 @@
                 columns.push({
                     data: 'sppb_uraian2',
                     name: 'sppb_uraian2',
-                    render: function(data, type, row) {
+                    render: function(data, type, row, meta) {
                         if (!data) {
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -2016,30 +2048,20 @@
                             return '<strong>' + decodedText + '</strong>';
                         }
 
-                         // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
-
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        ///var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                           // decodedText;
-
-                        // Mengembalikan teks dalam tag <strong>
-                         
-                        return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
-
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
-                                ${decodedText}
-                            </div>
-
-                            <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
-                            style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
-                            Read more
-                            </a>
-                        </strong>`;
+                        // Mengembalikan teks dengan class-based approach
+                        return '<strong>' +
+                            '<span class="text-short" style="display:inline;">' + shortText + '...</span>' +
+                            '<div class="text-full" style="display:none; margin-top:5px; white-space:normal;">' +
+                                decodedText +
+                            '</div>' +
+                            '<a href="javascript:void(0)" ' +
+                            'onclick="window.toggleReadMore(this)" ' +
+                            'style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">' +
+                            'Read more' +
+                            '</a>' +
+                        '</strong>';
 
                     }
                 });
@@ -2076,12 +2098,13 @@
                 columns.push({
                     data: 'sppn_uraian2',
                     name: 'sppn_uraian2',
-                    render: function(data, type, row) {
+                    render: function(data, type, row, meta) {
                         if (!data) {
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -2093,29 +2116,20 @@
                             return '<strong>' + decodedText + '</strong>';
                         }
 
-                         // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
-
                         var shortText = decodedText.substring(0, limit);
 
-                        // // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
-                        // Mengembalikan teks dalam tag <strong>
-                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
-
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
-                                ${decodedText}
-                            </div>
-
-                            <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
-                            style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
-                            Read more
-                            </a>
-                        </strong>`;
+                        // Mengembalikan teks dengan class-based approach
+                         return '<strong>' +
+                            '<span class="text-short" style="display:inline;">' + shortText + '...</span>' +
+                            '<div class="text-full" style="display:none; margin-top:5px; white-space:normal;">' +
+                                decodedText +
+                            '</div>' +
+                            '<a href="javascript:void(0)" ' +
+                            'onclick="window.toggleReadMore(this)" ' +
+                            'style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">' +
+                            'Read more' +
+                            '</a>' +
+                        '</strong>';
                     }
                 });
                 columns.push({
@@ -2289,12 +2303,12 @@
                         var action = '';
                         var cetakUrl = "{{ route('cetakspp', ':id') }}".replace(':id', row.spp_id);
                         var rekamJejakUrl = "{{ route('rekamjejak', ':id') }}".replace(':id', row.hashedId);
-                        var detailUrl = "{{ route('detailspp', ':id') }}".replace(':id', row.spp_id);
-
-                        if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId ==
-                            8) {
-                            if (grupId == 1 || grupId == 8) {
-                                if (row.sppd_posisi == hakAkses) {
+                        var detailUrl = "{{ route('detailspp', ':id') }}".replace(':id', row
+                            .spp_id);
+                        if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8 || grupId == 9) {
+                            if (grupId == 1 || grupId == 8 || grupId == 9) {
+                                // grupId 9 bisa lihat semua action tanpa cek sppd_posisi
+                                if (grupId == 9 || row.sppd_posisi == hakAkses) {
                                     var editUrl = "{{ route('viewupdatesppd', ':id') }}".replace(':id', row
                                         .hashedId);
                                     action += `
@@ -2620,7 +2634,8 @@
                                     </button>
                                 `;
 
-                                if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 7 || grupId == 8) {
+                                if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 7 || grupId == 8 ||
+                                    grupId == 9) {
                                     action += `
                                         <button type="button" class="btn btn-info btn-sm" onclick="window.open('${detailUrl}')" title="Detail">
                                             <i class="fa fa-info"></i>
@@ -2638,7 +2653,7 @@
                                     `;
                                 }
 
-                                if (grupId == 8) {
+                                if (grupId == 8 || grupId == 9) {
                                     var editUrl = "{{ route('viewupdatesppd', ':id') }}".replace(':id', row
                                         .hashedId);
                                     action += `
@@ -2656,9 +2671,10 @@
             return columns;
         };
 
-        function toggleReadMore(id, el) {
-            var shortText = document.getElementById(id + '_short');
-            var fullText  = document.getElementById(id + '_full');
+        function toggleReadMore(el) {
+            var parent = el.parentElement;
+            var shortText = parent.querySelector('.text-short');
+            var fullText  = parent.querySelector('.text-full');
 
             if (fullText.style.display === 'none') {
                 fullText.style.display = 'inline';
@@ -2682,7 +2698,8 @@
                 }
             }];
 
-            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8) {
+            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8 ||
+                grupId == 9) {
                 if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7) {
                     columns.push({
                         data: 'master_bagian_nama',
@@ -2724,7 +2741,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -2737,24 +2755,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppb_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -2799,7 +2813,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -2812,24 +2827,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppn_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -2877,7 +2888,7 @@
                             .hashedId);
                         var detailUrl = "{{ route('detailspp', ':id') }}".replace(':id', row.spp_id);
 
-                        if (grupId == 1 || grupId == 8) {
+                        if (grupId == 1 || grupId == 8 || grupId == 9) {
                             var editUrl = "{{ route('viewupdatesppd', ':id') }}".replace(':id', row.hashedId);
                             var cetakUrl = "{{ route('cetakspp', ':id') }}".replace(':id', row.spp_id);
                             action += `
@@ -3051,7 +3062,8 @@
                         </button>
                         `;
 
-                        if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 7 || grupId == 8) {
+                        if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 7 || grupId == 8 ||
+                            grupId == 9) {
                             action += `
                             <button type="button" class="btn btn-info btn-sm" onclick="window.open('${detailUrl}')" title="Detail">
                                 <i class="fa fa-info"></i>
@@ -3070,7 +3082,7 @@
                             `;
                         }
 
-                        if (grupId == 8) {
+                        if (grupId == 8 || grupId == 9) {
                             var editUrl = "{{ route('viewupdatesppd', ':id') }}".replace(':id', row.hashedId);
                             action += `
                             <a type="button" class="btn btn-warning btn-sm" href="${editUrl}" title="Edit Data">
@@ -3098,7 +3110,8 @@
                 }
             }];
 
-            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8) {
+            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8 ||
+                grupId == 9) {
                 if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7) {
                     columns.push({
                         data: 'master_bagian_nama',
@@ -3140,7 +3153,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3153,24 +3167,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppb_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -3215,7 +3225,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3228,7 +3239,7 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppn_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
@@ -3295,7 +3306,7 @@
                         var detailUrl = "{{ route('detailspp', ':id') }}".replace(':id', row.spp_id);
 
                         if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId ==
-                            8) {
+                            8 || grupId == 9) {
                             action += `
                             <button type="button" class="btn btn-primary btn-sm"
                                 onClick="window.open('${cetakUrl}').print();" title="Cetak">
@@ -3335,7 +3346,8 @@
                 }
             }, ];
 
-            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8) {
+            if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 8 ||
+                grupId == 9) {
                 if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7) {
                     columns.push({
                         data: 'master_bagian_nama',
@@ -3377,7 +3389,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3390,24 +3403,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppb_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -3452,7 +3461,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3465,24 +3475,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppn_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -3529,9 +3535,8 @@
                         action = '';
                         var rekamJejakUrl = "{{ route('rekamjejak', ':id') }}".replace(':id', row.hashedId);
                         var detailUrl = "{{ route('detailspp', ':id') }}".replace(':id', row.spp_id);
-
                         if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId ==
-                            8) {
+                            8 || grupId == 9) {
                             action += `
                                 <button type="button" class="btn btn-primary btn-sm"
                                     onclick="window.open('${rekamJejakUrl}')" title="Rekam Jejak">
@@ -3542,6 +3547,65 @@
                                     <i class="fa fa-info"></i>
                                 </button>
                             `;
+                        }
+
+                        // Tombol Cetak Bukti Kas Bank khusus masterUserId == 307 dan grupId == 4
+                        if (masterUserId == 307 && grupId == 4) {
+                            if (typeof row.sppb_no !== 'undefined' && row.sppb_no !== null && !row.sppn_no) {
+                                if (row.nomor_byr == null) {
+                                    action += `
+                                        <button type="button" class="btn btn-warning btn-sm" style="background-color: #FF9000; border-color: #FF9000" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},${row.sppb_id},0,0,false,false,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                } else if (row.nomor_byr != null) {
+                                    action += `
+                                        <button type="button" class="btn btn-primary btn-sm" style="background-color: #6E00FF;border-color: #6E00FF" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}', ${row.spp_id}, ${row.sppb_id}, 0, 0, true, false, true, true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                }
+                            } else if (!row.sppb_no && typeof row.sppn_no !== 'undefined' && row.sppn_no !== null) {
+                                if (row.nomor_pnr == null) {
+                                    action += `
+                                        <button type="button" class="btn btn-warning btn-sm" style="background-color: #FF9000; border-color: #FF9000" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},0,${row.sppn_id},1,false,false,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                } else if (row.nomor_pnr != null) {
+                                    action += `
+                                        <button type="button" class="btn btn-primary btn-sm" style="background-color: #6E00FF; border-color: #6E00FF" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},0,${row.sppn_id},1,false,true,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                }
+                            } else if (typeof row.sppb_no !== 'undefined' && row.sppb_no !== null && typeof row.sppn_no !== 'undefined' && row.sppn_no !== null) {
+                                if (row.nomor_byr == null && row.nomor_pnr == null) {
+                                    action += `
+                                        <button type="button" class="btn btn-warning btn-sm" style="background-color: #FF9000; border-color: #FF9000" title="Bukti Kas" onclick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},${row.sppb_id},${row.sppn_id},2,false,false,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                } else if (row.nomor_byr != null && row.nomor_pnr == null) {
+                                    action += `
+                                        <button type="button" class="btn btn-warning btn-sm" style="background-color: #FF9000; border-color: #FF9000" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},${row.sppb_id},${row.sppn_id},2,true,false,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                } else if (row.nomor_byr == null && row.nomor_pnr != null) {
+                                    action += `
+                                        <button type="button" class="btn btn-warning btn-sm" style="background-color: #FF9000; border-color: #FF9000" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},${row.sppb_id},${row.sppn_id},2,false,true,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                } else if (row.nomor_byr != null && row.nomor_pnr != null) {
+                                    action += `
+                                        <button type="button" class="btn btn-primary btn-sm" style="background-color: #6E00FF; border-color: #6E00FF" title="Bukti Kas" onClick="cetak_bukti_kas('${row.metode_pembayaran}',${row.spp_id},${row.sppb_id},${row.sppn_id},2,true,true,true,true)">
+                                            <i class="fa fa-money"></i>
+                                        </button>
+                                    `;
+                                }
+                            }
                         }
 
                         return action;
@@ -3564,8 +3628,8 @@
             }, ];
 
             if (grupId == 1 || grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId ==
-                8) {
-                if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7) {
+                8 || grupId == 9) {
+                if (grupId == 2 || grupId == 3 || grupId == 4 || grupId == 7 || grupId == 9) {
                     columns.push({
                         data: 'master_bagian_nama',
                         name: 'master_bagian_nama',
@@ -3606,7 +3670,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3619,24 +3684,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppb_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -3681,7 +3742,8 @@
                             return '<strong></strong>';
                         }
                         // Menghapus semua tag HTML
-                        var strippedText = data.replace("/<\ /?[^>]+(>|$)/g", "");
+                        // Menghapus semua tag HTML
+                        var strippedText = data.replace(/<[^>]+>/g, "");
 
                         // Decode entitas HTML
                         var decodedText = $("<textarea />").html(strippedText).text();
@@ -3694,24 +3756,20 @@
                         }
 
                          // ID unik per baris
-                        var uid = 'uraian_' + row.spp_id;
+                        var uid = 'uraian_sppn_' + row.spp_id;
 
                         var shortText = decodedText.substring(0, limit);
 
-                        // Membatasi teks hingga 75 karakter
-                        // var limitedText = decodedText.length > 75 ? decodedText.substring(0, 75) + '...' :
-                        //     decodedText;
-
                         // Mengembalikan teks dalam tag <strong>
                         return `<strong>
-                            <span id="${uid}_short" style="display:inline;">${shortText}...</span>
+                            <span class="text-short" style="display:inline;">${shortText}...</span>
 
-                            <div id="${uid}_full" style="display:none; margin-top:5px; white-space:normal;">
+                            <div class="text-full" style="display:none; margin-top:5px; white-space:normal;">
                                 ${decodedText}
                             </div>
 
                             <a href="javascript:void(0)"
-                            onclick="toggleReadMore('${uid}', this)"
+                            onclick="toggleReadMore(this)"
                             style="color:#007bff; font-weight:600; display:inline-block; margin-top:4px;">
                             Read more
                             </a>
@@ -3855,6 +3913,70 @@
                 document.getElementById("tab-revisi-petugas").className = "tab-pane fade";
             }
 
+            // $('#table_penerima').DataTable({
+            //     processing: false,
+            //     serverSide: true,
+            //     "bDestroy": true,
+            //     ajax: '{{ route('getVendor') }}',
+            //     order: [],
+            //     columns: [{
+            //             data: 'DT_RowIndex',
+            //             name: 'DT_RowIndex',
+            //             orderable: false,
+            //             searchable: false
+            //         },
+            //         {
+            //             data: 'master_vendor_nama_bank',
+            //             name: 'master_vendor_nama_bank'
+            //         },
+            //         {
+            //             data: 'master_vendor_rekening',
+            //             render: function(data, type, row) {
+            //                 return `(Alamat Kosong)`
+            //             }
+            //         },
+            //         {
+            //             data: 'master_vendor_id',
+            //             "render": function(data, type, row) {
+            //                 return `<button type="button" class="btn btn-info btn-sm" onclick="pilih_penerima('${data}','${row.master_vendor_nama_bank}',0)" title="Pilih" ><i class="fa fa-check"></i></button>`
+            //             },
+            //             orderable: false,
+            //             searchable: false
+            //         },
+            //     ]
+            // })
+            // $('#table_diterima_dari').DataTable({
+            //     processing: false,
+            //     serverSide: true,
+            //     "bDestroy": true,
+            //     ajax: '{{ route('getVendor') }}',
+            //     order: [],
+            //     columns: [{
+            //             data: 'DT_RowIndex',
+            //             name: 'DT_RowIndex',
+            //             orderable: false,
+            //             searchable: false
+            //         },
+            //         {
+            //             data: 'master_vendor_nama_bank',
+            //             name: 'master_vendor_nama_bank'
+            //         },
+            //         {
+            //             data: 'master_vendor_rekening',
+            //             render: function(data, type, row) {
+            //                 return `(Alamat Kosong)`
+            //             }
+            //         },
+            //         {
+            //             data: 'master_vendor_id',
+            //             "render": function(data, type, row) {
+            //                 return `<button type="button" class="btn btn-info btn-sm" onclick="pilih_diterima_dari('${data}','${row.master_vendor_nama_bank}',0)" title="Pilih" ><i class="fa fa-check"></i></button>`
+            //             },
+            //             orderable: false,
+            //             searchable: false
+            //         },
+            //     ]
+            // })
             $.ajax({
                 url: "{{ route('getSppdPosisiOptions') }}",
                 method: "GET",
@@ -3921,7 +4043,7 @@
                 ajax: {
                     url: "{{ route('getTodo') }}",
                     data: function(d) {
-                        //console.log("regional value: ", $('#regional').val());
+                        console.log("regional value: ", $('#regional').val());
                         // Menambahkan filter tanggal dan posisi pada request Ajax
                         d.start_date = $('#start_date').val(); // Tanggal mulai
                         d.end_date = $('#end_date').val(); // Tanggal akhir
@@ -4730,6 +4852,7 @@
             }
         }
 
+
         function cetak_bukti_kas(metode_pembayaran, id_spp, id_sppb, id_sppn, form, data_sppb = false, data_sppn =
             false,
             penerima = false,
@@ -5425,6 +5548,7 @@
             });
         }
 
+
         function pilih_file() {
             var radio_check_val = "";
             for (var i = 0; i < document.getElementsByName('upload_file').length; i++) {
@@ -5590,6 +5714,7 @@
                 }
             });
         }
+
 
         function terima(id) {
             Swal.fire({
@@ -5777,6 +5902,7 @@
             }
         }
 
+
         // function revisi(id, data) {
         //     $("#modal_revisi").modal('show');
         //     if (data != null) {
@@ -5830,6 +5956,9 @@
         //         }
         //     });
         // }
+
+
+
 
         function rekam_jejak(data, asal) {
             $('#rekam_jejak_body').empty()
@@ -6051,6 +6180,14 @@
             }
             $("#modal_bukti_kas").modal('show');
         }
+
+        function edit_bukti_kas_upload() {
+            $("#upload_bukti").show();
+            $("#file_bukti_kas").hide();
+            $("#submit_bukti").show();
+        }
+
+
 
         function confirm_batal(id) {
             let batal = $('#keterangan_batal').val();

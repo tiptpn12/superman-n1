@@ -394,7 +394,8 @@ $level = Session::get('level');
                 name: 'sppb_uraian',
                 render: function(data, type, row) {
                     return data ? data.substring(0, 100) + '...' : '-'; 
-                }
+                },
+                 searchable: true
             },
             { 
                 data: 'sppb_total', 
@@ -409,7 +410,8 @@ $level = Session::get('level');
                 name: 'sppn_uraian',
                 render: function(data, type, row) {
                     return data ? data.substring(0, 100) + '...' : '-';
-                }
+                },
+                 searchable: true
             },
             { 
                 data: 'sppn_jumlah', 
@@ -421,6 +423,9 @@ $level = Session::get('level');
             { data: 'posisi_dinamis', name: 'posisi_dinamis', orderable: false, searchable: false },
             { data: 'status_pembayaran', name: 'status_pembayaran', orderable: false }
         ],
+        search: {
+            regex: true // opsional, untuk pencarian regex
+        },
         order: [[2, 'desc']], 
         language: {
             processing: "Memuat data...",
@@ -435,7 +440,7 @@ $level = Session::get('level');
         }
     });
 
-    //Belum upload bukti kas
+    //Belum upload bukti kas a
     if ( $.fn.DataTable.isDataTable('#table-belum') ) {
         $('#table-belum').DataTable().clear().destroy();
     }
@@ -471,7 +476,8 @@ $level = Session::get('level');
                 name: 'sppb_uraian',
                 render: function(data, type, row) {
                     return data ? data.substring(0, 50) + '...' : '-';
-                }
+                },
+                 searchable: true
             },
             { 
                 data: 'sppb_total', 
@@ -486,7 +492,8 @@ $level = Session::get('level');
                 name: 'sppn_uraian',
                 render: function(data, type, row) {
                     return data ? data.substring(0, 50) + '...' : '-';
-                }
+                },
+                 searchable: true
             },
             { 
                 data: 'sppn_jumlah', 

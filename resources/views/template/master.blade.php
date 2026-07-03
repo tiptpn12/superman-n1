@@ -251,11 +251,10 @@ $level = Session::get('level');
                                     <li><a href="{{ url('sppd') }}"  class="@yield('open')"><i class="lnr lnr-file-empty"></i> <span>SPPb / SPPn</span></a></li>
                                 @elseif ($hakakses > 3 && $bagian == 2)
                                     <li><a href="{{ url('sppd') }}"  class="@yield('open')"><i class="lnr lnr-file-empty"></i> <span>SPPb / SPPn</span></a></li>
-                                @endif
                                 @if ($hakakses == 3 && $bagian == 2)
                                     <li><a href="{{ url('sppd') }}"  class="@yield('open')"><i class="lnr lnr-file-empty"></i> <span>SPPb / SPPn</span></a></li>
                                 @endif --}}
-                            @if ($hakakses > 1 && $hakakses != 45)
+                            @if (($hakakses > 0 && $hakakses != 45))
                                 <li><a href="{{ url('sppd') }}" class="@yield('open')"><i
                                             class="lnr lnr-file-empty"></i> <span>SPPb / SPPn</span></a></li>
                             @endif
@@ -265,7 +264,7 @@ $level = Session::get('level');
                                 <li><a href="{{ url('pembayaran') }}" class="@yield('bukak')"><i
                                             class="lnr lnr-file-empty"></i> <span>Ajukan Pembayaran</span></a></li>
                             @endif
-                            @if ($hakakses != 45 && $hakakses != 20)
+                            @if (($hakakses != 45 && $hakakses != 20) || $grup_id == 9)
                                 <li><a href="{{ url('laporan') }}" class="@yield('yoro')"><i
                                             class="lnr lnr-database"></i> <span>Laporan</span></a></li>
                             @endif
@@ -273,13 +272,8 @@ $level = Session::get('level');
                                 <li><a href="{{ url('histori_login') }}" class="@yield('active')"><i
                                             class="lnr lnr-history"></i> <span>Histori Login</span></a></li>
                             @endif
-                            {{-- ini menu budget rkap di luar master data --}}
-                            {{-- @if ($grup_id == 9 || $hakakses == 45)
-                                <li><a href="{{ url('rkap') }}" class="">
-                                        <span>Budget RKAP</span></a></li>
-                            @endif --}}
                             {{-- ini tambahan buat admin_regional --}}
-                            @if ($grup_id == 9 || $hakakses == 45)
+                            @if (($grup_id == 8 && $hakakses != 50 && $hakakses != 1) || $hakakses == 45)
                                 <li>
                                     <a href="#master_data" data-toggle="collapse" class="collapsed"><i
                                             class="lnr lnr-dice"></i> <span>Master Data</span> <i
@@ -298,14 +292,14 @@ $level = Session::get('level');
                                     </div>
                                 </li>
                             @endif
-                            @if (($grup_id == 8 && $hakakses != 20) || $hakakses == 1)
+                            @if (($grup_id == 8 && $hakakses != 20 && $hakakses != 50) || $hakakses == 1)
                                 <li>
+                                    @if ($hakakses == 1)
                                     <a href="#master_data" data-toggle="collapse" class="collapsed"><i
                                             class="lnr lnr-dice"></i> <span>Master Data</span> <i
                                             class="icon-submenu lnr lnr-chevron-left"></i></a>
                                     <div id="master_data" class="collapse ">
                                         <ul class="nav">
-                                            @if ($hakakses == 1)
                                                 <li><a href="{{ url('vendor') }}" class="">Vendor</a></li>
                                                 <li><a href="{{ url('rekening') }}" class="">Kode Rekening</a>
                                                 </li>
@@ -336,7 +330,7 @@ $level = Session::get('level');
                                     </div>
                                 </li>
                             @endif
-                            @if (($grup_id == 8 && $hakakses != 20) || $hakakses == 1)
+                            @if (($grup_id == 8 && $hakakses != 20 && $hakakses != 50) || $hakakses == 1)
                                 <li>
                                     <a href="#master_sistem" data-toggle="collapse" class="collapsed"><i
                                             class="lnr lnr-dice"></i> <span>Master Sistem</span> <i

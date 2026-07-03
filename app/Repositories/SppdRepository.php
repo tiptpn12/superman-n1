@@ -113,25 +113,31 @@ class SppdRepository implements SppdRepositoryInterface
                         'spp_status_bayar',
                         'sppb_bukti_kas.master_rekening_id AS nomor_byr',
                         'sppn_bukti_kas.master_rekening_id AS nomor_pnr',
-                        'sppb.sppb_metode_pembayaran as metode_pembayaran'
-                    );
+                        'sppb.sppb_metode_pembayaran as metode_pembayaran');
             } else if ($grupId == 8) {
-                $query->where('spp.company_id', $company)
-                    ->where('spp.sppd_status', 0)
-                    ->addSelect('spp_kabag',);
+                $query->where('spp.sppd_status', 0)
+                    ->where('spp.company_id', '5')
+                    ->where('spp.master_bagian_id', '=', '133')
+                    ->addSelect('spp_kabag');
                 if ($startDate && $endDate) {
                     $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
                 }
-                
                 if ($sppdPosisi) {
                     $query->where('spp.sppd_posisi', $sppdPosisi);
-                } 
+                }
+            } else if ($grupId == 9) {
+                $query->where('spp.sppd_status', 0)
+                    ->addSelect('spp_kabag');
+                if ($startDate && $endDate) {
+                    $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
+                }
+                if ($sppdPosisi) {
+                    $query->where('spp.sppd_posisi', $sppdPosisi);
+                }
             }
             $query->groupBy('spp_id', 'spp.spp_tanggal')
                 ->orderBy('spp_tanggal', 'desc');
         }
-       // dd($query);
-       //dd($query->toSql());
         $data = $query->get();
         return $data;
     }
@@ -239,7 +245,18 @@ class SppdRepository implements SppdRepositoryInterface
         } else if ($grupId == 8) {
             $query->where('spp.sppd_status', 3)
                 ->where('spp.sppd_proses', 0)
-                ->where('spp.company_id', $company);
+                ->where('spp.company_id', '5')
+                ->where('spp.master_bagian_id', '=', '133');
+            if ($startDate && $endDate) {
+                $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
+            }
+            
+            if ($sppdPosisi) {
+                $query->where('spp.sppd_posisi', $sppdPosisi);
+            }
+        } else if ($grupId == 9) {
+            $query->where('spp.sppd_status', 3)
+                ->where('spp.sppd_proses', 0);
             if ($startDate && $endDate) {
                 $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
             }
@@ -353,12 +370,21 @@ class SppdRepository implements SppdRepositoryInterface
                 ->addSelect('sppb_bukti_kas.sppb_bukti_kas_id', 'spp_status_terima', 'spp_status_bayar', 'sppb_bukti_kas.master_rekening_id AS nomor_byr', 'sppn_bukti_kas.master_rekening_id AS nomor_pnr', 'sppb.sppb_metode_pembayaran as metode_pembayaran');
         } else if ($grupId == 8) {
             $query->where('spp.sppd_status', '!=', 100)
-                ->where('spp.company_id', $company)
+                ->whereBetween('spp.sppd_status', [1, 2])
+                ->where('spp.company_id', '5')
+                ->where('spp.master_bagian_id', '=', '133');
+            if ($startDate && $endDate) {
+                $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
+            }
+            if ($sppdPosisi) {
+                $query->where('spp.sppd_posisi', $sppdPosisi);
+            }
+        } else if ($grupId == 9) {
+            $query->where('spp.sppd_status', '!=', 100)
                 ->whereBetween('spp.sppd_status', [1, 2]);
             if ($startDate && $endDate) {
                 $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
             }
-            
             if ($sppdPosisi) {
                 $query->where('spp.sppd_posisi', $sppdPosisi);
             }
@@ -450,7 +476,14 @@ class SppdRepository implements SppdRepositoryInterface
                 ->where('spp.company_id', $company)
                 ->whereIn('spp.flow_id', $flow)
                 ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
-                ->addSelect('master_hak_akses_nama');
+                ->leftJoin('sppb_bukti_kas', 'sppb.sppb_id', '=', 'sppb_bukti_kas.sppb_id')
+                ->leftJoin('sppn_bukti_kas', 'sppn.sppn_id', '=', 'sppn_bukti_kas.sppn_id')
+                ->addSelect(
+                    'master_hak_akses_nama',
+                    'sppb_bukti_kas.master_rekening_id AS nomor_byr',
+                    'sppn_bukti_kas.master_rekening_id AS nomor_pnr',
+                    'sppb.sppb_metode_pembayaran as metode_pembayaran'
+                );
         } else if ($grupId == 7) {
             $query->where('spp.company_id', $company)
                 ->where('spp.sppd_status', 100)
@@ -459,13 +492,23 @@ class SppdRepository implements SppdRepositoryInterface
                 ->addSelect('master_hak_akses_nama');
         } else if ($grupId == 8) {
             $query->where('spp.sppd_status', 100)
-                ->where('spp.company_id', $company)
+                ->where('spp.company_id', '5')
+                ->where('spp.master_bagian_id', '=', '133')
                 ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
                 ->addSelect('master_hak_akses_nama');
             if ($startDate && $endDate) {
                 $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
             }
-            
+            if ($sppdPosisi) {
+                $query->where('spp.sppd_posisi', $sppdPosisi);
+            }
+        } else if ($grupId == 9) {
+            $query->where('spp.sppd_status', 100)
+                ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
+                ->addSelect('master_hak_akses_nama');
+            if ($startDate && $endDate) {
+                $query->whereBetween('spp.spp_tanggal', [$startDate, $endDate]);
+            }
             if ($sppdPosisi) {
                 $query->where('spp.sppd_posisi', $sppdPosisi);
             }
@@ -520,7 +563,12 @@ class SppdRepository implements SppdRepositoryInterface
                 ->whereIn('spp.flow_id', $flow);
         } else if ($grupId == 8) {
             $query->whereIn('spp.sppd_status', [4, 5])
-                ->where('spp.company_id', $company);
+                ->where('spp.company_id', '5')
+                ->where('spp.master_bagian_id', '=', '133');
+        }
+        else if ($grupId == 9) {
+            $query->whereIn('spp.sppd_status', [4, 5]);
+                //->where('spp.company_id', $company);
         }
 
         $query->groupBy('spp_id', 'tanggal')->orderBy('spp_tanggal', 'desc');

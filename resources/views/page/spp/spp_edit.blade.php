@@ -504,10 +504,10 @@ $bagianid = Session::get('bagian');
                                                             @else
                                                                 <option value="bank">Transfer</option>
                                                             @endif
-                                                            @if ($sppb['sppb_metode_pembayaran'] == 'kas')
-                                                                <option value="kas" selected>Tidak Transfer</option>
+                                                            @if ($sppb['sppb_metode_pembayaran'] == 'tidak_transfer')
+                                                                <option value="tidak_transfer" selected>Tidak Transfer</option>
                                                             @else
-                                                                <option value="kas">Tidak Transfer</option>
+                                                                <option value="tidak_transfer">Tidak Transfer</option>
                                                             @endif
                                                             <!-- @if ($sppb['sppb_metode_pembayaran'] == 'kas_negara')
                                                                         <option value="kas_negara" selected>Kas Negara</option>
@@ -660,13 +660,13 @@ $bagianid = Session::get('bagian');
                                                         @if ($sppb['sppb_data_metpen'] == 'input_data')
                                                             <!-- VENDOR BANK INPUT MANUAL -->
                                                             <div id="bank_sppb" style="display: block">
-                                                                <input type="hidden" id="id_bank_sppb_1" name="id_bank_sppb"
-                                                                    class="form-control" placeholder="Id Bank SPPb"
-                                                                    value="{{ $karyawan_sppb[0]->karyawan_id }}" autocomplete="off">
                                                                 <div class="form-group row" id="atas_nama_vendor_sppb">
                                                                     <label class="col-sm-2 col-form-label">Atas Nama
                                                                         Rekening *</label>
                                                                     <div class="col-sm-10">
+                                                                        <input type="hidden" id="id_bank_sppb_1" name="id_bank_sppb"
+                                                                            class="form-control" placeholder="Id Bank SPPb"
+                                                                            value="{{ $karyawan_sppb[0]->karyawan_id }}" autocomplete="off">
                                                                         <input type="text" id="atas_nama_bank_sppb_vendor"
                                                                             name="atas_nama_bank_sppb_vendor" class="form-control"
                                                                             value="{{ $karyawan_sppb[0]->karyawan_nama }}"
@@ -858,7 +858,7 @@ $bagianid = Session::get('bagian');
                                                             </div>
 
                                                         </div>
-                                                    @elseif($sppb['sppb_metode_pembayaran'] == 'kas')
+                                                    @elseif($sppb['sppb_metode_pembayaran'] == 'tidak_transfer')
                                                         <!-- VENDOR KAS -->
                                                         <div class="form-group row" style="display:none;" id="pilih_lampirkan_sppb"
                                                             onclick="pilih_data_sppb_karyawan()">
@@ -1204,13 +1204,13 @@ $bagianid = Session::get('bagian');
                                                         @if ($sppb['sppb_data_metpen'] == 'input_data')
                                                             <!-- VENDOR SKBDN INPUT MANUAL -->
                                                             <div id="bank_sppb" style="display: block">
-                                                                <input type="hidden" id="id_bank_sppb_1" name="id_bank_sppb"
-                                                                    class="form-control" placeholder="Id Bank SPPb"
-                                                                    value="{{ $karyawan_sppb[0]->karyawan_id }}" autocomplete="off">
                                                                 <div class="form-group row" id="atas_nama_vendor_sppb">
                                                                     <label class="col-sm-2 col-form-label">Atas Nama
                                                                         Rekening *</label>
                                                                     <div class="col-sm-10">
+                                                                        <input type="hidden" id="id_bank_sppb_1" name="id_bank_sppb"
+                                                                            class="form-control" placeholder="Id Bank SPPb"
+                                                                            value="{{ $karyawan_sppb[0]->karyawan_id }}" autocomplete="off">
                                                                         <input type="text" id="atas_nama_bank_sppb_vendor"
                                                                             name="atas_nama_bank_sppb_vendor" class="form-control"
                                                                             value="{{ $karyawan_sppb[0]->karyawan_nama }}"
@@ -2110,7 +2110,7 @@ $bagianid = Session::get('bagian');
                                                                 </div>
                                                             </div>
                                                         @endif
-                                                    @elseif($sppb['sppb_metode_pembayaran'] == 'kas')
+                                                    @elseif($sppb['sppb_metode_pembayaran'] == 'tidak_transfer')
                                                         <!-- KARYAWAN KAS -->
                                                         <div class="form-group row" style="display:none;" id="pilih_lampirkan_sppb"
                                                             onclick="pilih_data_sppb_karyawan()">
@@ -2958,7 +2958,7 @@ $bagianid = Session::get('bagian');
                                             @endif
 
                                             @if (isset($sppb['sppb_jenis']) == 'vendor')
-                                                @if ($sppb['sppb_metode_pembayaran'] == 'kas' || $sppb['sppb_metode_pembayaran'] == 'kas_negara')
+                                                @if ($sppb['sppb_metode_pembayaran'] == 'tidak_transfer' || $sppb['sppb_metode_pembayaran'] == 'kas_negara')
                                                     @if (isset($karyawan_sppb[0]))
                                                         <div class="form-group row" id="nama_kas_input_1" style="display: none">
                                                             <label class="col-sm-2 col-form-label">Penerima *</label>
@@ -3928,7 +3928,7 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                @if ($sppb[0][$i][0][$a]->sppb_pajak_wapu != null)
+                                                                @if (isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu != null)
                                                                     <div class="form-group row formInputPajakSppb">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -4029,7 +4029,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif ($sppb[0][$i][0][$a]->sppb_pajak_waba != null)
+                                                                @elseif (isset($sppb[0][$i][0][$a]->sppb_pajak_waba) && $sppb[0][$i][0][$a]->sppb_pajak_waba != null)
                                                                     <div class="form-group row formInputPajakSppb">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -4130,7 +4130,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif ($sppb[0][$i][0][$a]->sppb_pajak_pph != null)
+                                                                @elseif (isset($sppb[0][$i][0][$a]->sppb_pajak_pph) && $sppb[0][$i][0][$a]->sppb_pajak_pph != null)
                                                                     <div class="form-group row formInputPajakSppb">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -4221,7 +4221,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif ($sppb[0][$i][0][$a]->sppb_tanpa_pajak != null)
+                                                                @elseif (isset($sppb[0][$i][0][$a]->sppb_tanpa_pajak) && $sppb[0][$i][0][$a]->sppb_tanpa_pajak != null)
                                                                     <div class="form-group row formInputPajakSppb">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -4242,7 +4242,7 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 @endif
-                                                                @if ($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'wapu Normal 11%')
+                                                                @if (isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'wapu Normal 11%')
                                                                     <div class="form-group row" id="pph_normal_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh*</label>
@@ -4253,7 +4253,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="11" value="0.11">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 2,5%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 2,5%')
                                                                     <div class="form-group row" id="pph21_a_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 2,5%*</label>
@@ -4264,7 +4264,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21a" value="0.025">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 7,5%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 7,5%')
                                                                     <div class="form-group row" id="pph21_b_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 7,5%*</label>
@@ -4275,7 +4275,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21b" value="0.075">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 12,5%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 21 12,5%')
                                                                     <div class="form-group row" id="pph21_c_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 12,5%*</label>
@@ -4286,7 +4286,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21c" value="0.125">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 22 1,5%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 22 1,5%')
                                                                     <div class="form-group row" id="pph22_a_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 22*</label>
@@ -4297,7 +4297,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph22" value="0.015">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 2%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 2%')
                                                                     <div class="form-group row" id="pph23_a_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 2%*</label>
@@ -4308,7 +4308,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23a" value="0.02">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 15%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 15%')
                                                                     <div class="form-group row" id="pph23_b_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 15%*</label>
@@ -4319,7 +4319,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23b" value="0.15">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 0%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 23 0%')
                                                                     <div class="form-group row" id="pph23_c_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 0%*</label>
@@ -4330,7 +4330,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23c" value="0">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 0%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 0%')
                                                                     <div class="form-group row" id="pph26_a_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 0%*</label>
@@ -4341,7 +4341,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26a" value="0">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 10%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 10%')
                                                                     <div class="form-group row" id="pph26_b_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 10%*</label>
@@ -4352,7 +4352,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26b" value="0.1">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 20%')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'PPh 26 20%')
                                                                     <div class="form-group row" id="pph26_c_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 20%*</label>
@@ -4363,7 +4363,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26c" value="0.2">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'Pasal 4 Ayat 2')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'Pasal 4 Ayat 2')
                                                                     <div class="form-group row" id="pasal4_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pasal 4 Ayat 2*</label>
@@ -4374,7 +4374,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pasal4" value="0.10	">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppb[0][$i][0][$a]->sppb_pajak_wapu == 'manual')
+                                                                @elseif(isset($sppb[0][$i][0][$a]->sppb_pajak_wapu) && $sppb[0][$i][0][$a]->sppb_pajak_wapu == 'manual')
                                                                     <div class="form-group row" id="manual_sppb_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Manual PPh*</label>
@@ -4688,8 +4688,8 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 @endif
-                                                                @if ($sppb['sppb_jenis'] == 'vendor')
-                                                                    @if ($sppb[0][$i][0][$a]->sppb_tanpa_pajak == 'Ya')
+                                                                @if (isset($sppb['sppb_jenis']) && $sppb['sppb_jenis'] == 'vendor')
+                                                                    @if (isset($sppb[0][$i][0][$a]->sppb_tanpa_pajak) && $sppb[0][$i][0][$a]->sppb_tanpa_pajak == 'Ya')
                                                                         <div class="form-group row" id="dpp_sppb_{{ $i }}_{{ $a }}">
                                                                             <label class="col-sm-1 col-form-label"></label>
                                                                             <label class="col-sm-2 col-form-label">DPP</label>
@@ -5717,7 +5717,7 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                @if ($sppn[0][$i][0][$a]->sppn_pajak_wapu != null)
+                                                                @if (isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu != null)
                                                                     <div class="form-group row formInputPajakSppn" id="sppnpajak">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -5818,7 +5818,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba != null)
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_waba) && $sppn[0][$i][0][$a]->sppn_pajak_waba != null)
                                                                     <div class="form-group row formInputPajakSppn" id="sppnpajak">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -5872,19 +5872,19 @@ $bagianid = Session::get('bagian');
                                                                                 @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'PPh 26 0%')
                                                                                     <option value="waba_pph26_a_sppn_{{ $i }}_{{ $a }}" selected>PPh 26
                                                                                         (0%)</option>
-                                                                                @elseif($sppn[0][$i][0][$a]->sppb_pajak_waba == 'PPh 26 10%')
+                                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'PPh 26 10%')
                                                                                     <option value="waba_pph26_b_sppn_{{ $i }}_{{ $a }}" selected>PPh 26
                                                                                         (10%)</option>
-                                                                                @elseif($sppn[0][$i][0][$a]->sppb_pajak_waba == 'PPh 26 20%')
+                                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'PPh 26 20%')
                                                                                     <option value="waba_pph26_c_sppn_{{ $i }}_{{ $a }}" selected>PPh 26
                                                                                         (20%)</option>
-                                                                                @elseif($sppn[0][$i][0][$a]->sppb_pajak_waba == 'Pasal 4 Ayat 2')
+                                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'Pasal 4 Ayat 2')
                                                                                     <option value="waba_pasal4ayat2_sppn_{{ $i }}_{{ $a }}" selected>
                                                                                         Pasal 4 Ayat 2</option>
-                                                                                @elseif($sppn[0][$i][0][$a]->sppb_pajak_waba == 'waba 1,1%')
+                                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'waba 1,1%')
                                                                                     <option value="waba_nilai_lain_sppn_{{ $i }}_{{ $a }}" selected>DPP
                                                                                         Nilai Lain</option>
-                                                                                @elseif($sppn[0][$i][0][$a]->sppb_pajak_waba == 'manual')
+                                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_waba == 'manual')
                                                                                     <option value="waba_manual_sppn_{{ $i }}_{{ $a }}" selected>PPh
                                                                                         Manual</option>
                                                                                 @endif
@@ -5919,7 +5919,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif ($sppn[0][$i][0][$a]->sppn_pajak_pph != null)
+                                                                @elseif (isset($sppn[0][$i][0][$a]->sppn_pajak_pph) && $sppn[0][$i][0][$a]->sppn_pajak_pph != null)
                                                                     <div class="form-group row formInputPajakSppn" id="sppnpajak">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -6011,7 +6011,7 @@ $bagianid = Session::get('bagian');
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                @elseif ($sppn[0][$i][0][$a]->sppn_tanpa_pajak != null)
+                                                                @elseif (isset($sppn[0][$i][0][$a]->sppn_tanpa_pajak) && $sppn[0][$i][0][$a]->sppn_tanpa_pajak != null)
                                                                     <div class="form-group row formInputPajakSppn" id="sppnpajak">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pajak*</label>
@@ -6033,7 +6033,7 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 @endif
-                                                                @if ($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'wapu Normal 11%')
+                                                                @if (isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'wapu Normal 11%')
                                                                     <div class="form-group row" id="pph_normal_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh*</label>
@@ -6043,7 +6043,7 @@ $bagianid = Session::get('bagian');
                                                                                 value="0.11">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 2,5%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 2,5%')
                                                                     <div class="form-group row" id="pph21_a_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 2,5%*</label>
@@ -6053,7 +6053,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21a" value="0.025">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 7,5%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 7,5%')
                                                                     <div class="form-group row" id="pph21_b_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 7,5%*</label>
@@ -6063,7 +6063,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21b" value="0.075">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 12,5%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 21 12,5%')
                                                                     <div class="form-group row" id="pph21_c_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 21 12,5%*</label>
@@ -6073,7 +6073,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph21c" value="0.125">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 22 1,5%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 22 1,5%')
                                                                     <div class="form-group row" id="pph22_a_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 22*</label>
@@ -6083,7 +6083,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph22" value="0.015">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 2%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 2%')
                                                                     <div class="form-group row" id="pph23_a_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 2%*</label>
@@ -6093,7 +6093,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23a" value="0.02">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 15%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 15%')
                                                                     <div class="form-group row" id="pph23_b_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 15%*</label>
@@ -6103,7 +6103,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23b" value="0.15">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 0%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 23 0%')
                                                                     <div class="form-group row" id="pph23_c_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 23 0%*</label>
@@ -6113,7 +6113,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph23c" value="0">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 0%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 0%')
                                                                     <div class="form-group row" id="pph26_a_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 0%*</label>
@@ -6123,7 +6123,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26a" value="0">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 10%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 10%')
                                                                     <div class="form-group row" id="pph26_b_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 10%*</label>
@@ -6133,7 +6133,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26b" value="0.1">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 20%')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'PPh 26 20%')
                                                                     <div class="form-group row" id="pph26_c_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">PPh 26 20%*</label>
@@ -6143,7 +6143,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pph26c" value="0.2">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'Pasal 4 Ayat 2')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'Pasal 4 Ayat 2')
                                                                     <div class="form-group row" id="pasal4_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Pasal 4 Ayat 2*</label>
@@ -6153,7 +6153,7 @@ $bagianid = Session::get('bagian');
                                                                                 id="pasal4" value="0.10	">
                                                                         </div>
                                                                     </div>
-                                                                @elseif($sppn[0][$i][0][$a]->sppn_pajak_wapu == 'manual')
+                                                                @elseif(isset($sppn[0][$i][0][$a]->sppn_pajak_wapu) && $sppn[0][$i][0][$a]->sppn_pajak_wapu == 'manual')
                                                                     <div class="form-group row" id="manual_sppn_{{ $i }}_{{ $a }}">
                                                                         <label class="col-sm-1 col-form-label"></label>
                                                                         <label class="col-sm-2 col-form-label">Manual PPh*</label>
@@ -6462,7 +6462,7 @@ $bagianid = Session::get('bagian');
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                @if ($sppn[0][$i][0][$a]->sppn_tanpa_pajak == 'Ya')
+                                                                @if (isset($sppn[0][$i][0][$a]->sppn_tanpa_pajak) && $sppn[0][$i][0][$a]->sppn_tanpa_pajak == 'Ya')
                                                                     <div class="form-group row" id="nominal_potongan_sppn_{{ $i }}_{{ $a }}"
                                                                         style="display:none">
                                                                         <label class="col-sm-1 col-form-label"></label>
@@ -16289,7 +16289,7 @@ $bagianid = Session::get('bagian');
                 }
                 if (karyawan_sppn > 1) {
                     for (var i = 1; i < karyawan_sppn; i++) {
-                        if ($('#metode_pembayaran_sppn').val() == 'kas') {
+                        if ($('#metode_pembayaran_sppn').val() == 'tidak_transfer') {
                             $('#btn_karyawan_kas_sppn_' + i).hide();
                         } else {
                             $('#btn_karyawan_bank_sppn_' + i).hide();
@@ -16322,7 +16322,7 @@ $bagianid = Session::get('bagian');
                 }
                 if (karyawan_sppb > 1) {
                     for (var i = 1; i < karyawan_sppb; i++) {
-                        if ($('#metode_pembayaran_sppb').val() == 'kas') {
+                        if ($('#metode_pembayaran_sppb').val() == 'tidak_transfer') {
                             $('#btn_karyawan_kas_sppb_' + i).hide();
 
                         } else {
@@ -16365,7 +16365,7 @@ $bagianid = Session::get('bagian');
                 }
                 if (karyawan_sppb > 1) {
                     for (var i = 1; i < karyawan_sppb; i++) {
-                        if ($('#metode_pembayaran_sppb').val() == 'kas') {
+                        if ($('#metode_pembayaran_sppb').val() == 'tidak_transfer') {
                             $('#btn_karyawan_kas_sppb_' + i).hide();
                             $('#btn_karyawan_kas_sppb_input' + i).hide();
 
@@ -16381,7 +16381,7 @@ $bagianid = Session::get('bagian');
                 }
                 if (karyawan_sppn > 1) {
                     for (var i = 1; i < karyawan_sppn; i++) {
-                        if ($('#metode_pembayaran_sppn').val() == 'kas') {
+                        if ($('#metode_pembayaran_sppn').val() == 'tidak_transfer') {
                             $('#btn_karyawan_kas_sppn_' + i).hide();
                         } else {
                             $('#btn_karyawan_bank_sppn_' + i).hide();
@@ -17270,7 +17270,7 @@ $bagianid = Session::get('bagian');
                         $('#nama_kas_input_1').show();
                         $('#alamat_kas_input_1').show();
                         break;
-                    case 'kas':
+                    case 'tidak_transfer':
                         $('#pilih_lampirkan_sppb').hide();
                         $('#nama_kas_input_1').hide();
                         $('#alamat_kas_input_1').hide();
@@ -17383,7 +17383,7 @@ $bagianid = Session::get('bagian');
                             inputs[i].addEventListener("focus", validateInput);
                         }
                     }
-                } else if ($('#metode_pembayaran_sppb').val() == 'kas') {
+                } else if ($('#metode_pembayaran_sppb').val() == 'tidak_transfer') {
                     if ($('#jenis_spp').val() == 'karyawan') {
                         $('#kas_sppb').hide();
                         $('#kas_sppb_master').hide();
@@ -17688,7 +17688,7 @@ $bagianid = Session::get('bagian');
                     document.getElementById("nama_bank_sppb_karyawan_input_1").className = "form-control";
                     document.getElementById("rekening_bank_sppb_karyawan_input_1").className = "form-control";
                     document.getElementById("atas_nama_bank_sppb_karyawan_input_1").className = "form-control";
-                } else if ($('#metode_pembayaran_sppb').val() == 'kas') {
+                } else if ($('#metode_pembayaran_sppb').val() == 'tidak_transfer') {
                     $('#kas_sppb').hide();
                     $('#bank_sppb').hide();
                     $('#bank_sppb_karyawan_master').hide();
@@ -17772,7 +17772,7 @@ $bagianid = Session::get('bagian');
                     document.getElementById("nama_bank_sppb_karyawan_input_1").className = "form-control";
                     document.getElementById("rekening_bank_sppb_karyawan_input_1").className = "form-control";
                     document.getElementById("atas_nama_bank_sppb_karyawan_input_1").className = "form-control";
-                } else if ($('#metode_pembayaran_sppb').val() == 'kas') {
+                } else if ($('#metode_pembayaran_sppb').val() == 'tidak_transfer') {
                     $('#kas_sppb').hide();
                     $('#bank_sppb').hide();
                     document.getElementById("atas_nama_bank_sppb_kas_1").className = "form-control";
