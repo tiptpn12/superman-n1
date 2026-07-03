@@ -94,6 +94,7 @@ Route::post('/createUraian', [APIPushSPPController::class, 'createUraian']);
 Route::post('/insertRekeningKaryawan', [APIPushSPPController::class, 'insertRekeningKaryawan']);
 Route::post('/insertRekamJejak', [APIPushSPPController::class, 'insertRekamJejak']);
 Route::post('/createSPPnSPPB', [APIPushSPPController::class,    'createSPPnSPPB']);
+Route::post('/createSPPBnSPPN', [APIPushSPPController::class, 'createSPPBnSPPN']);
 
 // Chart
 Route::get('charts/terima-keluar', [ChartController::class, 'terimaKeluar']);
