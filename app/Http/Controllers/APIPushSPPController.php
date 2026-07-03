@@ -74,13 +74,15 @@ class APIPushSPPController extends Controller
             $month = Carbon::createFromFormat('Y-m-d', $tanggal)->month;
             $bulan = $bulanromawi[$month];
 
-            $nomor_surat = DB::table('sppb')
-                ->select(DB::raw('MAX(sppb_urutan) as maxno'))
-                ->where('sppb_tahun', $tahun)
-                ->where('master_bagian_id', $request->master_bagian_id)
-                ->first();
+            // $nomor_surat = DB::table('sppb')
+            //     ->select(DB::raw('MAX(sppb_urutan) as maxno'))
+            //     ->where('sppb_tahun', $tahun)
+            //     ->where('master_bagian_id', $request->master_bagian_id)
+            //     ->first();
+            // $urutansppb = $nomor_surat->maxno + 1;
 
-            $urutansppb = $nomor_surat->maxno + 1;
+            $cleanMaxSppb = $this->getCleanMaxUrutan('sppb', 'sppb_urutan', 'sppb_tanggal', 'master_bagian_id', $request->master_bagian_id);
+            $urutansppb = $cleanMaxSppb + 1;
             $nomor = $kodebagian . "/SPPb/" . $urutansppb . "/" . $bulan . "/" . $tahun;
 
             // Simpan data SPPB
@@ -300,6 +302,7 @@ class APIPushSPPController extends Controller
                 'karyawan_sppb.*.nama' => 'nullable|string',
                 'karyawan_sppb.*.bank' => 'nullable|string',
                 'karyawan_sppb.*.no_rek' => 'nullable|string',
+                'karyawan_sppb.*.alamat' => 'nullable|string',
                 'pilih_data_sppb_vendor' => 'nullable|string',
             ]);
 
@@ -325,20 +328,24 @@ class APIPushSPPController extends Controller
             $bulan = $bulanromawi[$month];
 
             // Get urutan sppb
-            $nomor_surat_sppb = DB::table('sppb')
-                ->select(DB::raw('MAX(sppb_urutan) as maxno'))
-                ->where('sppb_tahun', $tahun)
-                ->where('master_bagian_id', $validatedSppbRequest['master_bagian_id'])
-                ->first();
-            $urutansppb = ($nomor_surat_sppb->maxno ?? 0) + 1;
+            // $nomor_surat_sppb = DB::table('sppb')
+            //     ->select(DB::raw('MAX(sppb_urutan) as maxno'))
+            //     ->where('sppb_tahun', $tahun)
+            //     ->where('master_bagian_id', $validatedSppbRequest['master_bagian_id'])
+            //     ->first();
+            // $urutansppb = ($nomor_surat_sppb->maxno ?? 0) + 1;
+            $cleanMaxSppb = $this->getCleanMaxUrutan('sppb', 'sppb_urutan', 'sppb_tanggal', 'master_bagian_id', $validatedSppbRequest['master_bagian_id']);
+            $urutansppb = $cleanMaxSppb + 1;
 
             // Get urutan sppn
-            $nomor_surat_sppn = DB::table('sppn')
-                ->select(DB::raw('MAX(sppn_urutan) as maxnosppn'))
-                ->where('sppn_tahun', $tahun)
-                ->where('master_bagian_id', $validatedSppnRequest['master_bagian_id'])
-                ->first();
-            $urutansppn = ($nomor_surat_sppn->maxnosppn ?? 0) + 1;
+            // $nomor_surat_sppn = DB::table('sppn')
+            //     ->select(DB::raw('MAX(sppn_urutan) as maxnosppn'))
+            //     ->where('sppn_tahun', $tahun)
+            //     ->where('master_bagian_id', $validatedSppnRequest['master_bagian_id'])
+            //     ->first();
+            // $urutansppn = ($nomor_surat_sppn->maxnosppn ?? 0) + 1;
+            $cleanMaxSppn = $this->getCleanMaxUrutan('sppn', 'sppn_urutan', 'sppn_tanggal', 'master_bagian_id', $validatedSppnRequest['master_bagian_id']);
+            $urutansppn = $cleanMaxSppn + 1;
 
             $nomorsppb = $kodebagiansppb . "/SPPb/" . $urutansppb . "/" . $bulan . "/" . $tahun;
             $nomorsppn = $kodebagiansppn . "/SPPn/" . $urutansppn . "/" . $bulan . "/" . $tahun;
@@ -473,7 +480,7 @@ class APIPushSPPController extends Controller
                     'karyawan_nama' => $v['nama'] ?? null,
                     'karyawan_nama_bank' => $v['bank'] ?? null,
                     'karyawan_no_rek' => $v['no_rek'] ?? null,
-                    'karyawan_alamat' => "-",
+                    'karyawan_alamat' => $v['alamat'] ?? null,
                 ]);
             }
 
@@ -524,5 +531,101 @@ class APIPushSPPController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * NOTE: THIS FUNCTION REFERENCE IS IN SppbController.php
+     * Cari max urutan "bersih" setelah 9 Jan untuk suatu bagian.
+     *
+     * Strategi: cek per bulan mulai dari bulan ini, mundur ke belakang.
+     * Di setiap bulan:
+     *   1. Gap detection: jika ada gap > 100 antar urutan, pisahkan bersih vs terkontaminasi
+     *   2. Contamination check: jika semua entry di bulan itu punya urutan jauh lebih tinggi
+     *      dari total jumlah entry sejak reset, anggap terkontaminasi → mundur ke bulan sebelumnya
+     *
+     * Contoh bagian 167:
+     *   Maret: [148, 149, 1645, 1646] → gap 149→1645 → cleanMax = 149 ✅
+     *
+     * Contoh bagian 178 (semua terkontaminasi):
+     *   Maret: [2392, 2393] → min=2392, totalEntries=20 → 2392 >> 20 → mundur
+     *   Februari: [2380, 2381] → sama → mundur
+     *   Januari: [2391, ...] → sama → mundur
+     *   Tidak ada data bersih → return 0 → urutan mulai dari 1 ✅
+     */
+    private function getCleanMaxUrutan($table, $urutanCol, $tanggalCol, $bagianCol, $bagianId)
+    {
+        $resetDate = '2026-01-09';
+        $now = Carbon::now();
+
+        // Hitung total entry sejak reset - dipakai untuk contamination check
+        $totalEntriesSinceReset = DB::table($table)
+            ->where($bagianCol, $bagianId)
+            ->whereDate($tanggalCol, '>=', $resetDate)
+            ->count();
+
+        // Mulai dari bulan ini, mundur per bulan
+        for ($monthsBack = 0; $monthsBack <= 14; $monthsBack++) {
+            $checkDate = $now->copy()->subMonths($monthsBack);
+            $monthStart = $checkDate->copy()->startOfMonth()->format('Y-m-d');
+            $monthEnd = $checkDate->copy()->endOfMonth()->format('Y-m-d');
+
+            // Jangan mundur melewati tanggal reset
+            if ($monthEnd < $resetDate) break;
+            if ($monthStart < $resetDate) $monthStart = $resetDate;
+
+            // Ambil urutan unik di bulan ini
+            $monthUrutan = DB::table($table)
+                ->where($bagianCol, $bagianId)
+                ->whereDate($tanggalCol, '>=', $monthStart)
+                ->whereDate($tanggalCol, '<=', $monthEnd)
+                ->pluck($urutanCol)
+                ->unique()
+                ->sort()
+                ->values()
+                ->toArray();
+
+            if (empty($monthUrutan)) continue; // Tidak ada data bulan ini, mundur
+
+            // === GAP DETECTION ===
+            if (count($monthUrutan) >= 2) {
+                $biggestGap = 0;
+                $biggestGapIndex = -1;
+
+                for ($i = 1; $i < count($monthUrutan); $i++) {
+                    $gap = $monthUrutan[$i] - $monthUrutan[$i - 1];
+                    if ($gap > $biggestGap) {
+                        $biggestGap = $gap;
+                        $biggestGapIndex = $i;
+                    }
+                }
+
+                // Gap > 100 = ada pemisahan antara sequence bersih dan terkontaminasi
+                if ($biggestGap > 100 && $biggestGapIndex > 0) {
+                    $cleanMax = $monthUrutan[$biggestGapIndex - 1];
+                    \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart}, gap={$biggestGap}, cleanMax={$cleanMax}");
+                    return $cleanMax;
+                }
+            }
+
+            // === CONTAMINATION CHECK ===
+            // Jika min urutan >> total entry count, berarti entry ini melanjutkan sequence lama (terkontaminasi)
+            // Contoh: 20 entry total, tapi min urutan = 2392 → jelas terkontaminasi
+            // Contoh: 310 entry total, min urutan = 308 → wajar, bersih
+            $minVal = $monthUrutan[0];
+            $maxVal = end($monthUrutan);
+
+            if ($totalEntriesSinceReset > 0 && $minVal > $totalEntriesSinceReset * 3 && $minVal > 100) {
+                \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart} terkontaminasi (min={$minVal}, totalEntries={$totalEntriesSinceReset}), mundur");
+                continue; // Bulan ini semua terkontaminasi, mundur
+            }
+
+            // Entry bersih ditemukan!
+            \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: bulan={$monthStart}, cleanMax={$maxVal}, entries=" . count($monthUrutan));
+            return $maxVal;
+        }
+
+        // Tidak ada data bersih sama sekali → mulai dari 0
+        \Log::info("getCleanMaxUrutan [{$table}] bagian={$bagianId}: tidak ada data bersih, return 0");
+        return 0;
     }
 }
