@@ -42,7 +42,45 @@ class MasterAPIController extends Controller
                 ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
                 ->select('master_hak_akses_nama', 'spp_no_dokumen', 'spp_id', 'spp.sppb_id', 'spp.sppn_id', 'sppd_revisi', 'sppd_status', 'sppd_posisi', 'sppd_proses', 'spp_kabag', 'master_bagian_nama', 'spp_status_proses', 'spp_status_posisi', DB::raw("DATE_FORMAT(spp.spp_tanggal,'%d-%m-%Y') as tanggal"), 'sppb_no', 'sppb_tanggal', 'sppb_total', 'sppn_no', 'sppn_tanggal', 'sppn_jumlah', 'sppd_status', DB::raw("GROUP_CONCAT(DISTINCT sppb_uraian_uraian SEPARATOR ',') as sppb_uraian2"), DB::raw("GROUP_CONCAT(DISTINCT sppn_uraian_uraian SEPARATOR ',') as sppn_uraian2"))
                 ->groupBy('spp_id', 'spp_tanggal')
-                ->havingRaw("CONCAT(coalesce(spp_no_dokumen, ''), coalesce(sppb_no, ''), coalesce(tanggal, ''), coalesce(sppb_tanggal, ''), coalesce(sppb_total, ''), coalesce(sppn_tanggal, ''), coalesce(sppn_jumlah, ''), coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%" . $keyword . "%'");
+                ->havingRaw("CONCAT(coalesce(spp_no_dokumen, ''), coalesce(sppb_no, ''), coalesce(tanggal, ''), coalesce(sppb_tanggal, ''), coalesce(sppb_total, ''), coalesce(sppn_tanggal, ''), coalesce(sppn_jumlah, ''), coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%" . $keyword . "%' AND (CONCAT(coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) not like '%pengadaan%inv%' OR CONCAT(coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%sdr%')");
+
+            $total = (clone $baseQuery)->get()->count();
+
+
+            $data = $baseQuery->orderBy('spp_tanggal', 'desc')
+                    ->offset(($page - 1) * $pageSize)
+                    ->limit($pageSize)
+                    ->get();
+
+            return response()->json(['data' => compact('total', 'data')], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data. ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function getSPPKoperasi(Request $request)
+    {
+        $bagian = $request->input('bagian');
+        $akses = $request->input('akses');
+        $flow = $request->input('flow'); // Pastikan ini berupa array atau set sesuai kebutuhan
+        $page = $request->input('page');
+        $pageSize = $request->input('pageSize');
+        $keyword = $request->input('keyword');
+
+        try {
+            $baseQuery = DB::table('spp')->where('spp.master_bagian_id', '=', $bagian)
+                // ->where('spp.sppd_posisi', $akses)
+                ->whereBetween('spp.sppd_status', [0, 2])
+                ->where('spp.flow_id', $flow)
+                ->where('spp.spp_apk_bpd', 1)
+                ->leftJoin('sppb', 'spp.sppb_id', '=', 'sppb.sppb_id')->leftJoin('sppn', 'spp.sppn_id', '=', 'sppn.sppn_id')
+                ->leftJoin('sppb_isi', 'sppb.sppb_id', '=', 'sppb_isi.sppb_id')->leftJoin('sppb_uraian', 'sppb_isi.sppb_isi_id', '=', 'sppb_uraian.sppb_isi_id')
+                ->leftJoin('sppn_isi', 'sppn.sppn_id', '=', 'sppn_isi.sppn_id')->leftJoin('sppn_uraian', 'sppn_isi.sppn_isi_id', '=', 'sppn_uraian.sppn_isi_id')
+                ->leftJoin('master_bagian', 'spp.master_bagian_id', '=', 'master_bagian.master_bagian_id')
+                ->leftJoin('master_hak_akses', 'master_hak_akses.master_hak_akses_id', '=', 'spp.sppd_posisi')
+                ->select('master_hak_akses_nama', 'spp_no_dokumen', 'spp_id', 'spp.sppb_id', 'spp.sppn_id', 'sppd_revisi', 'sppd_status', 'sppd_posisi', 'sppd_proses', 'spp_kabag', 'master_bagian_nama', 'spp_status_proses', 'spp_status_posisi', DB::raw("DATE_FORMAT(spp.spp_tanggal,'%d-%m-%Y') as tanggal"), 'sppb_no', 'sppb_tanggal', 'sppb_total', 'sppn_no', 'sppn_tanggal', 'sppn_jumlah', 'sppd_status', DB::raw("GROUP_CONCAT(DISTINCT sppb_uraian_uraian SEPARATOR ',') as sppb_uraian2"), DB::raw("GROUP_CONCAT(DISTINCT sppn_uraian_uraian SEPARATOR ',') as sppn_uraian2"))
+                ->groupBy('spp_id', 'spp_tanggal')
+                ->havingRaw("CONCAT(coalesce(spp_no_dokumen, ''), coalesce(sppb_no, ''), coalesce(tanggal, ''), coalesce(sppb_tanggal, ''), coalesce(sppb_total, ''), coalesce(sppn_tanggal, ''), coalesce(sppn_jumlah, ''), coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%" . $keyword . "%' AND CONCAT(coalesce(sppb_uraian2, ''), coalesce(sppn_uraian2, '')) like '%pengadaan%inv%'");
 
             $total = (clone $baseQuery)->get()->count();
 

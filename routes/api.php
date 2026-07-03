@@ -78,6 +78,7 @@ Route::get('/getSumberDana', [MasterAPIController::class, 'getSumberDana']);
 
 // Get SPP karyawan BPD Superman
 Route::post('/getSPP', [MasterAPIController::class, 'getSPP']);
+Route::post('/getSPPKoperasi', [MasterAPIController::class, 'getSPPKoperasi']);
 Route::post('/getStatusSPP', [MasterAPIController::class, 'getStatusSPP']);
 Route::post('/updateSppApkBpd', [MasterAPIController::class, 'updateSppApkBpd']);
 
