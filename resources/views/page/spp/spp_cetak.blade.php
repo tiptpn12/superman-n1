@@ -114,10 +114,6 @@
 
             }
 
-            .watermark {
-                background-image: url('{{ asset('assets/img/valid-watermark.jpg') }}');
-            }
-
             table.table-bordered {
                 border: 1px solid black !important;
                 margin-top: 20px;
@@ -166,7 +162,20 @@
         }
     </style>
     <?php
+    $bagian_id = null;
+    if (isset($sppb) && isset($sppb['master_bagian_id'])) {
+        $bagian_id = $sppb['master_bagian_id'];
+    } elseif (isset($sppn) && isset($sppn['master_bagian_id'])) {
+        $bagian_id = $sppn['master_bagian_id'];
+    }
+    
     $perusahaan = Session::get('company');
+    if ($bagian_id) {
+        $bagian_db = DB::table('master_bagian')->where('master_bagian_id', $bagian_id)->first();
+        if ($bagian_db && isset($bagian_db->company_id)) {
+            $perusahaan = $bagian_db->company_id;
+        }
+    }
     ?>
 
 
@@ -187,6 +196,14 @@
             196 => 8,
         ];
     @endphp
+    {{-- 
+    <div style="padding: 10px; background: #f5f5f5; border-bottom: 1px solid #ddd;" class="no-print">
+        <a href="javascript:void(0)" onclick="generatePDF()" style="background: #d9534f; color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+            <i class="fa fa-file-pdf-o"></i> Download PDF (html2pdf)
+        </a>
+        <small style="margin-left: 10px; color: #666;">*Gunakan link ini jika hasil cetak biasa terpotong</small>
+    </div>
+    --}}
     <div class="wrapper">
         <div class="container">
 
@@ -208,6 +225,9 @@
                                                         <h5 style="text-align:left; font-weight:bold;">
                                                             {{ $company }}
                                                         </h5>
+                                                        @if(isset($company_jenis) && $company_jenis == 'UNIT')
+                                                            <br>
+                                                        @endif
                                                         Nomor : {{ $sppb['sppb_no'] }}
                                                         <br>
                                                         Tanggal : {{ date('d-m-Y', strtotime($sppb['sppb_tanggal'])) }}
@@ -227,7 +247,34 @@
                                                     <!-- /.col -->
 
                                                     <!-- /.col -->
-                                                    @if ($perusahaan == 5)
+                                                    @if (in_array($sppb['master_bagian_id'], [151, 157, 166, 175, 178, 190, 196]))
+                                                        <div class="col-sm-5 invoice-col">
+                                                            <div style="text-align:left">
+                                                                <b>Kepada Yth.</b>
+                                                                <br>
+                                                                @if ($sppb['master_bagian_id'] == 190)
+                                                                    <b>Business Support Head Regional
+                                                                        {{ $regional[$sppb['master_bagian_id']] }}</b>
+                                                                @else
+                                                                    <b>SEVP Business Support Regional
+                                                                        {{ $regional[$sppb['master_bagian_id']] }}</b>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @elseif(isset($company_jenis) && $company_jenis == 'UNIT')
+                                                        <div class="col-sm-5 invoice-col">
+                                                            <div style="text-align:left">
+                                                                <b>Kepada Yth.</b>
+                                                                <br>
+                                                                @php
+                                                                    $parts = explode('-', $company);
+                                                                    $company_tampil = count($parts) >= 3 ? trim($parts[2]) : (count($parts) == 2 ? trim($parts[1]) : trim($company));
+                                                                    $company_tampil = ucfirst(strtolower($company_tampil));
+                                                                @endphp
+                                                                <b>Manajer Kebun {{ $company_tampil }}</b>
+                                                            </div>
+                                                        </div>
+                                                    @elseif ($perusahaan == 5)
                                                         @if ($sppb['master_bagian_id'] != 126)
                                                             <div class="col-sm-5 invoice-col">
                                                                 <div style="text-align:left">
@@ -255,14 +302,9 @@
                                                             <div style="text-align:left">
                                                                 <b>Kepada Yth.</b>
                                                                 <br>
-                                                                @if (in_array($sppb['master_bagian_id'], [151, 157, 166, 175, 178, 190, 196]))
-                                                                    <b>SEVP Business Support Regional
-                                                                        {{ $regional[$sppb['master_bagian_id']] }}</b>
-                                                                @else
-                                                                    @foreach ($kotak_cetak as $kotak)
-                                                                        <b> {{ $kotak->tujuan_kepada }}</b>
-                                                                    @endforeach
-                                                                @endif
+                                                                @foreach ($kotak_cetak as $kotak)
+                                                                    <b> {{ $kotak->tujuan_kepada }}</b>
+                                                                @endforeach
                                                             </div>
                                                         </div>
                                                     @endif
@@ -295,32 +337,34 @@
                                                             </th>
 
                                                             <th style="vertical-align:middle; width:49.96%">
-                                                                Nomor Faktur Pajak
-                                                                &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                                &nbsp; &nbsp;
-                                                                &nbsp; &nbsp; &nbsp;
-                                                                : {{ $sppb[1][0]->faktur_pajak_nomor }}
-                                                                <br>
-                                                                @for ($i = 1; $i < count($sppb[1]); $i++)
-                                                                    &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp;
-                                                                    &nbsp; &nbsp; &nbsp;
-                                                                    : {{ $sppb[1][$i]->faktur_pajak_nomor }}
-                                                                    <br>
-                                                                @endfor
-                                                                Nomor SP/OPL/SPK/Perjanjian
-                                                                : {{ $sppb['sppb_sp_opl'] }}
-                                                            </th>
+                                                                 Nomor Faktur Pajak
+                                                                 &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                 &nbsp; &nbsp;
+                                                                 &nbsp; &nbsp; &nbsp;
+                                                                 : {{ $sppb[1][0]->faktur_pajak_nomor ?? '-' }}
+                                                                 <br>
+                                                                 @if (isset($sppb[1]) && count($sppb[1]) > 1)
+                                                                     @for ($i = 1; $i < count($sppb[1]); $i++)
+                                                                         &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp;
+                                                                         &nbsp; &nbsp; &nbsp;
+                                                                         : {{ $sppb[1][$i]->faktur_pajak_nomor }}
+                                                                         <br>
+                                                                     @endfor
+                                                                 @endif
+                                                                 Nomor SP/OPL/SPK/Perjanjian
+                                                                 : {{ $sppb['sppb_sp_opl'] }}
+                                                             </th>
                                                         </tr>
                                                     </thead>
                                                 </table>
@@ -354,8 +398,18 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody style="height:200px;">
-                                                                @if (isset($sppb[0]))
-                                                                    @for ($i = 0; $i < count($sppb[0]); $i++)
+                                                                 @if (isset($sppb[0]))
+                                                                     @php
+                                                                         $sppb_calculated_total = 0;
+                                                                         for ($i = 0; $i < count($sppb[0]); $i++) {
+                                                                             if (isset($sppb[0][$i][0])) {
+                                                                                 for ($a = 0; $a < count($sppb[0][$i][0]); $a++) {
+                                                                                     $sppb_calculated_total += $sppb[0][$i][0][$a]->sppb_nominal_akhir;
+                                                                                 }
+                                                                             }
+                                                                         }
+                                                                     @endphp
+                                                                     @for ($i = 0; $i < count($sppb[0]); $i++)
                                                                         <tr style="page-break-inside:auto">
 
                                                                             {{-- @if ($sppb[0][$i]['master_gl_id'] == null)
@@ -537,22 +591,22 @@
                                                                     <th></th>
                                                                 </tr>
                                                                 <tr
-                                                                    style="border-bottom-style: solid !important; border-bottom-width: 1px">
-                                                                    <td style="text-align:left;border-bottom-style: solid !important;"
-                                                                        class="terbilang">
-                                                                        <b>TERBILANG:
-                                                                    </td>
-                                                                    <td colspan="4"
-                                                                        style="text-transform:uppercase; text-align:center;border-bottom-style: solid !important;">
-                                                                        <b style="font-style:italic">
-                                                                            {{ Terbilang::angka($sppb['sppb_total']) }}
-                                                                            rupiah </b>
-                                                                    </td>
-                                                                    <td
-                                                                        style="text-align:right;border-bottom-style: solid !important;">
-                                                                        <b>{{ number_format($sppb['sppb_total']) }}
-                                                                    </td>
-                                                                </tr>
+                                                                     style="border-bottom-style: solid !important; border-bottom-width: 1px">
+                                                                     <td style="text-align:left;border-bottom-style: solid !important;"
+                                                                         class="terbilang">
+                                                                         <b>TERBILANG:
+                                                                     </td>
+                                                                     <td colspan="4"
+                                                                         style="text-transform:uppercase; text-align:center;border-bottom-style: solid !important;">
+                                                                         <b style="font-style:italic">
+                                                                             {{ Terbilang::angka($sppb_calculated_total) }}
+                                                                             rupiah </b>
+                                                                     </td>
+                                                                     <td
+                                                                         style="text-align:right;border-bottom-style: solid !important;">
+                                                                         <b>{{ number_format($sppb_calculated_total) }}
+                                                                     </td>
+                                                                 </tr>
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -593,6 +647,7 @@
                                                     </div>
                                                     &nbsp;
                                                     <div class="row" style="page-break-inside: avoid;">
+                                                        @if($company_jenis != "UNIT")
                                                         @if ($flowid == 25)
                                                             <div class="col-sm-4">
                                                                 <table style="border-collapse: collapse; width: 100%;">
@@ -600,7 +655,31 @@
                                                                 </table>
                                                             </div>
                                                         
-                                                        @elseif($company_jenis == "REG")
+                                                        @else
+                                                        <div class="col-sm-4">
+                                                                <table style="border-collapse: collapse; width: 100%;">
+                                                                    <tr>
+                                                                        <th
+                                                                            style="border: 1px solid #dddddd; text-align: left; padding: 8px; text-align: center;">
+                                                                            Diperiksa Oleh : </th>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th
+                                                                            style="border: 1px solid #dddddd; text-align: left; padding: 8px; text-align: center;">
+                                                                            @foreach ($kotak_cetak as $kotak)
+                                                                                {{ $kotak->diperiksa_oleh_1 }}
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                            @endforeach
+                                                                        </th>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                            @endif
                                                         <div class="col-sm-8">
                                                             <table style="border-collapse: collapse; width: 100%;">
                                                                 <th
@@ -716,7 +795,12 @@
 
                                 <div class="row">
                                     <div class="col-sm-8">
-                                        <h5 style="text-align:left; font-weight:bold;">{{ $company }}</h5>
+                                        <h5 style="text-align:left; font-weight:bold;">
+                                            {{ $company }}
+                                        </h5>
+                                        @if(isset($company_jenis) && $company_jenis == 'UNIT')
+                                            <br>
+                                        @endif
                                         Nomor : {{ $sppn['sppn_no'] }}
                                         <br>
                                         Tanggal : {{ date('d-m-Y', strtotime($sppn['sppn_tanggal'])) }}
@@ -737,7 +821,34 @@
                                     <!-- /.col -->
 
                                     <!-- /.col -->
-                                    @if ($perusahaan == 5)
+                                    @if (in_array($sppn['master_bagian_id'], [151, 157, 166, 175, 178, 190, 196]))
+                                        <div class="col-sm-5 invoice-col">
+                                            <div style="text-align:left">
+                                                <b>Kepada Yth.</b>
+                                                <br>
+                                                @if ($sppn['master_bagian_id'] == 190)
+                                                    <b>Business Support Head
+                                                        {{ $regional[$sppn['master_bagian_id']] }}</b>
+                                                @else
+                                                    <b>SEVP Business Support Regional
+                                                        {{ $regional[$sppn['master_bagian_id']] }}</b>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @elseif(isset($company_jenis) && $company_jenis == 'UNIT')
+                                        <div class="col-sm-5 invoice-col">
+                                            <div style="text-align:left">
+                                                <b>Kepada Yth.</b>
+                                                <br>
+                                                @php
+                                                    $parts = explode('-', $company);
+                                                    $company_tampil = count($parts) >= 3 ? trim($parts[2]) : (count($parts) == 2 ? trim($parts[1]) : trim($company));
+                                                    $company_tampil = ucfirst(strtolower($company_tampil));
+                                                @endphp
+                                                <b>Manajer {{ $company_tampil }}</b>
+                                            </div>
+                                        </div>
+                                    @elseif ($perusahaan == 5)
                                         @if ($sppn['master_bagian_id'] != 126)
                                             <div class="col-sm-5 invoice-col">
                                                 <div style="text-align:left">
@@ -764,14 +875,9 @@
                                             <div style="text-align:left">
                                                 <b>Kepada Yth.</b>
                                                 <br>
-                                                @if (in_array($sppn['master_bagian_id'], [151, 157, 166, 175, 178, 190, 196]))
-                                                    <b>SEVP Business Support Regional
-                                                        {{ $regional[$sppn['master_bagian_id']] }}</b>
-                                                @else
-                                                    @foreach ($kotak_cetak as $kotak)
-                                                        <b> {{ $kotak->tujuan_kepada }}</b>
-                                                    @endforeach
-                                                @endif
+                                                @foreach ($kotak_cetak as $kotak)
+                                                    <b> {{ $kotak->tujuan_kepada }}</b>
+                                                @endforeach
                                             </div>
                                         </div>
                                     @endif
@@ -791,7 +897,7 @@
                                     <div class="col-xs-12 table-responsive">
                                         Dengan ini dimohon bantuannya untuk dibayarkan tagihan sebagai berikut :
 
-                                        <table class="table table-bordered" style="width:79%">
+                                        <table class="table table-bordered" style="width:99.92%">
                                             <thead>
                                                 <tr>
                                                     <th style="vertical-align:middle; text-align:left; width:49.96%">
@@ -800,28 +906,31 @@
                                                         BA / AU 58 No : {{ $sppn['sppn_ba_au_53'] }}
                                                     </th>
                                                     <th style="vertical-align:middle; text-align:left; width:49.96%">
-                                                        Nomor Faktur Pajak : {{ $sppn[1][0]->faktur_pajak_nomor }}
-                                                        <br>
-                                                        @for ($i = 1; $i < count($sppn[1]); $i++)
-                                                            &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
-                                                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                            : {{ $sppn[1][$i]->faktur_pajak_nomor }}
-                                                            <br>
-                                                        @endfor
-                                                        @if (isset($sppb['sppb_no']))
-                                                            Nomor SPPb &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                            &nbsp;: {{ $sppb['sppb_no'] }}
-                                                        @else
-                                                            Nomor SPPb &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                                            &nbsp;: -
-                                                        @endif
+                                                         Nomor Faktur Pajak : {{ $sppn[1][0]->faktur_pajak_nomor ?? '-' }}
+                                                         <br>
+                                                         @if (isset($sppn[1]) && count($sppn[1]) > 1)
+                                                             @for ($i = 1; $i < count($sppn[1]); $i++)
+                                                                 &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+                                                                 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                                 : {{ $sppn[1][$i]->faktur_pajak_nomor }}
+                                                                 <br>
+                                                             @endfor
+                                                         @endif
+                                                         @if (isset($sppb['sppb_no']))
+                                                             Nomor SPPb &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                             &nbsp;: {{ $sppb['sppb_no'] }}
+                                                         @else
+                                                             Nomor SPPb &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                             &nbsp;: -
+                                                         @endif
+                                                     </th>
                                                     </th>
 
                                                 </tr>
                                             </thead>
                                         </table>
-                                        <table class="table table-bordered" style="width:79%">
+                                        <table class="table table-bordered" style="width:99.92%">
                                             <thead>
                                                 <tr>
                                                     <th colspan="4" style="text-align:center"> KODE </th>
@@ -842,8 +951,18 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @if (isset($sppn[0]))
-                                                    @for ($i = 0; $i < count($sppn[0]); $i++)
+                                                 @if (isset($sppn[0]))
+                                                     @php
+                                                         $sppn_calculated_total = 0;
+                                                         for ($i = 0; $i < count($sppn[0]); $i++) {
+                                                             if (isset($sppn[0][$i][0])) {
+                                                                 for ($a = 0; $a < count($sppn[0][$i][0]); $a++) {
+                                                                     $sppn_calculated_total += $sppn[0][$i][0][$a]->sppn_nominal_akhir;
+                                                                 }
+                                                             }
+                                                         }
+                                                     @endphp
+                                                     @for ($i = 0; $i < count($sppn[0]); $i++)
                                                         <tr style="position:relative;padding:0px;">
                                                             <!-- <td style="text-align:center">{{ $sppn[0][$i]['master_kode_kbb'] }}</td> -->
                                                             {{-- @if ($sppn[0][$i]['master_gl_id'] == null)
@@ -960,17 +1079,17 @@
                                                 </tr>
                                             </tbody>
                                             <tfoot>
-                                                <tr>
-                                                    <td style="text-align:left;" class="terbilang"><b>TERBILANG:</td>
-                                                    <td colspan="4"
-                                                        style="text-transform:uppercase; text-align:center"> <b
-                                                            style="font-style:italic">
-                                                            {{ Terbilang::angka($sppn['sppn_jumlah']) }} rupiah </b>
-                                                    </td>
-                                                    <td style="text-align:right;">
-                                                        <b>{{ number_format($sppn['sppn_jumlah']) }}
-                                                    </td>
-                                                </tr>
+                                                 <tr>
+                                                     <td style="text-align:left;" class="terbilang"><b>TERBILANG:</td>
+                                                     <td colspan="4"
+                                                         style="text-transform:uppercase; text-align:center"> <b
+                                                             style="font-style:italic">
+                                                             {{ Terbilang::angka($sppn_calculated_total) }} rupiah </b>
+                                                     </td>
+                                                     <td style="text-align:right;">
+                                                         <b>{{ number_format($sppn_calculated_total) }}
+                                                     </td>
+                                                 </tr>
                                             </tfoot>
                                         </table>
                                         Dokumen-dokumen syarat pembayaran kami lampirkan dan kami bertanggung jawab atas
@@ -997,15 +1116,41 @@
 
                                 </div>
                                 &nbsp;
-                                <div class="row">
-                                    @if ($flowid == 25)
-                                        <div class="col-sm-4">
-                                            <table style="border-collapse: collapse; width: 100%;">
 
-                                            </table>
-                                        </div>
-                                    
-                                    @elseif($company_jenis == "REG")
+                                <div class="row">
+                                    @if($company_jenis != "UNIT")
+                                                        @if ($flowid == 25)
+                                                            <div class="col-sm-4">
+                                                                <table style="border-collapse: collapse; width: 100%;">
+
+                                                                </table>
+                                                            </div>
+                                                        
+                                                        @else
+                                                        <div class="col-sm-4">
+                                                                <table style="border-collapse: collapse; width: 100%;">
+                                                                    <tr>
+                                                                        <th
+                                                                            style="border: 1px solid #dddddd; text-align: left; padding: 8px; text-align: center;">
+                                                                            Diperiksa Oleh : </th>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th
+                                                                            style="border: 1px solid #dddddd; text-align: left; padding: 8px; text-align: center;">
+                                                                            @foreach ($kotak_cetak as $kotak)
+                                                                                {{ $kotak->diperiksa_oleh_1 }}
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                                <br>
+                                                                            @endforeach
+                                                                        </th>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                            @endif
                                     <div class="col-sm-8">
                                         <table style="border-collapse: collapse; width: 100%;">
                                             <th
@@ -1019,6 +1164,7 @@
                                             <table style="border-collapse: collapse; width: 100%;">
                                                 <th
                                                     style="border: 1px solid #dddddd; text-align: left; padding: 8px; text-align: center;">
+
                                                     {{ $kotak->diperiksa_oleh_2 }}
                                                     <br>
                                                     <br>
@@ -1112,7 +1258,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
     integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script type="text/javascript"></script>
+<script type="text/javascript">
+    function generatePDF() {
+        const element = document.getElementById('pdf');
+        const options = {
+            margin: [10, 10, 10, 10], // top, left, buttom, right
+            filename: 'SPP-{{ isset($sppb) ? $sppb['sppb_no'] : (isset($sppn) ? $sppn['sppn_no'] : "Document") }}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true,
+                logging: false,
+                letterRendering: true
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait' 
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        // Tambahkan class khusus saat proses generate jika diperlukan
+        // element.classList.add('generating-pdf');
+
+        html2pdf().set(options).from(element).save().then(() => {
+            // element.classList.remove('generating-pdf');
+        });
+    }
+</script>
 <script src="{{ asset('') }}assets/vendor/bootstrap/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap.min.js"></script>

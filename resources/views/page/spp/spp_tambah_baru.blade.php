@@ -8402,9 +8402,112 @@
         });
 
         function simpan_spp() {
+            // Kumpulkan data untuk cek anomali
+            var jenisForm = $('#jenis_form').val();
+            var tanggal = jenisForm == 'sppb' ? $('#tanggal_sppb').val() : 
+                          jenisForm == 'sppn' ? $('#tanggal_sppn').val() : 
+                          $('#tanggal_sppb').val();
+            var bagianSppb = $('#bagian_sppb').val();
+            var bagianSppn = $('#bagian_sppn').val();
+
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Mengecek urutan nomor...',
+                text: 'Mohon tunggu, sedang memeriksa anomali urutan 2 minggu terakhir',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            // Panggil endpoint cek anomali
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('checkUrutanAnomaly') }}",
+                data: {
+                    jenis_form: jenisForm,
+                    tanggal: tanggal,
+                    bagian_sppb: bagianSppb,
+                    bagian_sppn: bagianSppn
+                },
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.has_anomaly && response.warnings.length > 0) {
+                        // Ada peringatan, tampilkan detail
+                        var hasWarningOrDanger = response.warnings.some(function(w) {
+                            return w.type === 'warning' || w.type === 'danger';
+                        });
+
+                        var warningHtml = '<div style="text-align:left; max-height:300px; overflow-y:auto;">';
+                        response.warnings.forEach(function(w) {
+                            var icon = w.type === 'danger' ? '🔴' : 
+                                       w.type === 'warning' ? '🟡' : 'ℹ️';
+                            var color = w.type === 'danger' ? '#dc3545' : 
+                                        w.type === 'warning' ? '#ffc107' : '#17a2b8';
+                            warningHtml += '<div style="padding:8px; margin:4px 0; border-left:4px solid ' + color + '; background:#f8f9fa; border-radius:4px; font-size:13px;">';
+                            warningHtml += '<span>' + icon + ' ' + w.message + '</span>';
+                            warningHtml += '</div>';
+                        });
+                        warningHtml += '</div>';
+
+                        if (hasWarningOrDanger) {
+                            // Ada warning/danger → tampilkan konfirmasi
+                            Swal.fire({
+                                title: '⚠️ Peringatan Anomali Urutan',
+                                html: warningHtml + '<br><strong>Apakah anda tetap ingin menyimpan?</strong>',
+                                icon: 'warning',
+                                showDenyButton: true,
+                                showCancelButton: true,
+                                confirmButtonText: 'Simpan dan Cetak',
+                                denyButtonText: 'Simpan Saja',
+                                cancelButtonText: 'Batal',
+                                confirmButtonColor: '#008000',
+                                denyButtonColor: '#1E90FF',
+                                width: '600px'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $('#form_spp').attr("target", "");
+                                    $('#status_btn').val(1);
+                                    document.getElementById("form_spp").submit();
+                                } else if (result.isDenied) {
+                                    $('#status_btn').val(0);
+                                    document.getElementById("form_spp").submit();
+                                }
+                            });
+                        } else {
+                            // Hanya info, langsung lanjut simpan dengan dialog biasa
+                            lanjutSimpan(warningHtml);
+                        }
+                    } else {
+                        // Tidak ada anomali, langsung simpan
+                        lanjutSimpan(null);
+                    }
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    console.error('Error checking urutan anomaly:', xhr);
+                    // Jika gagal cek, tetap izinkan simpan
+                    lanjutSimpan(null);
+                }
+            });
+        }
+
+        function lanjutSimpan(infoHtml) {
+            var htmlContent = '';
+            if (infoHtml) {
+                htmlContent = infoHtml + '<br>';
+            }
+            htmlContent += 'Apakah anda ingin menyimpan dan mencetak PP?';
 
             Swal.fire({
-                title: 'Apakah anda ingin menyimpan dan mencetak PP?',
+                title: infoHtml ? 'Info Urutan Nomor' : 'Apakah anda ingin menyimpan dan mencetak PP?',
+                html: infoHtml ? htmlContent : undefined,
                 showDenyButton: true,
                 showCancelButton: false,
                 confirmButtonText: `Simpan dan Cetak`,
@@ -8421,10 +8524,8 @@
                     document.getElementById("form_spp").submit();
                 }
             })
-
-
-
         }
+
         $('#metode_pembayaran_sppb').change(function(event) {
 
             if ($('#jenis_spp').val() == 'karyawan') {

@@ -73,28 +73,18 @@
                                 <h3 class="panel-title">Tabel Master Cetak Bukti Kas</h3>
                             </div>
                             <div class="panel-body">
-                                @if (in_array($hakAkses, [44, 45]))
+                                @if (in_array($hakAkses, [1, 44]))
                                     <button type="button" class="btn btn-primary" onclick="tambah()"
-                                        style="margin-bottom: 15px">Tambah Data</button>
+                                        style="margin-bottom: 15px"><i class="fa fa-plus-circle"></i> Tambah Konfigurasi</button>
                                 @endif
                                 <table class="table table-bordered table-striped nowrap" style="width: 100%"
                                     id="cetakBuktiKasTable">
                                     <thead>
-                                        <tr>
-                                            <th>No. </th>
-                                            <th>Perusahaan</th>
-                                            <th>Sub Bagian Pembuat</th>
-                                            {{-- <th>Nama Pembuat</th> --}}
-                                            <th>Sub Bagian Pemeriksa</th>
-                                            <th>Nama Pemeriksa Sub Bagian</th>
-                                            <th>Bagian Pemeriksa</th>
-                                            <th>Nama Pemeriksa Bagian</th>
-                                            <th>Yang Menyetujui</th>
-                                            <th>Nama Menyetujui</th>
-                                            <th>Dari Bank</th>
-                                            <th>Lebih Dari 5 Miliar</th>
-                                            <th>Lebih Dari 25 Juta</th>
-                                            <th>Action</th>
+                                        <tr class="bg-primary text-white">
+                                            <th style="width: 5%; text-align: center;">No.</th>
+                                            <th style="width: 45%;">Perusahaan</th>
+                                            <th style="width: 25%; text-align: center;">Status Konfigurasi</th>
+                                            <th style="width: 25%; text-align: center;">Action</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -113,40 +103,20 @@
 
     {{-- Modal Tambah Data --}}
     <div id="modal_tambah" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg" style="width: 95%;">
             <!-- Modal content-->
             <div class="modal-content">
                 <form id="form-tambah">
                     @csrf
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Tambah Data Master Cetak Bukti Kas</h4>
+                        <h4 class="modal-title">Tambah Konfigurasi Cetak Bukti Kas</h4>
                     </div>
                     <div class="modal-body">
-                        {{-- Flash Error --}}
-                        <div id="flash-error" class="alert alert-danger" style="display: none;">
-                            <ul id="flash-error-list"></ul>
-                        </div>
-
-                        <ul class="nav nav-tabs" id="tambah_tab" role="tablist">
-                            <li class="nav-item active">
-                                <a class="nav-link" id="tab-penandatangan-tab" data-toggle="tab" href="#tab-penandatangan"
-                                    role="tab">Penandatangan</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-lainnya-tab" data-toggle="tab" href="#tab-lainnya"
-                                    role="tab">Lainnya</a>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content">
-                            <div class="tab-pane fade active in" id="tab-penandatangan" role="tabpanel"
-                                aria-labelledby="tab-penandatangan-tab">
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="company">
-                                        Perusahaan
-                                        <span class="text-danger">*</span>
-                                    </label>
+                                    <label for="company">Perusahaan <span class="text-danger">*</span></label>
                                     <select class="form-control" name="company" id="company" required>
                                         <option value="" disabled selected>Pilih Perusahaan</option>
                                         @foreach ($companies as $company)
@@ -154,132 +124,21 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <small class="text-danger" id="company_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sub_bagian_pembuat">
-                                        Sub Bagian Pembuat
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="sub_bagian_pembuat" name="sub_bagian_pembuat"
-                                        class="form-control" placeholder="Contoh: Sub Bagian Keuangan" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="sub_bagian_pembuat_error"></small>
-                                </div>
-                                {{-- <div class="form-group">
-                                    <label for="nama_pembuat">Nama Pembuat</label>
-                                    <input type="text" id="nama_pembuat" name="nama_pembuat" class="form-control"
-                                        placeholder="Contoh: John Doe" autocomplete="off">
-                                    <small class="text-danger" id="nama_pembuat_error"></small>
-                                </div> --}}
-                                <div class="form-group">
-                                    <label for="sub_bagian_pemeriksa">
-                                        Sub Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="sub_bagian_pemeriksa" name="sub_bagian_pemeriksa"
-                                        class="form-control" placeholder="Contoh: Kepala Sub Bagian Keuangan"
-                                        autocomplete="off" required>
-                                    <small class="text-danger" id="sub_bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nama_pemeriksa">
-                                        Nama Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="nama_pemeriksa" name="nama_pemeriksa" class="form-control"
-                                        placeholder="Contoh: Jane Doe" autocomplete="off" required>
-                                    <small class="text-danger" id="nama_pemeriksa_error"></small>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="bagian_pemeriksa">
-                                        Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="bagian_pemeriksa" name="bagian_pemeriksa"
-                                        class="form-control" placeholder="Contoh: Kepala Bagian Akuntansi dan Keuangan"
-                                        autocomplete="off" required>
-                                    <small class="text-danger" id="bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nama_bagian_pemeriksa">
-                                        Nama Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="nama_bagian_pemeriksa" name="nama_bagian_pemeriksa"
-                                        class="form-control" placeholder="Contoh: James Smith" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="nama_bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="yang_menyetujui">
-                                        Yang Menyetujui
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="yang_menyetujui" name="yang_menyetujui"
-                                        class="form-control" placeholder="Contoh: Region Head" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="yang_menyetujui_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nama_yang_menyetujui">
-                                        Nama Penyetuju
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="nama_yang_menyetujui" name="nama_yang_menyetujui"
-                                        class="form-control" placeholder="Contoh: Robert Brown" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="nama_yang_menyetujui_error"></small>
-
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="tab-lainnya" role="tabpanel"
-                                aria-labelledby="tab-lainnya-tab">
-                                <div class="form-group">
-                                    <label for="is_bank">
-                                        Apakah digunakan kas atau bank?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="is_bank" id="is_bank" required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="0">Kas</option>
-                                        <option value="1">Bank</option>
-                                    </select>
-                                    <small class="text-danger" id="is_bank_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="lebih_dari_5_m">
-                                        Apakah digunakan untuk dana yang lebih dari 5 Miliar?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="lebih_dari_5_m" id="lebih_dari_5_m" required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="1">Ya</option>
-                                        <option value="0">Tidak</option>
-                                    </select>
-                                    <small class="text-danger" id="lebih_dari_5_m_error"></small>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="lebih_dari_25_jt">
-                                        Apakah digunakan untuk dana yang lebih dari 25 Juta?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="lebih_dari_25_jt" id="lebih_dari_25_jt" required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="1">Ya</option>
-                                        <option value="0">Tidak</option>
-                                    </select>
-                                    <small class="text-danger" id="lebih_dari_25_jt_error"></small>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="alert alert-info" style="margin-bottom: 10px; padding: 10px;">
+                            <i class="fa fa-info-circle"></i> <b>Tips:</b> Isi baris pertama, lalu gunakan tombol salin (<i class="fa fa-copy"></i>) untuk mengisi semua skenario sekaligus.
+                        </div>
+
+                        <div class="table-responsive" id="tambah-table-container">
+                            <!-- Table injected via JS to prevent auto-datatable init -->
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Simpan Data</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
                     </div>
                 </form>
             </div>
@@ -289,176 +148,27 @@
 
     {{-- Modal Ubah Data --}}
     <div id="modal_ubah" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg" style="width: 95%;">
             <!-- Modal content-->
             <div class="modal-content">
                 <form id="form-ubah">
                     @csrf
-                    <input type="hidden" id="ubah_id" name="id">
+                    <input type="hidden" name="company_id" id="ubah_company_id_val">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Ubah Data Master Cetak Bukti Kas</h4>
+                        <h4 class="modal-title">Bulk Update Master Cetak Bukti Kas: <span id="ubah_company_name" class="text-primary"></span></h4>
                     </div>
                     <div class="modal-body">
-                        {{-- Flash Error --}}
-                        <div id="flash-ubah-error" class="alert alert-danger" style="display: none;">
-                            <ul id="flash-ubah-error-list"></ul>
+                        <div class="alert alert-info" style="margin-bottom: 10px; padding: 10px;">
+                            <i class="fa fa-info-circle"></i> <b>Tips:</b> Isi baris pertama, lalu klik tombol <i class="fa fa-copy"></i> untuk menyalin data ke semua skenario di bawahnya.
                         </div>
-
-                        <ul class="nav nav-tabs" id="ubah_tab" role="tablist">
-                            <li class="nav-item active">
-                                <a class="nav-link" id="tab-ubah-penandatangan-tab" data-toggle="tab"
-                                    href="#tab-ubah-penandatangan" role="tab">Penandatangan</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-ubah-lainnya-tab" data-toggle="tab" href="#tab-ubah-lainnya"
-                                    role="tab">Lainnya</a>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content">
-                            <div class="tab-pane fade active in" id="tab-ubah-penandatangan" role="tabpanel"
-                                aria-labelledby="tab-ubah-penandatangan-tab">
-                                <div class="form-group">
-                                    <label for="ubah_company_id">
-                                        Perusahaan
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="ubah_company_id" id="ubah_company_id" required>
-                                        <option disabled selected>Pilih Perusahaan</option>
-                                        @foreach ($companies as $company)
-                                            <option value="{{ $company->company_id }}">{{ $company->company_nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-danger" id="ubah_company_id_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_sub_bagian_pembuat">
-                                        Sub Bagian Pembuat
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_sub_bagian_pembuat" name="ubah_sub_bagian_pembuat"
-                                        class="form-control" placeholder="Contoh: Sub Bagian Keuangan" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="ubah_sub_bagian_pembuat_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_nama_pembuat">Nama Pembuat</label>
-                                    <input type="text" id="ubah_nama_pembuat" name="ubah_nama_pembuat"
-                                        class="form-control" placeholder="Contoh: John Doe" autocomplete="off">
-                                    <small class="text-danger" id="ubah_nama_pembuat_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_sub_bagian_pemeriksa">
-                                        Sub Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_sub_bagian_pemeriksa" name="ubah_sub_bagian_pemeriksa"
-                                        class="form-control" placeholder="Contoh: Kepala Sub Bagian Keuangan"
-                                        autocomplete="off" required>
-                                    <small class="text-danger" id="ubah_sub_bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_nama_pemeriksa">
-                                        Nama Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_nama_pemeriksa" name="ubah_nama_pemeriksa"
-                                        class="form-control" placeholder="Contoh: Jane Doe" autocomplete="off" required>
-                                    <small class="text-danger" id="ubah_nama_pemeriksa_error"></small>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_bagian_pemeriksa">
-                                        Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_bagian_pemeriksa" name="ubah_bagian_pemeriksa"
-                                        class="form-control" placeholder="Contoh: Kepala Bagian Akuntansi dan Keuangan"
-                                        autocomplete="off" required>
-                                    <small class="text-danger" id="ubah_bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_nama_bagian_pemeriksa">
-                                        Nama Bagian Pemeriksa
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_nama_bagian_pemeriksa"
-                                        name="ubah_nama_bagian_pemeriksa" class="form-control"
-                                        placeholder="Contoh: James Smith" autocomplete="off" required>
-                                    <small class="text-danger" id="ubah_nama_bagian_pemeriksa_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_yang_menyetujui">
-                                        Yang Menyetujui
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_yang_menyetujui" name="ubah_yang_menyetujui"
-                                        class="form-control" placeholder="Contoh: Region Head" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="ubah_yang_menyetujui_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_nama_yang_menyetujui">
-                                        Nama Penyetuju
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" id="ubah_nama_yang_menyetujui" name="ubah_nama_yang_menyetujui"
-                                        class="form-control" placeholder="Contoh: Robert Brown" autocomplete="off"
-                                        required>
-                                    <small class="text-danger" id="ubah_nama_yang_menyetujui_error"></small>
-
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="tab-ubah-lainnya" role="tabpanel"
-                                aria-labelledby="tab-ubah-lainnya-tab">
-                                <div class="form-group">
-                                    <label for="ubah_is_bank">
-                                        Apakah digunakan kas atau bank?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="ubah_is_bank" id="ubah_is_bank" required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="0">Kas</option>
-                                        <option value="1">Bank</option>
-                                    </select>
-                                    <small class="text-danger" id="ubah_is_bank_error"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_lebih_dari_5_m">
-                                        Apakah digunakan untuk dana yang lebih dari 5 Miliar?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="ubah_lebih_dari_5_m" id="ubah_lebih_dari_5_m"
-                                        required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="1">Ya</option>
-                                        <option value="0">Tidak</option>
-                                    </select>
-                                    <small class="text-danger" id="ubah_lebih_dari_5_m_error"></small>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="ubah_lebih_dari_25_jt">
-                                        Apakah digunakan untuk dana yang lebih dari 25 Juta?
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-control" name="ubah_lebih_dari_25_jt" id="ubah_lebih_dari_25_jt"
-                                        required>
-                                        <option value="" disabled selected>Pilih salah satu</option>
-                                        <option value="1">Ya</option>
-                                        <option value="0">Tidak</option>
-                                    </select>
-                                    <small class="text-danger" id="ubah_lebih_dari_25_jt_error"></small>
-                                </div>
-                            </div>
+                        <div class="table-responsive" id="edit-table-container">
+                            <!-- Table injected via JS to prevent auto-datatable init -->
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Simpan Semua Perubahan</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
                     </div>
                 </form>
             </div>
@@ -466,51 +176,234 @@
     </div>
     {{-- End Modal Ubah Data --}}
 
+    {{-- Modal Detail Data --}}
+    <div id="modal_detail" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" style="width: 95%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Detail Konfigurasi: <span id="detail_company_name" class="text-primary"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive" id="detail-table-container">
+                        <!-- Table injected via JS to prevent auto-datatable init -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- End Modal Detail Data --}}
+
     <script>
         function tambah() {
+            const types = [{
+                    b: 0,
+                    m5: 0,
+                    j25: 0,
+                    label: 'Kas (<= 25jt)'
+                },
+                {
+                    b: 0,
+                    m5: 0,
+                    j25: 1,
+                    label: 'Kas (> 25jt)'
+                },
+                {
+                    b: 1,
+                    m5: 0,
+                    j25: 0,
+                    label: 'Bank (<= 5M)'
+                },
+                {
+                    b: 1,
+                    m5: 1,
+                    j25: 0,
+                    label: 'Bank (> 5M)'
+                }
+            ];
+
+            var html = `
+                <table class="table table-bordered table-condensed" style="font-size: 11px;">
+                    <thead>
+                        <tr class="bg-primary">
+                            <th style="width: 140px; vertical-align: middle; text-align: center;">SKENARIO</th>
+                            <th style="vertical-align: middle; text-align: center;">PEMBUAT (Sub Bagian)</th>
+                            <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Sub Bagian)</th>
+                            <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Bagian)</th>
+                            <th style="vertical-align: middle; text-align: center;">PENYETUJU</th>
+                            <th style="width: 40px; vertical-align: middle; text-align: center;">COPY</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            types.forEach((t, i) => {
+                html += `
+                <tr class="tambah-scenario-row">
+                    <td style="vertical-align: middle;">
+                        <b>${t.label}</b>
+                        <input type="hidden" name="scenarios[${i}][is_bank]" value="${t.b}">
+                        <input type="hidden" name="scenarios[${i}][lebih_dari_5_m]" value="${t.m5}">
+                        <input type="hidden" name="scenarios[${i}][lebih_dari_25_jt]" value="${t.j25}">
+                    </td>
+                    <td>
+                        <input type="text" name="scenarios[${i}][dibuat_sub_bagian]" class="form-control input-sm" placeholder="Jabatan" style="margin-bottom: 5px;">
+                        <input type="text" name="scenarios[${i}][dibuat_sub_bagian_nama]" class="form-control input-sm" placeholder="Nama">
+                    </td>
+                    <td>
+                        <input type="text" name="scenarios[${i}][diperiksa_oleh_sub_bagian]" class="form-control input-sm" placeholder="Jabatan" style="margin-bottom: 5px;" required>
+                        <input type="text" name="scenarios[${i}][diperiksa_oleh_sub_bagian_nama]" class="form-control input-sm" placeholder="Nama">
+                    </td>
+                    <td>
+                        <input type="text" name="scenarios[${i}][diperiksa_oleh_bagian]" class="form-control input-sm" placeholder="Jabatan" style="margin-bottom: 5px;" required>
+                        <input type="text" name="scenarios[${i}][diperiksa_oleh_bagian_nama]" class="form-control input-sm" placeholder="Nama">
+                    </td>
+                    <td>
+                        <input type="text" name="scenarios[${i}][disetujui_oleh]" class="form-control input-sm" placeholder="Jabatan" style="margin-bottom: 5px;" required>
+                        <input type="text" name="scenarios[${i}][disetujui_oleh_nama]" class="form-control input-sm" placeholder="Nama">
+                    </td>
+                    <td style="vertical-align: middle; text-align: center;">
+                        ${i == 0 ? '<button type="button" class="btn btn-info btn-xs" onclick="copyToAllTambah()" title="Salin ke semua skenario"><i class="fa fa-copy"></i></button>' : ''}
+                    </td>
+                </tr>
+                `;
+            });
+            html += `
+                    </tbody>
+                </table>
+            `;
+            $('#tambah-table-container').html(html);
             $("#modal_tambah").modal('show');
         }
 
-        function edit(id) {
-            $.ajax({
-                url: "{{ route('admin.cetakbuktikas.getDataById', ':id') }}".replace(':id', id),
-                method: 'GET',
-                success: function(response) {
-                    var data = response.data;
-                    if (response.success) {
-                        $('#ubah_id').val(data.id);
-                        $('#ubah_company_id').val(data.company_id);
-                        $('#ubah_sub_bagian_pembuat').val(data.dibuat_sub_bagian);
-                        $('#ubah_nama_pembuat').val(data.dibuat_sub_bagian_nama);
-                        $('#ubah_sub_bagian_pemeriksa').val(data.diperiksa_oleh_sub_bagian);
-                        $('#ubah_nama_pemeriksa').val(data.diperiksa_oleh_sub_bagian_nama);
-                        $('#ubah_bagian_pemeriksa').val(data.diperiksa_oleh_bagian);
-                        $('#ubah_nama_bagian_pemeriksa').val(data.diperiksa_oleh_bagian_nama);
-                        $('#ubah_yang_menyetujui').val(data.disetujui_oleh);
-                        $('#ubah_nama_yang_menyetujui').val(data.disetujui_oleh_nama);
-                        $('#ubah_is_bank').val(data.is_bank);
-                        $('#ubah_lebih_dari_5_m').val(data.lebih_dari_5_m);
-                        $('#ubah_lebih_dari_25_jt').val(data.lebih_dari_25_jt);
-                        $('#modal_ubah').modal('show');
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Data gagal ditambahkan',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Data gagal dimuat',
-                        showConfirmButton: false,
-                        timer: 1500
+        function copyToAllTambah() {
+            var firstRow = $('.tambah-scenario-row').first();
+            var inputs = firstRow.find('input[type="text"]');
+
+            $('.tambah-scenario-row').each(function(i) {
+                if (i > 0) {
+                    var targetInputs = $(this).find('input[type="text"]');
+                    inputs.each(function(j) {
+                        $(targetInputs[j]).val($(this).val());
                     });
                 }
-            })
+            });
+        }
+
+        function edit(company_id) {
+            $.ajax({
+                url: "{{ url('cetak-bukti-kas/data-by-company') }}/" + company_id,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        var scenarios = response.data;
+                        $('#ubah_company_id_val').val(response.company.company_id);
+                        $('#ubah_company_name').text(response.company.company_nama);
+
+                        // Define scenario types
+                        const types = [{
+                                b: 0,
+                                m5: 0,
+                                j25: 0,
+                                label: 'Kas (<= 25jt)'
+                            },
+                            {
+                                b: 0,
+                                m5: 0,
+                                j25: 1,
+                                label: 'Kas (> 25jt)'
+                            },
+                            {
+                                b: 1,
+                                m5: 0,
+                                j25: 0,
+                                label: 'Bank (<= 5M)'
+                            },
+                            {
+                                b: 1,
+                                m5: 1,
+                                j25: 0,
+                                label: 'Bank (> 5M)'
+                            }
+                        ];
+
+                        var html = `
+                            <table class="table table-bordered table-condensed" style="font-size: 11px;">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th style="width: 140px; vertical-align: middle; text-align: center;">SKENARIO</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMBUAT (Sub Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Sub Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PENYETUJU</th>
+                                        <th style="width: 40px; vertical-align: middle; text-align: center;">COPY</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        types.forEach((t, i) => {
+                            // Find existing data for this scenario
+                            var s = scenarios.find(x => x.is_bank == t.b && x.lebih_dari_5_m == t
+                                .m5 && x.lebih_dari_25_jt == t.j25);
+                            if (!s) s = {}; // empty if not found
+
+                            html += `
+                            <tr class="scenario-row" data-index="${i}">
+                                <td style="vertical-align: middle;">
+                                    <b>${t.label}</b>
+                                    <input type="hidden" name="scenarios[${i}][is_bank]" value="${t.b}">
+                                    <input type="hidden" name="scenarios[${i}][lebih_dari_5_m]" value="${t.m5}">
+                                    <input type="hidden" name="scenarios[${i}][lebih_dari_25_jt]" value="${t.j25}">
+                                </td>
+                                <td>
+                                    <input type="text" name="scenarios[${i}][dibuat_sub_bagian]" class="form-control input-sm" value="${s.dibuat_sub_bagian || ''}" placeholder="Jabatan" style="margin-bottom: 5px;">
+                                    <input type="text" name="scenarios[${i}][dibuat_sub_bagian_nama]" class="form-control input-sm" value="${s.dibuat_sub_bagian_nama || ''}" placeholder="Nama">
+                                </td>
+                                <td>
+                                    <input type="text" name="scenarios[${i}][diperiksa_oleh_sub_bagian]" class="form-control input-sm" value="${s.diperiksa_oleh_sub_bagian || ''}" placeholder="Jabatan" style="margin-bottom: 5px;">
+                                    <input type="text" name="scenarios[${i}][diperiksa_oleh_sub_bagian_nama]" class="form-control input-sm" value="${s.diperiksa_oleh_sub_bagian_nama || ''}" placeholder="Nama">
+                                </td>
+                                <td>
+                                    <input type="text" name="scenarios[${i}][diperiksa_oleh_bagian]" class="form-control input-sm" value="${s.diperiksa_oleh_bagian || ''}" placeholder="Jabatan" style="margin-bottom: 5px;">
+                                    <input type="text" name="scenarios[${i}][diperiksa_oleh_bagian_nama]" class="form-control input-sm" value="${s.diperiksa_oleh_bagian_nama || ''}" placeholder="Nama">
+                                </td>
+                                <td>
+                                    <input type="text" name="scenarios[${i}][disetujui_oleh]" class="form-control input-sm" value="${s.disetujui_oleh || ''}" placeholder="Jabatan" style="margin-bottom: 5px;">
+                                    <input type="text" name="scenarios[${i}][disetujui_oleh_nama]" class="form-control input-sm" value="${s.disetujui_oleh_nama || ''}" placeholder="Nama">
+                                </td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    ${i == 0 ? '<button type="button" class="btn btn-info btn-xs" onclick="copyToAll()" title="Salin ke semua skenario"><i class="fa fa-copy"></i></button>' : ''}
+                                </td>
+                            </tr>
+                            `;
+                        });
+
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+
+                        $('#edit-table-container').html(html);
+                        $('#modal_ubah').modal('show');
+                    }
+                }
+            });
+        }
+
+        function copyToAll() {
+            var firstRow = $('.scenario-row').first();
+            var inputs = firstRow.find('input[type="text"]');
+
+            $('.scenario-row').each(function(i) {
+                if (i > 0) {
+                    var targetInputs = $(this).find('input[type="text"]');
+                    inputs.each(function(j) {
+                        $(targetInputs[j]).val($(this).val());
+                    });
+                }
+            });
         }
 
         function destroy(id) {
@@ -574,30 +467,132 @@
                     var table = $('#cetakBuktiKasTable').DataTable();
                     table.clear();
                     $.each(data, function(index, item) {
+                        var statusHtml = '';
+                        if(item.total_records > 5) {
+                            statusHtml = '<span class="label label-danger cursor-pointer" onclick="viewDetail(' + item.company_id + ')" style="font-size: 11px; padding: 5px 10px; cursor: pointer;" title="Klik untuk lihat detail"><i class="fa fa-exclamation-circle"></i> Error (>5 Skenario/Data Sampah)</span>';
+                        } else if(item.valid_scenarios == 4 || item.total_records == 5) {
+                            statusHtml = '<span class="label label-success cursor-pointer" onclick="viewDetail(' + item.company_id + ')" style="font-size: 11px; padding: 5px 10px; cursor: pointer;" title="Klik untuk lihat detail"><i class="fa fa-check-circle"></i> Lengkap (4/4 Skenario)</span>';
+                        } else if(item.valid_scenarios > 0) {
+                            statusHtml = '<span class="label label-warning cursor-pointer" onclick="viewDetail(' + item.company_id + ')" style="font-size: 11px; padding: 5px 10px; cursor: pointer;" title="Klik untuk lihat detail"><i class="fa fa-exclamation-triangle"></i> Sebagian (' + item.valid_scenarios + '/4 Skenario)</span>';
+                        } else {
+                            statusHtml = '<span class="label label-danger" style="font-size: 11px; padding: 5px 10px;"><i class="fa fa-times-circle"></i> Belum Dikonfigurasi (0/4)</span>';
+                        }
+
                         table.row.add([
-                            index + 1,
-                            item.company.company_nama,
-                            item.dibuat_sub_bagian,
-                            // item.dibuat_sub_bagian_nama,
-                            item.diperiksa_oleh_sub_bagian,
-                            item.diperiksa_oleh_sub_bagian_nama,
-                            item.diperiksa_oleh_bagian,
-                            item.diperiksa_oleh_bagian_nama,
-                            item.disetujui_oleh,
-                            item.disetujui_oleh_nama,
-                            item.is_bank == 1 ? 'Ya' : 'Tidak',
-                            item.lebih_dari_5_m == 1 ? 'Ya' : 'Tidak',
-                            item.lebih_dari_25_jt == 1 ? 'Ya' : 'Tidak',
-                            '<button type="button" class="btn btn-warning btn-sm" onclick="edit(' +
-                            item.id + ')" title="Edit Data">' +
-                            '<i class="fa fa-pencil" aria-hidden="true"></i> Edit' +
-                            '</button> ' +
-                            '<button  type="button" class="btn btn-danger btn-sm" onclick="destroy(' +
-                            item.id + ')" title="Hapus Data">' +
+                            '<div style="text-align: center;">' + (index + 1) + '</div>',
+                            '<b style="font-size: 13px;"><i class="fa fa-building-o text-muted" style="margin-right: 8px;"></i>' + item.company_nama + '</b>',
+                            '<div style="text-align: center;">' + statusHtml + '</div>',
+                            '<div style="text-align: center;">' +
+                            '<button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" onclick="edit(' +
+                            item.company_id + ')" title="Edit Data Semua Skenario">' +
+                            '<i class="fa fa-pencil" aria-hidden="true"></i> Edit Bulk' +
+                            '</button>' +
+                            '<button type="button" class="btn btn-danger btn-sm" onclick="destroy(' +
+                            item.company_id + ')" title="Hapus Semua Skenario">' +
                             '<i class="fa fa-trash-o" aria-hidden="true"></i> Hapus' +
-                            '</button>'
+                            '</button>' +
+                            '</div>'
                         ]).draw();
                     });
+                }
+            });
+        }
+        function viewDetail(company_id) {
+            $.ajax({
+                url: "{{ url('cetak-bukti-kas/data-by-company') }}/" + company_id,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        var scenarios = response.data;
+                        $('#detail_company_name').text(response.company.company_nama);
+
+                        const types = [{
+                                b: 0,
+                                m5: 0,
+                                j25: 0,
+                                label: 'Kas (<= 25jt)'
+                            },
+                            {
+                                b: 0,
+                                m5: 0,
+                                j25: 1,
+                                label: 'Kas (> 25jt)'
+                            },
+                            {
+                                b: 1,
+                                m5: 0,
+                                j25: 0,
+                                label: 'Bank (<= 5M)'
+                            },
+                            {
+                                b: 1,
+                                m5: 1,
+                                j25: 0,
+                                label: 'Bank (> 5M)'
+                            }
+                        ];
+
+                        var html = `
+                            <table class="table table-bordered table-condensed table-striped" style="font-size: 11px;">
+                                <thead>
+                                    <tr class="bg-primary text-white">
+                                        <th style="width: 140px; vertical-align: middle; text-align: center;">SKENARIO</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMBUAT (Sub Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Sub Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PEMERIKSA (Bagian)</th>
+                                        <th style="vertical-align: middle; text-align: center;">PENYETUJU</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        
+                        types.forEach((t, i) => {
+                            var s = scenarios.find(x => x.is_bank == t.b && x.lebih_dari_5_m == t.m5 && x.lebih_dari_25_jt == t.j25);
+                            
+                            var getVal = function(val) {
+                                return val ? '<b>' + val + '</b>' : '<i class="text-muted">-Kosong-</i>';
+                            };
+
+                            if (!s) {
+                                html += `
+                                <tr>
+                                    <td style="vertical-align: middle;"><b>${t.label}</b></td>
+                                    <td colspan="4" class="text-center text-danger" style="padding: 15px;"><i>Belum Dikonfigurasi</i></td>
+                                </tr>
+                                `;
+                            } else {
+                                html += `
+                                <tr>
+                                    <td style="vertical-align: middle;"><b>${t.label}</b></td>
+                                    <td>
+                                        <div style="margin-bottom: 5px;">Jabatan: ${getVal(s.dibuat_sub_bagian)}</div>
+                                        <div>Nama: ${getVal(s.dibuat_sub_bagian_nama)}</div>
+                                    </td>
+                                    <td>
+                                        <div style="margin-bottom: 5px;">Jabatan: ${getVal(s.diperiksa_oleh_sub_bagian)}</div>
+                                        <div>Nama: ${getVal(s.diperiksa_oleh_sub_bagian_nama)}</div>
+                                    </td>
+                                    <td>
+                                        <div style="margin-bottom: 5px;">Jabatan: ${getVal(s.diperiksa_oleh_bagian)}</div>
+                                        <div>Nama: ${getVal(s.diperiksa_oleh_bagian_nama)}</div>
+                                    </td>
+                                    <td>
+                                        <div style="margin-bottom: 5px;">Jabatan: ${getVal(s.disetujui_oleh)}</div>
+                                        <div>Nama: ${getVal(s.disetujui_oleh_nama)}</div>
+                                    </td>
+                                </tr>
+                                `;
+                            }
+                        });
+
+                        html += `
+                                </tbody>
+                            </table>
+                        `;
+
+                        $('#detail-table-container').html(html);
+                        $('#modal_detail').modal('show');
+                    }
                 }
             });
         }
@@ -652,26 +647,7 @@
         $(document).ready(function() {
             fetchData();
 
-            function toggleRequiredAttributes() {
-                if ($('#tab-penandatangan').hasClass('active')) {
-                    // Remove required attributes from tab "Lainnya"
-                    $('#tab-lainnya').find('input, select').prop('required', false);
-                    // Add required attributes to tab "Penandatangan"
-                    $('#tab-penandatangan').find('input, select').prop('required', true);
-                } else {
-                    // Add required attributes to tab "Lainnya"
-                    $('#tab-lainnya').find('input, select').prop('required', true);
-                    // Remove required attributes from tab "Penandatangan"
-                    $('#tab-penandatangan').find('input, select').prop('required', false);
-                }
-            }
 
-            // Initial call to ensure the correct tab has required attributes
-            toggleRequiredAttributes();
-
-            $('#tambah_tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-                toggleRequiredAttributes();
-            });
 
             $('#form-tambah').on('submit', function(e) {
                 e.preventDefault();
@@ -693,30 +669,18 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Data gagal ditambahkan',
-                                showConfirmButton: false,
-                                timer: 1500
+                                title: 'Gagal',
+                                text: response.message
                             });
                         }
                     },
                     error: function(xhr) {
-                        $('small.text-danger').text('');
-                        $('#flash-error').hide();
-                        $('#flash-error-list').empty();
-
-                        var errors = xhr.responseJSON.errors;
-
-                        if (errors) {
-                            $.each(errors, function(key, value) {
-                                $('#' + key + '_error').text(value[0]);
-                            });
-                        } else {
-                            console.log(xhr.responseJSON);
-                            $('#flash-error').show();
-                            $('#flash-error-list').append(
-                                "<li>Gagal menyimpan data, silakan coba lagi.</li>"
-                            );
-                        }
+                        console.error(xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menyimpan data, silakan cek konsol.'
+                        });
                     }
                 })
             })
@@ -724,50 +688,37 @@
             $('#form-ubah').on('submit', function(e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
-                var id = $('#ubah_id').val();
+                var company_id = $('#ubah_company_id_val').val();
                 $.ajax({
-                    url: "{{ route('admin.cetakbuktikas.update', ':id') }}".replace(':id', id),
-                    method: 'PUT',
+                    url: "{{ url('cetak-bukti-kas/update') }}/" + company_id,
+                    method: 'POST',
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            $('#form-ubah').trigger('reset');
                             $('#modal_ubah').modal('hide');
                             fetchData();
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Data berhasil diubah',
+                                title: 'Berhasil',
+                                text: response.message,
                                 showConfirmButton: false,
                                 timer: 1500
                             });
                         } else {
-                            console.error(response);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Data gagal diubah',
-                                showConfirmButton: false,
-                                timer: 1500
+                                title: 'Gagal',
+                                text: response.message
                             });
                         }
                     },
                     error: function(xhr) {
-                        $('small.text-danger').text('');
-                        $('#flash-error').hide();
-                        $('#flash-error-list').empty();
-
-                        var errors = xhr.responseJSON.errors;
-
-                        if (errors) {
-                            $.each(errors, function(key, value) {
-                                $('#' + key + '_error').text(value[0]);
-                            });
-                        } else {
-                            console.log(xhr.responseJSON);
-                            $('#flash-error').show();
-                            $('#flash-error-list').append(
-                                "<li>Gagal menyimpan data, silakan coba lagi.</li>"
-                            );
-                        }
+                        console.error(xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menyimpan data, silakan cek konsol.'
+                        });
                     }
                 })
             })

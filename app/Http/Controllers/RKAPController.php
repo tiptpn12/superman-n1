@@ -40,22 +40,13 @@ class RKAPController extends Controller
         if ($is_admin) {
             $gl = GL::all();
             $bagian = Bagian::all();
-            $rkap = RKAP::leftJoin('master_gl', 'master_gl.master_gl_id', '=', 'master_budget.gl_id')
-                ->leftJoin('master_bagian', 'master_bagian.master_bagian_id', '=', 'master_budget.bagian_id')
-                ->get();
         } else {
             $company_id = $this->company;
             $gl = GL::where('company_id', $company_id)->get();
             $bagian = Bagian::where('company_id', $company_id)->get();
-            $rkap = RKAP::leftJoin('master_gl', 'master_gl.master_gl_id', '=', 'master_budget.gl_id')
-                ->leftJoin('master_bagian', 'master_bagian.master_bagian_id', '=', 'master_budget.bagian_id')
-                // ->where('master_gl.company_id', $company_id)
-                ->where('master_bagian.company_id', $company_id)
-                ->get();
         }
 
         $data = [
-            'rkap' => $rkap,
             'gl' => $gl,
             'bagian' => $bagian,
         ];

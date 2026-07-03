@@ -128,6 +128,7 @@ class SppController extends Controller
 
         return redirect('spp/send/' . $id);
     }
+
     public function selesai($id)
     {
         $level = Session::get('level');
@@ -145,6 +146,7 @@ class SppController extends Controller
 
         return back();
     }
+
     public function batal($id)
     {
         $level = Session::get('hak_akses');
@@ -162,6 +164,7 @@ class SppController extends Controller
 
         return back();
     }
+
     public function kirim($id)
     {
         // dd('haha');
@@ -250,6 +253,7 @@ class SppController extends Controller
         return redirect('spp');
         // dd($rekam_jejak);
     }
+
     public function accept($id)
     {
         $level = Session::get('level');
@@ -294,6 +298,7 @@ class SppController extends Controller
         $spp->save();
         return redirect('spp');
     }
+
     public function revisi(Request $request, $id)
     {
         $level = Session::get('level');
@@ -362,11 +367,11 @@ class SppController extends Controller
                 $form = 1;
             }
         }
-        $idsppb = DB::table('spp')->where('spp.sppb_id', '=', $id)->select('spp_id')->first();
-        $idsppn = DB::table('spp')->where('spp.sppn_id', '=', $id)->select('spp_id')->first();
+    $idsppb = DB::table('spp')->where('spp.sppb_id', '=', $id)->select('spp_id')->first();
+    $idsppn = DB::table('spp')->where('spp.sppn_id', '=', $id)->select('spp_id')->first();
         if ($form == 0) {
             $bayar = new Sppb_bukti_kas;
-            $bayar->sppb_id = $id;
+        $bayar->sppb_id = $id;
             $bayar->cek_giro = $request->nomor_bukti_kas_sppb;
             $bayar->master_rekening_id = $request->rekening_bank_sppb;
             $bayar->master_vendor_id = $request->penerima;
@@ -374,7 +379,7 @@ class SppController extends Controller
             $bayar->save();
         } else if ($form == 1) {
             $terima = new Sppn_bukti_kas;
-            $terima->sppn_id = $id;
+        $terima->sppn_id = $id;
             $terima->cek_giro = $request->nomor_bukti_kas_sppn;
             $terima->master_rekening_id = $request->rekening_bank_sppn;
             $terima->master_vendor_id = $request->diterima_dari;
@@ -738,6 +743,7 @@ class SppController extends Controller
         // dd($sppb_cetak_bukti_kas);
         return view('page.spp.spp', compact('id_cetak', 'index_cetak', 'vendor', 'index', 'data_selesai', 'data_batal', 'rekam_jejak_batal', 'data_selesai', 'rekam_jejak_selesai', 'datapenerima', 'data_diterima_dari', 'sppb_bayar_selesai', 'sppb_cetak_bukti_kas', 'sppn_cetak_bukti_kas', 'sppn_terima_selesai', 'data', 'posisi', 'status', 'status_revisi', 'rekam_jejak', 'sppb_bayar', 'sppn_terima', 'rekening', 'posisi_batal', 'b', 'bagian_id', 'asal'));
     }
+
     public function update(Request $request, $id)
     {
 
@@ -1745,7 +1751,7 @@ class SppController extends Controller
                     // ]);
                     $dokumenpendukungsppnsppn = new \App\DokumenPendukungSppn;
                     $dokumenpendukungsppnsppn->sppn_id = $request->sppn_id;
-                    $dokumenpendukungsppnsppn->dokumen_pendukung_sppn_nama = $dokumenpendukungs;
+                    $dokumenpendukungsppnsppn->dokumen_pendukung_sppn_nama = $dokumenpendukungsppns;
                     $dokumenpendukungsppnsppn->save();
                 }
             }
@@ -1838,6 +1844,7 @@ class SppController extends Controller
             }
         }
     }
+
     public function viewupdate($id)
     {
         $company = Session::get('company');
@@ -2130,6 +2137,300 @@ class SppController extends Controller
         return view('page.spp.spp_edit', $data)
             ->with('error_code', $error_code);
     }
+
+    public function viewupdate2($id)
+    {
+        $company = Session::get('company');
+        $profitcenter = ProfitCenter::where('company_id', $company)->get();
+        $costcenter = CostCenter::all();
+        $sumberDana = SumberDana::All();
+        $cashflow = CashFlow::all();
+        $bagian = Session::get('bagian');
+        $level = Session::get('level');
+        $client = new Client();
+        $company = Session::get('company');
+        $error_code = Session::get('error_code');
+        // dd($error_code);
+        try {
+            $id = decrypt($id);
+        } catch (DecryptException $e) {
+            return redirect('user/logout');
+        }
+        $gl = DB::table('master_budget')->where('master_budget.bagian_id', '=', $bagian)
+            ->leftJoin('master_bagian', 'master_budget.bagian_id', '=', 'master_bagian.master_bagian_id')
+            ->leftJoin('master_gl', 'master_budget.gl_id', '=', 'master_gl.master_gl_id')
+            ->get();
+
+        $rekening = DB::table('master_rekening')->where('company_id', $company)
+            ->groupBy('master_rekening_kode_sap')->whereNotNull('master_rekening_kode_sap')
+            ->where('master_rekening_kode_sap', '<>', '')
+            ->where('master_rekening_kode_sap', '<>', 0)
+            ->get();
+
+        //dd($rekening);
+
+        // if (in_array($bagian, [124, 126, 127])) {
+        //     $customer = DB::table('master_customer')
+        //         ->where('master_customer.company_id', '=', $company)
+        //         ->get();
+        // } else {
+        //     $customer = collect();
+        // }
+        // $customer = DB::table('master_customer')
+        //         ->where('master_customer.company_id', '=', $company)
+        //         ->get();
+
+        // dd($customer->first());
+
+        // $url = "https://ino.ptpn12.com/api/get_karyawan/4a685f78e08fb8037fb34905d8440be9225dcdeae25873ae0ae145d6ebd3ab3f7a80fcefb84cb2e460b2724182c2eb730b75570897d9893f48d6117582a17823T3kiHux2Py8pTxJ5fmiotFETRjSfjDFM";
+        // $response = $client->request('GET', $url, [
+        //     'verify' => false,
+        // ]);
+        // $karyawan_all = json_decode($response->getBody());
+        // $bagian_karyawan = DB::table('master_bagian')->where('master_bagian.master_bagian_id', '=', $bagian)
+        //     ->select('master_bagian.*')->first();
+
+        // $ino_bagian_id = $bagian_karyawan;
+
+        // $karyawan_bagian = Arr::where($karyawan_all, function ($value, $key) use ($ino_bagian_id) {
+        //     return $value->bagian_id == $ino_bagian_id;
+        // });
+        // if ($level == 99) {
+        //     $karyawan_bagian = Arr::where($karyawan_all, function ($value, $key) {
+        //         return $value->bagian_id != 7;
+        //     });
+        // }
+        $bagianall = Bagian::where('master_bagian_id', '!=', 10)->get();
+        $idspp = DB::table('spp')->where('spp.spp_id', '=', $id)
+            ->leftJoin('master_sumber_dana', 'spp.spp_jenis_sumber_dana', '=', 'master_sumber_dana.sumber_dana_id')
+            ->select('spp_id', 'sppb_id', 'sppn_id', 'master_sumber_dana.*')->first();
+        // dd($idspp);
+        $idsppb = $idspp->sppb_id;
+        $idsppn = $idspp->sppn_id;
+        if ($idsppb != null) {
+            $datasppb = DB::table('sppb')->where('sppb_id', '=', $idsppb)
+                ->leftJoin('master_bagian', 'sppb.master_bagian_id', '=', 'master_bagian.master_bagian_id')
+                ->leftJoin('master_vendor', 'sppb.master_bank_id', '=', 'master_vendor.master_vendor_id')
+                ->select('sppb.*', 'master_bagian.*', 'master_vendor.*')->first();
+            $sppbisi = DB::table('sppb_isi')->where('sppb_isi.sppb_id', '=', $idsppb)
+                ->leftjoin('master_rekening', 'sppb_isi.master_kode_vendor_id', '=', 'master_rekening.master_rekening_id')
+                ->leftJoin('master_gl', 'sppb_isi.master_gl_id', '=', 'master_gl.master_gl_id')
+                ->leftJoin('master_customer', 'sppb_isi.master_customer_id', '=', 'master_customer.master_customer_id')
+                ->leftjoin('master_cost_center', 'sppb_isi.master_cost_center_id', '=', 'master_cost_center.master_cost_center_id')
+                ->leftJoin('master_profit_center', 'sppb_isi.master_profit_center_id', '=', 'master_profit_center.master_profit_center_id')
+                ->leftjoin('master_cash_flow', 'sppb_isi.master_cash_flow_id', '=', 'master_cash_flow.master_cash_flow_id')
+                ->select('sppb_isi.*', 'master_rekening.*', 'master_gl.*', 'master_customer.*', 'master_profit_center.*', 'master_cost_center.*', 'master_cash_flow.*')->get();
+            $faktur_pajak_sppb = DB::table('faktur_pajak')->where('faktur_pajak.sppb_id', '=', $datasppb->sppb_id)->select('faktur_pajak_nomor')->get();
+
+            $dokpensppb = DB::table('dokumen_pendukung_sppb')->where('dokumen_pendukung_sppb.sppb_id', '=', $datasppb->sppb_id)
+                ->select('dokumen_pendukung_sppb.*')->get();
+            // dd($dokpensppb);
+            foreach ($sppbisi as $a => $value2) {
+                $sppburaian[] = DB::table('sppb_uraian')->where('sppb_uraian.sppb_isi_id', '=', $value2->sppb_isi_id)->select('sppb_uraian.*')->get();
+            }
+
+            $isisppb = [];
+            foreach ($sppbisi as $s => $val) {
+                $isisppb[] = collect($val)->push($sppburaian[$s]);
+            }
+            // dd($idsppb);
+
+
+            $data_sppb = [];
+            $data_sppb = collect($datasppb)->push($isisppb)->push($faktur_pajak_sppb);
+            // dd($data_sppb);
+        } else {
+            $data_sppb = [];
+            $dokpensppb = [];
+        }
+        if ($idsppn != null) {
+            $datasppn = DB::table('sppn')
+                ->where('sppn_id', '=', $idsppn)->leftJoin('master_bagian', 'sppn.master_bagian_id', '=', 'master_bagian.master_bagian_id')
+                ->leftJoin('master_vendor', 'sppn.master_bank_id', '=', 'master_vendor.master_vendor_id')
+                ->select('sppn.*', 'master_bagian.*', 'master_vendor.*')->first();
+
+            $sppnisi = DB::table('sppn_isi')->where('sppn_isi.sppn_id', '=', $idsppn)
+                ->leftjoin('master_rekening', 'sppn_isi.master_kode_vendor_id', '=', 'master_rekening.master_rekening_id')
+                ->leftJoin('master_gl', 'sppn_isi.master_gl_id', '=', 'master_gl.master_gl_id')
+                ->leftJoin('master_customer', 'sppn_isi.master_customer_id', '=', 'master_customer.master_customer_id')
+                ->leftJoin('master_cost_center', 'sppn_isi.master_cost_center_id', '=', 'master_cost_center.master_cost_center_id')
+                ->leftJoin('master_profit_center', 'sppn_isi.master_profit_center_id', '=', 'master_profit_center.master_profit_center_id')
+                ->leftjoin('master_cash_flow', 'sppn_isi.master_cash_flow_id', '=', 'master_cash_flow.master_cash_flow_id')
+                ->select('sppn_isi.*', 'master_rekening.*', 'master_cost_center.*', 'master_gl.*', 'master_customer.*', 'master_profit_center.*', 'master_cash_flow.*')->get();
+            //dd($sppnisi);
+            $faktur_pajak_sppn = DB::table('faktur_pajak')->where('faktur_pajak.sppn_id', '=', $datasppn->sppn_id)->select('faktur_pajak_nomor')->get();
+
+            $dokpensppn = DB::table('dokumen_pendukung_sppn')->where('sppn_id', '=', $datasppn->sppn_id)
+                ->select('dokumen_pendukung_sppn.*')->get();
+
+            foreach ($sppnisi as $a => $value1) {
+                $sppnuraian[] = DB::table('sppn_uraian')->where('sppn_uraian.sppn_isi_id', '=', $value1->sppn_isi_id)->select('sppn_uraian.*')->get();
+            }
+
+            $isisppn = [];
+            foreach ($sppnisi as $s => $val) {
+                $isisppn[] = collect($val)->push($sppnuraian[$s]);
+            }
+
+            $data_sppn = [];
+            $data_sppn = collect($datasppn)->push($isisppn)->push($faktur_pajak_sppn);
+            // dd($data_sppb,$data_sppn);
+        } else {
+            $data_sppn = null;
+            $dokpensppn = null;
+        }
+        // dd($data_sppb,$data_sppn);
+
+        $form = 0;
+        if (isset($data_sppb) && empty($data_sppn)) {
+            $form = 1;
+            if ($data_sppb['sppb_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppb[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppb) && $karyawan_sppb[0] !== []) {
+                    foreach ($karyawan_sppb as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppb[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppb = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppb = null;
+                }
+                $karyawan_sppb = $Krywn;
+            } else {
+                $karyawan_sppb = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppb = null;
+            }
+            $karyawan_no_vendor_sppn = null;
+            $karyawan_sppn = null;
+        } else if (isset($data_sppn) && empty($data_sppb)) {
+            $form = 2;
+            if ($data_sppn['sppn_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppn[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppn) && $karyawan_sppn[0] !== []) {
+                    foreach ($karyawan_sppn as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppn[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppn = null;
+                        }
+                    }
+                } else {
+
+                    $karyawan_no_vendor_sppn = null;
+                }
+                $karyawan_sppn = $Krywn;
+            } else {
+                $karyawan_sppn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppn = null;
+            }
+            $karyawan_no_vendor_sppb = null;
+            $karyawan_sppb = null;
+        } else {
+            $form = 3;
+            if ($data_sppb['sppb_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppb[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppb) && $karyawan_sppb[0] !== []) {
+                    foreach ($karyawan_sppb as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppb[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppb = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppb = null;
+                }
+                $karyawan_sppb = $Krywn;
+            } else {
+                $karyawan_sppb = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppb = null;
+            }
+            if ($data_sppn['sppn_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppn[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppn) && $karyawan_sppn[0] !== []) {
+                    foreach ($karyawan_sppn as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppn[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppn = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppn = null;
+                }
+                $karyawan_sppn = $Krywn;
+            } else {
+                $karyawan_sppn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppn = null;
+            }
+        }
+        // dd($karyawan_sppb);
+        // dd($data_sppb);
+        $vendor = Vendor::where('company_id', $this->company)->get();
+
+        if ($bagian == 61) {
+            $master_karyawan = DB::table('master_karyawan')
+                ->where('company_id', '=', $company)->get();
+        } else {
+            $master_karyawan = DB::table('master_karyawan')
+                ->where('master_bagian_id', '=', $bagian)
+                ->where('company_id', '=', $company)->get();
+        }
+
+        $karyawan_bagian = [];
+
+        $data = array(
+            'sppb' => $data_sppb,
+            'sppn' => $data_sppn,
+            'dokpensppb' => $dokpensppb,
+            'dokpensppn' => $dokpensppn,
+            'formspp' => $form,
+            'rekening' => $rekening,
+            'bagianall' => $bagianall,
+            'profitcenter' => $profitcenter,
+            'costcenter' => $costcenter,
+            'cashflow' => $cashflow,
+            'spp_id' => $idspp,
+            'vendor' => $vendor,
+            'sumberdana' => $sumberDana,
+            'karyawan' => $karyawan_bagian,
+            'master_karyawan' => $master_karyawan,
+            'karyawan_sppb' => $karyawan_sppb,
+            'karyawan_sppn' => $karyawan_sppn,
+            'gl' => $gl,
+            // 'customer' => $customer
+        );
+         dd($data);
+        $bagianspp = DB::table('spp')->where('spp.spp_id', '=', $id)->select('spp.master_bagian_id')->first();
+        // dd($bagianspp);
+
+        //dd($karyawan_sppb);
+        return view('page.spp.spp_edit', $data)
+            ->with('error_code', $error_code);
+    }
+
     public function viewdetail($id)
     {
         $idspp = DB::table('spp')->where('spp.spp_id', '=', $id)
@@ -2350,7 +2651,7 @@ class SppController extends Controller
 
         return view('page.spp.spp_detail', $data);
     }
-    
+
     public function cetak($id)
     {
         $kasubdiv = DB::table('master_bagian')->where('master_bagian.master_bagian_id', '=', 114)->first();
@@ -2568,10 +2869,233 @@ class SppController extends Controller
             'flowid' => $flowid
         );
         // dd($data_sppb, $kotak_cetak);
-         //dd($data);
+        // dd($data);
         //dd($data_sppb,$data_sppn);
         //dd($karyawan_no_vendor_sppb);
         return view('page.spp.spp_cetak', $data);
+    }
+
+    public function cetak2($id)
+    {
+        $kasubdiv = DB::table('master_bagian')->where('master_bagian.master_bagian_id', '=', 114)->first();
+        $kadiv = DB::table('master_bagian')->where('master_bagian.master_bagian_id', '=', 68)->first();
+        $idspp = DB::table('spp')->where('spp.spp_id', '=', $id)->select('spp.*')->first();
+        $perusahaan = DB::table('master_company')->where('company_id', '=', $idspp->company_id)->select('master_company.*')->first();
+        $kotak_cetak = DB::table('master_cetak_spp')->where('company_id', '=', $idspp->company_id)
+            ->where('status', '!=', '0')->select('master_cetak_spp.*')->get();
+        // dd($kotak_cetak);
+        // dd($perusahaan->company_nama);
+        $doktam = DB::table('dokumen_tambahan')->where('dokumen_tambahan.spp_id', '=', $id)
+            ->join('master_hak_akses', 'dokumen_tambahan.master_hak_akses_id', '=', 'master_hak_akses.master_hak_akses_id')
+            ->select('dokumen_tambahan.*', 'master_hak_akses.*')->get();
+        $idsppb = $idspp->sppb_id;
+        //dd($idsppb);
+        $idsppn = $idspp->sppn_id;
+        //dd($idsppn);
+        $flowid = $idspp->flow_id;
+        // dd($flowid);
+        if ($idsppb != null) {
+            $datasppb = DB::table('sppb')->where('sppb_id', '=', $idsppb)
+                ->leftJoin('master_bagian', 'sppb.master_bagian_id', '=', 'master_bagian.master_bagian_id')
+                ->leftJoin('master_vendor', 'sppb.master_bank_id', '=', 'master_vendor.master_vendor_id')
+                ->select('sppb.*', 'master_bagian.*', 'master_vendor.*')->first();
+
+            $sppbisi = DB::table('sppb_isi')->where('sppb_isi.sppb_id', '=', $datasppb->sppb_id)
+                ->leftJoin('master_rekening', 'sppb_isi.master_kode_vendor_id', '=', 'master_rekening.master_rekening_id')
+                ->leftJoin('master_gl', 'sppb_isi.master_gl_id', '=', 'master_gl.master_gl_id')
+                ->leftJoin('master_customer', 'sppb_isi.master_customer_id', '=', 'master_customer.master_customer_id')
+                ->leftJoin('master_cost_center', 'sppb_isi.master_cost_center_id', '=', 'master_cost_center.master_cost_center_id')
+                ->leftJoin('master_profit_center', 'sppb_isi.master_profit_center_id', '=', 'master_profit_center.master_profit_center_id')
+                ->leftJoin('master_cash_flow', 'sppb_isi.master_cash_flow_id', '=', 'master_cash_flow.master_cash_flow_id')
+                ->select('sppb_isi.*', 'master_rekening.*', 'master_cost_center.*', 'master_profit_center.*', 'master_cash_flow.*', 'master_gl.*', 'master_customer.*')->get();
+
+            $faktur_pajak_sppb = DB::table('faktur_pajak')->where('faktur_pajak.sppb_id', '=', $datasppb->sppb_id)->select('faktur_pajak_nomor')->get();
+
+            foreach ($sppbisi as $a => $value2) {
+                $sppburaian[] = DB::table('sppb_uraian')->where('sppb_uraian.sppb_isi_id', '=', $value2->sppb_isi_id)->select('sppb_uraian.*')->get();
+            }
+            $isisppb = [];
+            foreach ($sppbisi as $s => $val) {
+                $isisppb[] = collect($val)->push($sppburaian[$s]);
+            }
+            $data_sppb = [];
+            $data_sppb = collect($datasppb)->push($isisppb)->push($faktur_pajak_sppb);
+        } else {
+            $data_sppb = null;
+        }
+        if ($idsppn != null) {
+            $datasppn = DB::table('sppn')
+                ->where('sppn_id', '=', $idsppn)->leftJoin('master_bagian', 'sppn.master_bagian_id', '=', 'master_bagian.master_bagian_id')
+                ->leftJoin('master_vendor', 'sppn.master_bank_id', '=', 'master_vendor.master_vendor_id')
+                ->select('sppn.*', 'master_bagian.*', 'master_vendor.*')->first();
+
+            $sppnisi = DB::table('sppn_isi')->where('sppn_isi.sppn_id', '=', $idsppn)
+                ->leftJoin('master_rekening', 'sppn_isi.master_kode_vendor_id', '=', 'master_rekening.master_rekening_id')
+                ->leftJoin('master_gl', 'sppn_isi.master_gl_id', '=', 'master_gl.master_gl_id')
+                ->leftJoin('master_customer', 'sppn_isi.master_customer_id', '=', 'master_customer.master_customer_id')
+                ->leftJoin('master_cost_center', 'sppn_isi.master_cost_center_id', '=', 'master_cost_center.master_cost_center_id')
+                ->leftJoin('master_profit_center', 'sppn_isi.master_profit_center_id', '=', 'master_profit_center.master_profit_center_id')
+                ->leftJoin('master_cash_flow', 'sppn_isi.master_cash_flow_id', '=', 'master_cash_flow.master_cash_flow_id')
+                ->select('sppn_isi.*', 'master_rekening.*', 'master_cost_center.*', 'master_profit_center.*', 'master_cash_flow.*', 'master_gl.*', 'master_customer.*')->get();
+
+            $faktur_pajak_sppn = DB::table('faktur_pajak')->where('faktur_pajak.sppn_id', '=', $datasppn->sppn_id)->select('faktur_pajak_nomor')->get();
+
+            foreach ($sppnisi as $a => $value1) {
+                $sppnuraian[] = DB::table('sppn_uraian')->where('sppn_uraian.sppn_isi_id', '=', $value1->sppn_isi_id)->select('sppn_uraian.*')->get();
+            }
+
+            $isisppn = [];
+            foreach ($sppnisi as $s => $val) {
+                $isisppn[] = collect($val)->push($sppnuraian[$s]);
+            }
+
+            $data_sppn = [];
+            $data_sppn = collect($datasppn)->push($isisppn)->push($faktur_pajak_sppn);
+        } else {
+            $data_sppn = null;
+        }
+        $form = 0;
+
+        $client = new Client();
+        // $url = "https://ino.ptpn12.com/api/get_karyawan/4a685f78e08fb8037fb34905d8440be9225dcdeae25873ae0ae145d6ebd3ab3f7a80fcefb84cb2e460b2724182c2eb730b75570897d9893f48d6117582a17823T3kiHux2Py8pTxJ5fmiotFETRjSfjDFM";
+        // $response = $client->request('GET', $url, [
+        //     'verify' => false,
+        // ]);
+        // $karyawan_all = json_decode($response->getBody());
+
+        // SPPB SAJA
+        if (isset($data_sppb) && empty($data_sppn)) {
+            $form = 1;
+            if ($data_sppb['sppb_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppb[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppb) && $karyawan_sppb[0] !== []) {
+                    foreach ($karyawan_sppb as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppb[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppb = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppb = null;
+                }
+                $karyawan_sppb = $Krywn;
+            } else {
+                $karyawan_sppb = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppb = null;
+            }
+            $karyawan_no_vendor_sppn = null;
+            $karyawan_sppn = null;
+        }
+        //SPPN SAJA
+        else if (isset($data_sppn) && empty($data_sppb)) {
+            $form = 2;
+            if ($data_sppn['sppn_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppn[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppn) && $karyawan_sppn[0] !== []) {
+                    foreach ($karyawan_sppn as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppn[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppn = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppn = null;
+                }
+                $karyawan_sppn = $Krywn;
+            } else {
+                $karyawan_sppn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppn = null;
+            }
+            $karyawan_no_vendor_sppb = null;
+            $karyawan_sppb = null;
+        }
+        // SPP CAMPURAN SAJA
+        else {
+            $form = 3;
+            if ($data_sppb['sppb_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppb[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppb) && $karyawan_sppb[0] !== []) {
+                    foreach ($karyawan_sppb as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppb[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppb = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppb = null;
+                }
+                $karyawan_sppb = $Krywn;
+            } else {
+                $karyawan_sppb = DB::table('nama_karyawan')->where('nama_karyawan.sppb_id', '=', $data_sppb['sppb_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppb = null;
+            }
+            if ($data_sppn['sppn_jenis'] == "karyawan") {
+                $Krywn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                foreach ($Krywn as $k => $val) {
+                    $nama = $val->karyawan_nama;
+                    // $karyawan_sppn[] = Arr::where($karyawan_all, function ($value, $key) use ($nama) {
+                    //     return $value->karyawan_nama == $nama;
+                    // });
+                }
+                if (isset($karyawan_sppn) && $karyawan_sppn[0] !== []) {
+                    foreach ($karyawan_sppn as $k => $v) {
+                        foreach ($v as $k1 => $v2) {
+                            //$karyawan_no_vendor_sppn[] = $v2->karyawan_no_vendor;
+                            $karyawan_no_vendor_sppn = null;
+                        }
+                    }
+                } else {
+                    $karyawan_no_vendor_sppn = null;
+                }
+                $karyawan_sppn = $Krywn;
+            } else {
+                $karyawan_sppn = DB::table('nama_karyawan')->where('nama_karyawan.sppn_id', '=', $data_sppn['sppn_id'])->select('nama_karyawan.*')->get();
+                $karyawan_no_vendor_sppn = null;
+            }
+        }
+        //dd($karyawan_no_vendor_sppb);
+        // dd($kasubdiv);
+
+        $id_validasi = base64_encode($id);
+        $data = array(
+            'sppb' => $data_sppb,
+            'sppn' => $data_sppn,
+            'formspp' => $form,
+            'no_vendor_sppb' => $karyawan_no_vendor_sppb,
+            'no_vendor_sppn' => $karyawan_no_vendor_sppn,
+            'karyawan_sppb' => $karyawan_sppb,
+            'karyawan_sppn' => $karyawan_sppn,
+            'id' => bin2hex($id_validasi),
+            'kadiv' => $kadiv,
+            'kasubdiv' => $kasubdiv,
+            'company' => $perusahaan->company_nama,
+            'company_jenis' => $perusahaan->company_jenis,
+            'kotak_cetak' => $kotak_cetak,
+            'flowid' => $flowid
+        );
+        // dd($data_sppb, $kotak_cetak);
+        // dd($data);
+        //dd($data_sppb,$data_sppn);
+        //dd($karyawan_no_vendor_sppb);
+        return view('page.spp.cetak2', $data);
     }
 
     public function bayar(Request $request, $id)

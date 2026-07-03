@@ -56,76 +56,45 @@ class ValidasiController extends Controller
 
         //dd($id_spp,$spp,$data);
         if($data){
+            try {
+                $result = @file_get_contents("http://ipinfo.io/?token=6718d4ac50f02a");
+                if ($result !== false) {
+                    $ip = json_decode($result);
+                } else {
+                    $ip = null;
+                }
+            } catch (\Exception $e) {
+                $ip = null;
+            }
+
+            if (!$ip) {
+                $ip = (object) [
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? '-',
+                    'hostname' => '-',
+                    'city' => '-',
+                    'region' => '-',
+                    'country' => '-',
+                    'loc' => '-'
+                ];
+            }
+
+            $ipaddress = $_SERVER['REMOTE_ADDR'] ?? '-';
+            $agent = new Agent();
+            $browser = $agent->browser();
+            $os = $agent->platform();
+            $device = $agent->device();
+
+            $countryName = '-';
+            if (isset($ip->country) && $ip->country != '-' && $ip->country != '') {
+                try {
+                    $countryName = country_name($ip->country);
+                } catch (\Exception $e) {
+                    $countryName = '-';
+                }
+            }
+
             if($data->master_hak_akses_id == 2 || ($data->master_hak_akses_id == 3 && $data->master_bagian_id !== 2 )){
                 if($data->master_bagian_id == $spp->master_bagian_id){
-                    if($result= file_get_contents("https://ipinfo.io/?token=6718d4ac50f02a")){
-                        $ip = json_decode($result);
-                        $ipaddress = $_SERVER['REMOTE_ADDR'];
-                        $agent = new Agent();
-                        $browser = $agent->browser();
-                        $os = $agent->platform();
-                        $device = $agent->device();
-            
-                        $level = HakAkses::where('master_hak_akses_id',$data->master_hak_akses_id)->first();
-                        $pw = decrypt($data->master_user_password);
-                        if($password == $pw){
-                            Session::put('username',$data->master_user_name);
-                            Session::put('hak_akses',$data->master_hak_akses_id);
-                            Session::put('bagian',$data->master_bagian_id);
-                            Session::put('id',$data->master_user_id);
-                            Session::put('level',$level->master_hak_akses_level);
-            
-                            $detail_login = new DetailLogin;
-                            $detail_login->detail_login_ip = $ip->ip;
-                            if(isset($ip->hostname)){
-                                $detail_login->detail_login_hostname = $ip->hostname;
-                            }
-                            else{
-                                $detail_login->detail_login_hostname = '-';
-                            }
-                            $detail_login->detail_login_city = $ip->city;
-                            $detail_login->detail_login_region = $ip->region;
-                            $detail_login->detail_login_country_code = $ip->country;
-                            $detail_login->detail_login_loc = $ip->loc;
-                            $detail_login->detail_login_country = country_name($ip->country);
-                            $detail_login->detail_login_browser = $browser;
-                            $detail_login->detail_login_os = $os;
-                            $detail_login->save();
-                            $request->request->add(['detail_login_id'=>$detail_login->detail_login_id]);
-            
-                            $history = new HistoryLogin;
-                            $history->master_user_id = $data->master_user_id;
-                            $history->history_login_status = 1;
-                            $history->detail_login_id = $request->detail_login_id;
-                            $history->save();
-                           
-                            $level = Session::get('level');
-                            $bagian = Session::get('bagian');
-                            
-                            return redirect('spp/validasi_spp/'.$id)->with('alert','Berhasil Login');
-                            
-                        }
-                        else{
-                            return redirect('spp/validasi/'.$id)->with('alert','Login gagal! Password Salah');
-                        }
-                    }
-                    else{
-                        return abort(404);
-                    }
-                }
-                else{
-                    return redirect('spp/validasi/'.$id)->with('alert','Gagal! Anda bukan pembuat SPP');
-                    
-                }
-            }else{
-                if($result= file_get_contents("https://ipinfo.io/?token=6718d4ac50f02a")){
-                    $ip = json_decode($result);
-                    $ipaddress = $_SERVER['REMOTE_ADDR'];
-                    $agent = new Agent();
-                    $browser = $agent->browser();
-                    $os = $agent->platform();
-                    $device = $agent->device();
-        
                     $level = HakAkses::where('master_hak_akses_id',$data->master_hak_akses_id)->first();
                     $pw = decrypt($data->master_user_password);
                     if($password == $pw){
@@ -136,18 +105,13 @@ class ValidasiController extends Controller
                         Session::put('level',$level->master_hak_akses_level);
         
                         $detail_login = new DetailLogin;
-                        $detail_login->detail_login_ip = $ip->ip;
-                        if(isset($ip->hostname)){
-                            $detail_login->detail_login_hostname = $ip->hostname;
-                        }
-                        else{
-                            $detail_login->detail_login_hostname = '-';
-                        }
-                        $detail_login->detail_login_city = $ip->city;
-                        $detail_login->detail_login_region = $ip->region;
-                        $detail_login->detail_login_country_code = $ip->country;
-                        $detail_login->detail_login_loc = $ip->loc;
-                        $detail_login->detail_login_country = country_name($ip->country);
+                        $detail_login->detail_login_ip = $ip->ip ?? $ipaddress;
+                        $detail_login->detail_login_hostname = $ip->hostname ?? '-';
+                        $detail_login->detail_login_city = $ip->city ?? '-';
+                        $detail_login->detail_login_region = $ip->region ?? '-';
+                        $detail_login->detail_login_country_code = $ip->country ?? '-';
+                        $detail_login->detail_login_loc = $ip->loc ?? '-';
+                        $detail_login->detail_login_country = $countryName;
                         $detail_login->detail_login_browser = $browser;
                         $detail_login->detail_login_os = $os;
                         $detail_login->save();
@@ -170,7 +134,46 @@ class ValidasiController extends Controller
                     }
                 }
                 else{
-                    return abort(404);
+                    return redirect('spp/validasi/'.$id)->with('alert','Gagal! Anda bukan pembuat SPP');
+                    
+                }
+            }else{
+                $level = HakAkses::where('master_hak_akses_id',$data->master_hak_akses_id)->first();
+                $pw = decrypt($data->master_user_password);
+                if($password == $pw){
+                    Session::put('username',$data->master_user_name);
+                    Session::put('hak_akses',$data->master_hak_akses_id);
+                    Session::put('bagian',$data->master_bagian_id);
+                    Session::put('id',$data->master_user_id);
+                    Session::put('level',$level->master_hak_akses_level);
+    
+                    $detail_login = new DetailLogin;
+                    $detail_login->detail_login_ip = $ip->ip ?? $ipaddress;
+                    $detail_login->detail_login_hostname = $ip->hostname ?? '-';
+                    $detail_login->detail_login_city = $ip->city ?? '-';
+                    $detail_login->detail_login_region = $ip->region ?? '-';
+                    $detail_login->detail_login_country_code = $ip->country ?? '-';
+                    $detail_login->detail_login_loc = $ip->loc ?? '-';
+                    $detail_login->detail_login_country = $countryName;
+                    $detail_login->detail_login_browser = $browser;
+                    $detail_login->detail_login_os = $os;
+                    $detail_login->save();
+                    $request->request->add(['detail_login_id'=>$detail_login->detail_login_id]);
+    
+                    $history = new HistoryLogin;
+                    $history->master_user_id = $data->master_user_id;
+                    $history->history_login_status = 1;
+                    $history->detail_login_id = $request->detail_login_id;
+                    $history->save();
+                   
+                    $level = Session::get('level');
+                    $bagian = Session::get('bagian');
+                    
+                    return redirect('spp/validasi_spp/'.$id)->with('alert','Berhasil Login');
+                    
+                }
+                else{
+                    return redirect('spp/validasi/'.$id)->with('alert','Login gagal! Password Salah');
                 }
             }
             

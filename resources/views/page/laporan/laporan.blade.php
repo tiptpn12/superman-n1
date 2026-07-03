@@ -11,6 +11,7 @@ $level = Session::get('level');
 <script>
      $( function() { 
 					$(".datepicker").daterangepicker({
+						maxDate: new Date(),
 						locale: {
 							format: 'DD-MM-YYYY'
 						}
@@ -269,11 +270,9 @@ $level = Session::get('level');
                       <td >{{$sppbisi[$key]->master_kode_kbb}}</td>
                       <td >{{$sppbisi[$key]->master_kode_kbb}}</td>
                         @if(isset($sppbisi[$key]->master_gl_id) && ($sppbisi[$key]->master_gl_id !== null))
-                          
-                          <td >$sppbisi[$key]->master_gl_kode</td>
-                        
+                          <td >{{$sppbisi[$key]->master_gl_kode}}</td>
                         @else
-                        <td >{{$sppbisi[$key]->master_rekening_kode_sap}}</td>
+                          <td >{{$sppbisi[$key]->master_rekening_kode_sap}}</td>
                         @endif
                       <td >{{$sppbisi[$key]->master_cost_center_kode}}</td>
                       @elseif(isset($sppnisi[$key]))
@@ -281,7 +280,7 @@ $level = Session::get('level');
                       <td >{{$sppnisi[$key]->master_kode_kbb}}</td>
                       @if(isset($sppnisi[$key]->master_gl_id) && ($sppnisi[$key]->master_gl_id !== null))
                           
-                          <td >$sppnisi[$key]->master_gl_kode</td>
+                          <td >{{$sppnisi[$key]->master_gl_kode}}</td>
                         
                         @else
                         <td >{{$sppnisi[$key]->master_rekening_kode_sap}}</td>

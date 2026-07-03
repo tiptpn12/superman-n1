@@ -758,7 +758,7 @@ class SppKeuanganController extends Controller
                         $file->move('dokumen',$dokumenpendukungsppns);
                         $dokumenpendukungsppnsppn = new \App\DokumenPendukungSppn;
                         $dokumenpendukungsppnsppn -> sppn_id = $request->sppn_id;
-                        $dokumenpendukungsppnsppn -> dokumen_pendukung_sppn_nama = $dokumenpendukungs;
+                        $dokumenpendukungsppnsppn -> dokumen_pendukung_sppn_nama = $dokumenpendukungsppns;
                         $dokumenpendukungsppnsppn->save();
                     }
                 }

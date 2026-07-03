@@ -97,6 +97,101 @@
                                     <button type="button" class="btn btn-primary" onclick="tambah()"
                                         style="margin-bottom: 15px">Tambah Data</button>
                                 @endif
+
+                                @if ($hakakses == 45)
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active"><a href="#tab_regional" aria-controls="tab_regional" role="tab" data-toggle="tab">Bagian Regional</a></li>
+                                        <li role="presentation"><a href="#tab_unit" aria-controls="tab_unit" role="tab" data-toggle="tab">Unit / Kebun</a></li>
+                                    </ul>
+
+                                    <div class="tab-content" style="padding-top: 15px;">
+                                        <div role="tabpanel" class="tab-pane active" id="tab_regional">
+                                            <div class="table-responsive">
+                                            <table class="table table-bordered table-striped nowrap" style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No. </th>
+                                                        <th>Nama Bagian</th>
+                                                        <th>Perusahaan</th>
+                                                        <th>Kode Bagian</th>
+                                                        <th>Nama Kepala Bagian </th>
+                                                        <th>Jabatan</th>
+                                                        <th>Keterangan</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($bagian_regional as $key => $value)
+                                                        <tr>
+                                                            <td>{{ $key + 1 }}</td>
+                                                            <td>{{ $value->master_bagian_nama }}</td>
+                                                            <td>{{ $value->company_nama }}</td>
+                                                            <td>{{ $value->master_bagian_kode }}</td>
+                                                            <td>{{ $value->master_bagian_kepala_bagian }} </td>
+                                                            <td>{{ $value->master_bagian_jabatan }} </td>
+                                                            <td>{{ $value->master_bagian_keterangan }}</td>
+                                                            <td>{{ $value->master_bagian_status == 1 ? 'Aktif' : 'Tidak Aktif' }}</td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-warning btn-sm"
+                                                                    onclick="ubah({{ json_encode($value) }})" title="Edit Data"><i
+                                                                        class="fa fa-pencil" aria-hidden="true"></i> Ubah Data</button>
+                                                                <button type="button" class="btn btn-danger btn-sm"
+                                                                    onclick="hapus({{ $value->master_bagian_id }}, {{ $value->master_bagian_status }})"
+                                                                    title="Hapus Data"><i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                                    Ubah Status</button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="tab_unit">
+                                            <div class="table-responsive">
+                                            <table class="table table-bordered table-striped nowrap" style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No. </th>
+                                                        <th>Nama Bagian</th>
+                                                        <th>Perusahaan</th>
+                                                        <th>Kode Bagian</th>
+                                                        <th>Nama Kepala Bagian </th>
+                                                        <th>Jabatan</th>
+                                                        <th>Keterangan</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($bagian_unit as $key => $value)
+                                                        <tr>
+                                                            <td>{{ $key + 1 }}</td>
+                                                            <td>{{ $value->master_bagian_nama }}</td>
+                                                            <td>{{ $value->company_nama }}</td>
+                                                            <td>{{ $value->master_bagian_kode }}</td>
+                                                            <td>{{ $value->master_bagian_kepala_bagian }} </td>
+                                                            <td>{{ $value->master_bagian_jabatan }} </td>
+                                                            <td>{{ $value->master_bagian_keterangan }}</td>
+                                                            <td>{{ $value->master_bagian_status == 1 ? 'Aktif' : 'Tidak Aktif' }}</td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-warning btn-sm"
+                                                                    onclick="ubah({{ json_encode($value) }})" title="Edit Data"><i
+                                                                        class="fa fa-pencil" aria-hidden="true"></i> Ubah Data</button>
+                                                                <button type="button" class="btn btn-danger btn-sm"
+                                                                    onclick="hapus({{ $value->master_bagian_id }}, {{ $value->master_bagian_status }})"
+                                                                    title="Hapus Data"><i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                                    Ubah Status</button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                <div class="table-responsive">
                                 <table class="table table-bordered table-striped nowrap" style="width: 100%">
                                     <thead>
                                         <tr>
@@ -135,6 +230,8 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                </div>
+                                @endif
                             </div>
                         </div>
                         <!-- END TABLE -->
@@ -359,6 +456,10 @@
                 }
             })
         }
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+            $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+        });
     </script>
 
 @endsection

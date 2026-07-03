@@ -38,7 +38,7 @@
                                     style="margin-bottom: 15px">Tambah Data</button>
                                 <button type="button" class="btn btn-success" onclick="importData()"
                                     style="margin-bottom: 15px">Import Data</button>
-                                <table class="table table-bordered table-striped nowrap" style="width: 100%">
+                                <table class="table table-bordered table-striped nowrap" style="width: 100%" id="table">
                                     <thead>
                                         <tr>
                                             <th>No. </th>
@@ -49,23 +49,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($customer as $key => $value)
-                                            <tr>
-                                                <td>{{ $key + 1 }}</td>
-                                                <td>{{ $value->master_customer_kode_sap }}</td>
-                                                <td>{{ $value->master_customer_nama }}</td>
-                                                <td>{{ $value->master_customer_status == 1 ? 'Aktif' : 'Tidak Aktif' }}</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-warning btn-sm"
-                                                        onclick="ubah({{ json_encode($value) }})" title="Edit Data"><i
-                                                            class="fa fa-pencil" aria-hidden="true"></i> Ubah Data</button>
-                                                    <button type="button" class="btn btn-danger btn-sm"
-                                                        onclick="hapus({{ $value->master_customer_id }}, {{ $value->master_customer_status }})"
-                                                        title="Hapus Data"><i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                        Ubah Status</button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -182,6 +165,56 @@
     <!-- End Modal -->
 
     <script type="text/javascript">
+        $(document).ready(function() {
+            $('#table').DataTable({
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                scrollX: true,
+                autoWidth: true,
+                ajax: {
+                    'url': '{{ url('customer/getdatatableall') }}',
+                    'type': 'get',
+                },
+                order: [],
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'master_customer_kode_sap',
+                        name: 'master_customer_kode_sap'
+                    },
+                    {
+                        data: 'master_customer_nama',
+                        name: 'master_customer_nama'
+                    },
+                    {
+                        data: 'master_customer_status',
+                        name: 'master_customer_status',
+                        render: function(data, type, full, meta) {
+                            return data == 1 ? 'Aktif' : 'Tidak Aktif';
+                        }
+                    },
+                    {
+                        data: 'master_customer_id',
+                        name: 'master_customer_id',
+                        render: function(data, type, full, meta) {
+                            string_json = JSON.stringify(full);
+                            // escape single quotes in JSON strings
+                            string_json = string_json.replace(/'/g, "&apos;");
+                            return `
+                    <button type="button" class="btn btn-warning btn-sm" onclick='ubah(${string_json})' title="Edit Data"><i class="fa fa-pencil" aria-hidden="true"></i> Ubah Data</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="hapus(${full.master_customer_id}, '${full.master_customer_status}')" title="Hapus Data"><i class="fa fa-trash-o" aria-hidden="true"></i> Ubah Status</button>
+                `;
+                        }
+                    }
+                ]
+            });
+        })
+
         function tambah() {
             $("#modal_tambah").modal('show');
         }

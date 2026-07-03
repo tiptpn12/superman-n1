@@ -127,14 +127,13 @@
             table.table-bordered.sppb>tfoot>tr>th {
                 border: 1px solid blue !important;
                 color: blue !important;
-                padding-bottom: 0mm !important;
+                padding: 8px !important;
 
             }
 
             table.table-bordered.sppb>tfoot>tr>th.terbilang {
                 border: 1px solid blue !important;
                 color: blue !important;
-                padding-bottom: 0mm !important;
                 border-right-style: hidden !important;
 
             }
@@ -157,6 +156,7 @@
             table.table-bordered.sppn>tfoot>tr>th {
                 border: 1px solid red !important;
                 color: red !important;
+                padding: 8px !important;
             }
 
             table.table-bordered.sppn>tfoot>tr>th.terbilang {
@@ -266,11 +266,23 @@
 
                     $buktisppb = null;
                     if (isset($sppb['sppb_metode_pembayaran'])) {
+                        // Tentukan prefix berdasarkan $company_jenis
+                        $prefix = 'HO'; // default
+                        if (isset($company_jenis)) {
+                            if ($company_jenis == 'UNIT') {
+                                $prefix = 'KB';
+                            } elseif ($company_jenis == 'REG') {
+                                $prefix = 'RG';
+                            } elseif ($company_jenis == 'HO') {
+                                $prefix = 'HO';
+                            }
+                        }
+                        
                         if ($sppb['sppb_metode_pembayaran'] == 'bank') {
-                            $buktisppb = 'HO' . '/' . 'B.';
+                            $buktisppb = $prefix . '/' . 'B.';
                             // $buktisppb =
                             //     'B.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' .
-                            //     'HO' .
+                            //     $prefix .
                             //     '/' .
                             //     'Pb' .
                             //     '/' .
@@ -280,7 +292,7 @@
                             //     '/' .
                             //     $tahun_sppb;
                         } elseif ($sppb['sppb_metode_pembayaran'] == 'tidak_transfer') {
-                            $buktisppb = 'HO' . '/' . 'K.';
+                            $buktisppb = $prefix . '/' . 'K.';
                             // $buktisppb =
                             //     'K.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' . $day_sppb . '/' . $bulan_sppb . '/' . $tahun_sppb;
                         }
@@ -293,12 +305,25 @@
 
                     $bulan_sppn = $bulanromawi[$month_sppn] ?? '-';
                     $buktisppn = null;
+                    
+                    // Tentukan prefix berdasarkan $company_jenis
+                    $prefix_sppn = 'HO'; // default
+                    if (isset($company_jenis)) {
+                        if ($company_jenis == 'UNIT') {
+                            $prefix_sppn = 'KB';
+                        } elseif ($company_jenis == 'REG') {
+                            $prefix_sppn = 'RG';
+                        } elseif ($company_jenis == 'HO') {
+                            $prefix_sppn = 'HO';
+                        }
+                    }
+                    
                     if (isset($sppb['sppb_metode_pembayaran'])) {
                         if ($sppb['sppb_metode_pembayaran'] == 'bank') {
-                            $buktisppn = 'HO' . '/' . 'B.';
+                            $buktisppn = $prefix_sppn . '/' . 'B.';
                             // $buktisppn =
                             //     'B.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' .
-                            //     'HO' .
+                            //     $prefix_sppn .
                             //     '/' .
                             //     'Pn' .
                             //     '/' .
@@ -308,15 +333,15 @@
                             //     '/' .
                             //     $tahun_sppn;
                         } elseif ($sppb['sppb_metode_pembayaran'] == 'tidak_transfer') {
-                            $buktisppn = 'HO' . '/' . 'K.';
+                            $buktisppn = $prefix_sppn . '/' . 'K.';
                             // $buktisppn =
                             //     'K.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' . $day_sppn . '/' . $bulan_sppn . '/' . $tahun_sppn;
                         }
                     } elseif (isset($sppn['sppn_metode_pembayaran'])) {
-                        $buktisppn = 'HO' . '/' . 'B.';
+                        $buktisppn = $prefix_sppn . '/' . 'B.';
                         // $buktisppn =
                         //     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' .
-                        //     'HO' .
+                        //     $prefix_sppn .
                         //     '/' .
                         //     'Pn' .
                         //     '/' .
@@ -328,7 +353,7 @@
                         // if ($sppn['sppn_metode_pembayaran'] == 'bank') {
                         //     $buktisppn =
                         //         'B.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/' .
-                        //         'HO' .
+                        //         $prefix_sppn .
                         //         '/' .
                         //         'Pn' .
                         //         '/' .
@@ -362,7 +387,6 @@
                                                 @endphp
                                                 <div class=" flex flex-column">
                                                     <span>{{ $company_arr[0] }}</span>
-                                                    <span>{{ $company_arr[1] }}</span>
                                                 </div>
 
                                                 @if ($company_id == 1)
@@ -473,7 +497,7 @@
                                                         {{ $isi->master_gl_kode }}</td>
                                                     @if ($sppb['sppb_data_metpen'] == 'input_data')
                                                         <td style="text-align:center;color:black !important">
-                                                            {{ $nama_karyawan_sppb[0]->karyawan_nama }}</td>
+                                                            {{ $nama_karyawan_sppb[0]->karyawan_nama ?? '' }}</td>
                                                     @else
                                                         <td style="text-align:center;color:black !important">
                                                             {{ $sppb['master_vendor_nama'] }}
@@ -499,7 +523,7 @@
                                                         {{ $sppb_isi[$i]->master_gl_kode }}</td>
                                                     @if ($sppb['sppb_data_metpen'] == 'input_data')
                                                         <td style="text-align:center;color:black !important">
-                                                            {{ $nama_karyawan_sppb[0]->karyawan_nama }}</td>
+                                                            {{ $nama_karyawan_sppb[0]->karyawan_nama ?? '' }}</td>
                                                     @else
                                                         <td style="text-align:center;color:black !important">
                                                             {{ $sppb['master_vendor_nama'] }}
@@ -548,16 +572,21 @@
                                         </tr>
                                     </tbody>
                                     <tfoot>
-                                        <th colspan="" class="terbilang"> No. Cek/Giro : </th>
-                                        <th colspan="6"><span
-                                                style="color:black !important; text-align:left">{{ $databuktikassppb->cek_giro }}</span>
-                                        </th>
-                                    </tfoot>
-                                    <tfoot>
-                                        <th colspan="" class="terbilang"> Terbilang : </th>
-                                        <th colspan="6"
-                                            style="text-align:center; width:500px ; font-style:italic; font-weight:bold; color:black !important; text-transform:capitalize">
-                                            {{ Terbilang::angka($sppb['sppb_total']) }} rupiah </th>
+                                        <tr>
+                                            <th colspan="" class="terbilang" style="padding-top: 10px; padding-bottom: 10px;"> No. Cek/Giro : </th>
+                                            <th colspan="6" style="padding-top: 10px; padding-bottom: 10px;"><span
+                                                    style="color:black !important; text-align:left">{{ $databuktikassppb->cek_giro }}</span>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="" class="terbilang" style="vertical-align: middle;">
+                                                <div style="padding: 15px 0;">Terbilang :</div>
+                                            </th>
+                                            <th colspan="6"
+                                                style="text-align:center; width:500px; vertical-align: middle; font-style:italic; font-weight:bold; color:black !important; text-transform:capitalize">
+                                                <div style="padding: 15px 0; line-height: 1.5;">{{ Terbilang::angka($sppb['sppb_total']) }} rupiah</div>
+                                            </th>
+                                        </tr>
                                     </tfoot>
                                 </table>
                                 <table class="table table-bordered sppb mb-0">
@@ -583,7 +612,9 @@
                                     <tbody style="text-align: center;">
                                         <td class="col-sm-1" style="height: 200px;">
                                             <br><br><br><br><br><br>
-                                            <span>{{ $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                            @if($company_id == 13)
+                                                <span>{{ $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                            @endif
                                         </td>
                                         <td class="col-sm-2" style="height: 200px;">
                                             <br><br><br><br><br><br>
@@ -633,11 +664,13 @@
                                         <tbody style="text-align: center;">
                                             <td class="col-sm-1" style="height: 200px;">
                                                 <br><br><br><br><br><br>
-                                                <span>{{ $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                                @if($company_id == 13)
+                                                    <span>{{ $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                                @endif
                                             </td>
                                             <td class="col-sm-2" style="height: 200px;">
                                             <br><br><br><br><br><br>
-                                                <span>{{ $data_penandatangan_sppb->diperiksa_oleh_sub_bagian_nama }}</span>
+                                                <span style="text-decoration: underline;">{{ $data_penandatangan_sppb->diperiksa_oleh_sub_bagian_nama }}</span>
                                                 <!-- <span class="text-underline"> Nugraha Akbar</span> -->
                                                 <br>
                                                 <span>{{ $data_penandatangan_sppb->diperiksa_oleh_sub_bagian }}</span>
@@ -682,7 +715,7 @@
                 @endif
                 @if (isset($sppn))
 
-                    <div class="panels" id="panel-penerimaan">
+                    <div class="panels" >
                         <br>
                         <div class="row">
                             <div class="col-md-12">
@@ -698,7 +731,6 @@
                                                 @endphp
                                                 <div class=" flex flex-column">
                                                     <span>{{ $company_arr[0] }}</span>
-                                                    <span>{{ $company_arr[1] }}</span>
                                                 </div>
 
                                                 @if ($company_id == 1)
@@ -836,7 +868,7 @@
                                                     <td style="text-align:center;color:black !important">
                                                         {{ $isi->master_gl_kode }}</td>
                                                     <td style="text-align:center;color:black !important">
-                                                        {{ $nama_karyawan_sppn[0]->karyawan_nama }}</td>
+                                                        {{ $nama_karyawan_sppn[0]->karyawan_nama ?? '' }}</td>
                                                     <td style="text-align:left;color:black !important">
                                                         {{ $isi->master_gl_keterangan }}</td>
                                                     <td style="text-align:center;color:black !important">
@@ -857,7 +889,7 @@
                                             <td style="text-align:center;color:black !important">
                                                         {{ $sppn_isi[$i]->master_gl_kode }}</td>
                                                     <td style="text-align:center;color:black !important">
-                                                        {{ $nama_karyawan_sppn[0]->karyawan_nama }}</td>
+                                                        {{ $nama_karyawan_sppn[0]->karyawan_nama ?? '' }}</td>
                                                     <td style="text-align:left;color:black !important">
                                                         {{ $sppn_isi[$i]->master_gl_keterangan }}</td>
                                                     <td style="text-align:center;color:black !important">
@@ -901,16 +933,21 @@
                                         </tr>
                                     </tbody>
                                     <tfoot>
-                                        <th colspan="" class="terbilang"> No. Cek/Giro : </th>
-                                        <th colspan="6"><span
-                                                style="color:black !important; text-align:left">{{ $databuktikassppn->cek_giro }}</span>
-                                        </th>
-                                    </tfoot>
-                                    <tfoot>
-                                        <th colspan="" class="terbilang"> Terbilang : </th>
-                                        <th colspan="6"
-                                            style="text-align:center; width:500px ; font-style:italic; font-weight:bold; color:black !important; text-transform:capitalize">
-                                            {{ Terbilang::angka($sppn['sppn_jumlah']) }} rupiah </th>
+                                        <tr>
+                                            <th colspan="" class="terbilang" style="padding-top: 10px; padding-bottom: 10px;"> No. Cek/Giro : </th>
+                                            <th colspan="6" style="padding-top: 10px; padding-bottom: 10px;"><span
+                                                    style="color:black !important; text-align:left">{{ $databuktikassppn->cek_giro }}</span>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="" class="terbilang" style="vertical-align: middle;">
+                                                <div style="padding: 15px 0;">Terbilang :</div>
+                                            </th>
+                                            <th colspan="6"
+                                                style="text-align:center; width:500px; vertical-align: middle; font-style:italic; font-weight:bold; color:black !important; text-transform:capitalize">
+                                                <div style="padding: 15px 0; line-height: 1.5;">{{ Terbilang::angka($sppn['sppn_jumlah']) }} rupiah</div>
+                                            </th>
+                                        </tr>
                                     </tfoot>
                                 </table>
                                 <table class="table table-bordered sppn mb-0">
@@ -934,12 +971,14 @@
                                         <tbody style="text-align: center;">
                                             <td class="col-sm-1" style="height: 200px;">
                                                 <br><br><br><br><br><br>
-                                                <span>{{ $data_penandatangan_sppn->dibuat_sub_bagian }}</span>
+                                                @if($company_id == 13)
+                                                    <span>{{ $data_penandatangan_sppn->dibuat_sub_bagian ?: $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                                @endif
                                             </td>
                                             <td class="col-sm-2" style="height: 200px;">
                                                 <br><br><br><br><br><br>
                                                 <span
-                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian_nama }}</span>
+                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian_nama ?: $data_penandatangan_sppb->diperiksa_oleh_sub_bagian_nama }}</span>
                                                 <!-- <span class="text-underline"> Nugraha Akbar</span> -->
                                                 <br>
                                                 <span>{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian }}</span>
@@ -948,14 +987,14 @@
                                             <td class="col-sm-2" style="height: 200px;">
                                                 <br><br><br><br><br><br>
                                                 <span
-                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_bagian_nama }}</span>
+                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_bagian_nama ?: $data_penandatangan_sppb->diperiksa_oleh_bagian_nama }}</span>
                                                 <br>
                                                 <span>{{ $data_penandatangan_sppn->diperiksa_oleh_bagian }}</span>
                                             </td>
                                             <td class="col-sm-2" style="height: 200px;">
                                                 <br><br><br><br><br><br>
                                                 <span
-                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->disetujui_oleh_nama }}</span><br>
+                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->disetujui_oleh_nama ?: $data_penandatangan_sppb->disetujui_oleh_nama }}</span><br>
                                                 <span>{{ $data_penandatangan_sppn->disetujui_oleh }}</span>
                                             </td>
                                             <td class="col-sm-1" style="height: 200px;"> </td>
@@ -983,12 +1022,14 @@
                                         <tbody style="text-align: center;">
                                             <td class="col-sm-1" style="height: 200px;">
                                                 <br><br><br><br><br><br>
-                                                <span>{{ $data_penandatangan_sppn->dibuat_sub_bagian }}</span>
+                                                @if($company_id == 13)
+                                                    <span>{{ $data_penandatangan_sppn->dibuat_sub_bagian ?: $data_penandatangan_sppb->dibuat_sub_bagian }}</span>
+                                                @endif
                                             </td>
                                             <td class="col-sm-2" style="height: 200px;width:100px">
                                                 <br><br><br><br><br><br>
                                                 <span
-                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian_nama }}</span>
+                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian_nama ?: $data_penandatangan_sppb->diperiksa_oleh_sub_bagian_nama }}</span>
                                                 <!-- <span class="text-underline"> Nugraha Akbar</span> -->
                                                 <br>
                                                 <span>{{ $data_penandatangan_sppn->diperiksa_oleh_sub_bagian }}</span>
@@ -997,7 +1038,7 @@
                                             <td class="col-sm-2" style="height: 200px; width:100px">
                                                 <br><br><br><br><br><br>
                                                 <span
-                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->disetujui_oleh_nama }}</span><br>
+                                                    style="text-decoration: underline;">{{ $data_penandatangan_sppn->disetujui_oleh_nama ?: $data_penandatangan_sppb->disetujui_oleh_nama }}</span><br>
                                                 <span>{{ $data_penandatangan_sppn->disetujui_oleh }}</span>
                                             </td>
                                             <td class="col-sm-1" style="height: 200px;"> </td>

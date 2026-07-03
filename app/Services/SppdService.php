@@ -70,6 +70,7 @@ class SppdService
         $akses = Session::get('hak_akses');
         $petugaspPp = Session::get('petugas_pp');
         $company = Session::get('company');
+
         $startDate = request('start_date');
         $endDate = request('end_date');
         $sppdPosisi = request('sppd_posisi');
@@ -88,7 +89,7 @@ class SppdService
         // Get data to do from cache
         $toDoLists = [];
         // Get data to do from sppd repository if it is allowed
-        if (in_array($grupId, [1, 2, 3, 4, 7, 8]) || $akses == 18) {
+        if (in_array($grupId, [1, 2, 3, 4, 7, 8, 9]) || $akses == 18) {
             // Get data to do from sppd repository
             try {
                 $toDoLists = $this->sppdRepository->getSppToDoListByCriteria($bagianId, $akses, $flow, $company, $grupId, $petugaspPp, $startDate, $endDate, $sppdPosisi);
@@ -128,7 +129,7 @@ class SppdService
         $flowDetailByAkses = $this->flowDetailRepository->getDetailFlowByHakAkses($akses);
 
         $revisi = [];
-        if (in_array($grupId, [1, 2, 3, 4, 7, 8]) || $akses == 18) {
+        if (in_array($grupId, [1, 2, 3, 4, 7, 8, 9]) || $akses == 18) {
             $revisi = $this->sppdRepository->getSppRevisiListByCriteria($bagianId, $akses, $flow, $company, $grupId, $petugaspPp, $flowDetailByAkses, $startDate, $endDate, $sppdPosisi);
         }
 
@@ -163,7 +164,7 @@ class SppdService
 
         // Get data proses from cache
         $proses = [];
-        if (in_array($grupId, [1, 2, 3, 4, 7, 8]) || $akses == 18) {
+        if (in_array($grupId, [1, 2, 3, 4, 7, 8, 9]) || $akses == 18) {
             // Get data proses from sppd repository
             $proses = $this->sppdRepository->getSppProgressListByCriteria($bagianId, $akses, $flow, $company, $grupId, $petugaspPp, $flowDetailByAkses, $startDate, $endDate, $sppdPosisi);
         }
@@ -201,7 +202,7 @@ class SppdService
 
         // Get data selesai from sppd repository if it is allowed
         // Check if the user has access to view the data
-        if (in_array($grupId, [1, 2, 3, 4, 7, 8]) || $akses == 18) {
+        if (in_array($grupId, [1, 2, 3, 4, 7, 8, 9]) || $akses == 18) {
             // Get data selesai from sppd repository
             $selesai = $this->sppdRepository->getSppSelesaiListByCriteria($bagianId, $akses, $flow, $company, $grupId, $petugaspPp, $startDate, $endDate, $sppdPosisi);
         }

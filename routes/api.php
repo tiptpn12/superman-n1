@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PenerimaanPengeluaranController;
 use App\Http\Controllers\Api\ProsesController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ApiCostCenterController;
+use App\Http\Controllers\Api\KirimSIController; // <-- Tambahkan ini
 use App\Http\Controllers\APIPushSPPController;
 use App\Http\Controllers\MasterAPIController;
 // use Illuminate\Routing\Route;
@@ -103,3 +104,7 @@ Route::get('charts/companies/sppn-sppb', [ChartController::class, 'getSppbSppnAl
 Route::get('charts/companies/spp-terbayar-blm-terbayar', [ChartController::class, 'getDataSppTerbayarDanBelumTerbayar']);
 Route::get('charts/divisi/penerimaan-pengeluaran', [PenerimaanPengeluaranController::class, 'index']);
 Route::get('charts/proses', [ProsesController::class, 'index']);
+
+// Route untuk MENERIMA data dari skrip Python
+// Dilindungi oleh API Key
+Route::get('/spp-amco', [KirimSIController::class, 'fetchAll'])->middleware('apikey');

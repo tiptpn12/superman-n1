@@ -63,6 +63,7 @@ class Kernel extends HttpKernel
         'authapi' => \App\Http\Middleware\authapi::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'apikey' => \App\Http\Middleware\ApiKeyMiddleware::class, // <-- Tambahkan baris ini
     ];
 
     /**

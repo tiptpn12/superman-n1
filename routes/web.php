@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\ChartJsController;
-use App\Http\Controllers\NotificationNewSppController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('reloadcaptcha', 'UserController@reloadcaptcha')->name('reloadcaptcha');
+
 
 Route::get('dashboard_kabag_kasi', [ChartJsController::class, 'index'])->name('chartjs.index');
 Route::get('dashboard_admin_spp', [ChartJsController::class, 'index'])->name('chartjs.index');
@@ -87,6 +91,81 @@ Route::get('login', function () {
     return view('login');
 })->name('login');
 
+// Route untuk login via token
+Route::get('login/token/{token}', function ($token) {
+    // Anda dapat memindahkan token ini ke file .env untuk keamanan yang lebih baik
+    $staticToken = env('AUTOLOGIN_TOKEN');
+ 
+    if ($token === $staticToken) {
+        Session::put('username', 'asisten_pembayaran');
+        Session::put('hak_akses', 39);
+        Session::put('bagian', 134);
+        Session::put('id', 198);
+        Session::put('grup_ui', 4);
+        Session::put('petugas_pp', 1);
+        Session::put('company', 5);
+        Session::put('level', null);
+        Session::put('login', true);
+ 
+        return redirect('dashboard')->with('alert-success', 'Login via token berhasil!');
+    }
+ 
+    return redirect('login')->with('alert', 'Token tidak valid.');
+})->name('login.token');
+
+// Route baru untuk login via token yang diarahkan ke Controller
+Route::get('login/token/v2/{token}', 'AutoLoginController@loginByToken')->name('login.token.v2');
+
+// Route untuk login via payload terenkripsi
+Route::get('login/secure/{payload}', function ($payload) {
+    $key = env('SECURE_LOGIN_KEY');
+    if (!$key) {
+        return redirect('login')->with('alert', 'Kunci enkripsi tidak dikonfigurasi.');
+    }
+
+    // Laravel membutuhkan kunci dengan panjang tertentu (16, 24, atau 32 bytes).
+    // Kita akan hash kunci dari .env untuk memastikan panjangnya 32 bytes.
+    $encryptionKey = hash('sha256', $key, true);
+    $cipher = config('app.cipher');
+
+    try {
+        $encrypter = new Encrypter($encryptionKey, $cipher);
+        $decryptedData = $encrypter->decrypt($payload);
+
+        // Pastikan data yang didekripsi adalah JSON yang valid
+        $userData = json_decode($decryptedData, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && isset($userData['username'])) {
+            Session::put('username', $userData['username']);
+            Session::put('hak_akses', $userData['hak_akses']);
+            Session::put('bagian', $userData['bagian']);
+            Session::put('id', $userData['id']);
+            Session::put('level', $userData['level']);
+            Session::put('login', true);
+            
+            return redirect('dashboard')->with('alert-success', 'Login via payload terenkripsi berhasil!');
+        }
+
+        return redirect('login')->with('alert', 'Payload tidak valid.');
+
+    } catch (DecryptException $e) {
+        return redirect('login')->with('alert', 'Payload tidak dapat didekripsi.');
+    }
+})->name('login.secure');
+
+// Route untuk mematikan sesi yang dibuat via token atau secure link
+Route::get('logout/special', function () {
+    Session::flush(); // Menghapus semua data dari session
+    return redirect()->route('login')->with('alert-success', 'Anda telah berhasil keluar.');
+})->name('logout.special');
+
+// Route untuk admin menghentikan sesi 'asisten_pembayaran'
+Route::get('admin/kill-session/asisten-pembayaran', function () {
+    // Menghapus semua sesi milik user dengan ID 198
+    DB::table('sessions')->where('user_id', 198)->delete();
+
+    return back()->with('alert-success', 'Semua sesi untuk asisten_pembayaran telah dihentikan.');
+})->name('admin.kill.session');
 
 Route::get('laporan', 'LaporanController@index');
 Route::post('laporan_web', 'LaporanPDFController@index')->name('laporan_web');
@@ -95,6 +174,8 @@ Route::post('handle_error', 'LaporanWebDetailController@handle_error')->name('ha
 Route::post('laporan_pdf_detail', 'LaporanWebDetailController@export_pdf')->name('laporan_pdf_detail');
 Route::post('laporan_pdf', 'LaporanPDFController@export_pdf')->name('laporan_pdf');
 Route::post('laporan_csv', 'LaporanCSVController@')->name('laporan_csv');
+
+
 
 Route::get('change_password', 'UserController@change_password')->name('change_password');
 Route::post('user/change_password', 'UserController@change_password_store');
@@ -120,6 +201,7 @@ Route::get('advancedb/index', 'AdvancedSppbController@index');
 Route::get('advancedn/index', 'AdvancedSppnController@index');
 Route::get('advancedbn/index', 'AdvancedSppbSppnController@index');
 
+
 Route::get('spp', 'SppController@index')->name('index');
 Route::get('pembayaran', 'Pembayaran@index')->name('indexpembayaran');
 Route::get('pembayaran/data/sudah-upload', 'Pembayaran@getDataSudahUpload')->name('pembayaran.data.sudahupload');
@@ -129,6 +211,8 @@ Route::get('export_excel', 'Pembayaran@export_excel')->name('export_excel');
 Route::post('export_excel_terpilih', 'Pembayaran@export_excel_terpilih')->name('export_excel_terpilih');
 Route::get('export_pdf', 'Pembayaran@export_pdf')->name('export_pdf');
 Route::post('export_pdf_terpilih', 'Pembayaran@export_pdf_terpilih')->name('export_pdf_terpilih');
+
+
 
 Route::get('sppd/server', 'SppdServerSideController@index')->name('SppdServerSide');
 Route::get('sppd', 'SppdController@index')->name('indexsppd');
@@ -166,15 +250,19 @@ Route::get('spp/tambah', 'SppbController@index')->name('index_spp');
 Route::post('spp/realisasi', 'SppbController@realisasi')->name('realisasi');
 Route::post('spp/realisasisppn', 'SppbController@realisasisppn')->name('realisasisppn');
 Route::post('spp/store', 'SppbController@store')->name('storespp');
+Route::post('spp/check-urutan-anomaly', 'SppbController@checkUrutanAnomaly')->name('checkUrutanAnomaly');
 Route::get('spp/detail/{id}', 'SppController@viewdetail')->name('detailspp');
 Route::get('spp/validasi/{id}', 'ValidasiController@login_validasi')->name('loginvalidasispp');
 Route::get('spp/validasi_spp/{id}', 'ValidasiController@index_spp')->name('validasispp');
 
 Route::get('spp/edit/{id}', 'SppController@viewupdate')->name('viewupdatespp');
+Route::get('spp/debug/edit/{id}', 'SppController@debugViewUpdate')->name('debug.viewupdatespp'); // Route untuk debugging
 Route::get('sppd/edit/{id}', 'SppController@viewupdate')->name('viewupdatesppd');
+Route::get('sppd/edit2/{id}', 'SppController@viewupdate2')->name('viewupdatesppd2');
 Route::post('spp/update/store/{id}', 'SppController@update')->name('updatespp');
 Route::post('sppd/update/store/{id}', 'SppdController@update')->name('updatesppd');
 Route::get('spp/cetak/{id}', 'SppController@cetak')->name('cetakspp');
+Route::get('spp/cetak2/{id}', 'SppController@cetak2')->name('cetakspp2');
 Route::get('spp/cetak_bukti_kas/{id}', 'SppController@cetakbuktikas')->name('cetakbuktikasspp');
 Route::get('sppd/cetak_bukti_kas/{id}', 'SppdController@cetakbuktikas')->name('cetakbuktikassppd');
 Route::post('spp/update_bayar/{id}', 'SppController@update_bayar');
@@ -295,6 +383,7 @@ Route::get('customer', 'CsController@index');
 Route::post('customer/store', 'CsController@store');
 Route::post('customer/update', 'CsController@update');
 Route::get('customer/destroy/{id}/{status}', 'CsController@destroy');
+Route::get('customer/getdatatableall', 'CsController@getDataTableAll')->name('getCustomerDataTableAll');
 Route::post('customer/import', 'CsController@import')->name('customer.import');
 
 // Bahan & Jasa
@@ -421,7 +510,7 @@ Route::get('doc/{doc}', 'DownloadFileController@readFile');
 
 Route::get('cetak-bukti-kas', 'CetakBuktiKasController@index')->name('admin.cetakbuktikas.index');
 Route::get('cetak-bukti-kas/data', 'CetakBuktiKasController@getData')->name('admin.cetakbuktikas.getdata');
-Route::get('cetak-bukti-kas/data/{id}/detail', 'CetakBuktiKasController@getDataById')->name('admin.cetakbuktikas.getDataById');
+Route::get('cetak-bukti-kas/data-by-company/{id}', 'CetakBuktiKasController@getDataByCompany')->name('admin.cetakbuktikas.getDataByCompany');
 Route::post('cetak-bukti-kas/store', 'CetakBuktiKasController@store')->name('admin.cetakbuktikas.store');
-Route::put('cetak-bukti-kas/update/{id}', 'CetakBuktiKasController@update')->name('admin.cetakbuktikas.update');
+Route::post('cetak-bukti-kas/update/{id}', 'CetakBuktiKasController@update')->name('admin.cetakbuktikas.update');
 Route::delete('cetak-bukti-kas/destroy/{id}', 'CetakBuktiKasController@destroy')->name('admin.cetakbuktikas.destroy');

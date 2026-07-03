@@ -35,7 +35,10 @@ class SppdServerSideController extends Controller
             return $dataTables;
             // dd($todoList);
         } catch (\Throwable $th) {
-            dd($th);
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem saat mengambil data To Do',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -46,8 +49,10 @@ class SppdServerSideController extends Controller
 
             return $dataTables;
         } catch (\Throwable $th) {
-
-            dd($th);
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem saat mengambil data Revisi',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -151,7 +156,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getSppbCetakBuktiKas($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -160,7 +168,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getSppnCetakBuktiKas($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -169,7 +180,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getPenerima($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -178,7 +192,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getDiterima($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -187,7 +204,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getSppbBayar($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -196,7 +216,10 @@ class SppdServerSideController extends Controller
         try {
             return $this->sppdService->getSppnTerima($id);
         } catch (\Throwable $th) {
-            return $th;
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem',
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 }

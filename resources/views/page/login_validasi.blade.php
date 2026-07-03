@@ -55,8 +55,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="signin-password" class="control-label sr-only">Password</label>
-                                    <input type="password" class="form-control" id="signin-password" name="password"
-                                        placeholder="password">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="signin-password" name="password"
+                                            placeholder="password">
+                                        <span class="input-group-addon" id="togglePassword" style="cursor: pointer;">
+                                            <i class="fa fa-eye" id="eyeIcon"></i>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="form-group clearfix">
                                     <label class="fancy-checkbox element-left">
@@ -85,6 +90,30 @@
         </div>
     </div>
     <!-- END WRAPPER -->
+    <script>
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('signin-password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        function showPassword(e) {
+            e.preventDefault();
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        }
+
+        function hidePassword() {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+
+        toggleBtn.addEventListener('mousedown', showPassword);
+        toggleBtn.addEventListener('touchstart', showPassword);
+        toggleBtn.addEventListener('mouseup', hidePassword);
+        toggleBtn.addEventListener('mouseleave', hidePassword);
+        toggleBtn.addEventListener('touchend', hidePassword);
+    </script>
 </body>
 
 </html>

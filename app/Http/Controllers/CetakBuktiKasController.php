@@ -25,22 +25,64 @@ class CetakBuktiKasController extends Controller
                 return redirect('login');
             } else {
                 $this->hakAksesId = session()->get('hak_akses');
-                if (!in_array($this->hakAksesId, [44, 45])) {
+                $grupId = session()->get('grup_ui');
+                if (!in_array($this->hakAksesId, [1, 44, 45]) && !in_array($grupId, [8, 9])) {
                     return redirect('dashboard');
                 }
                 return $next($request);
             }
         });
     }
+    private function getManagedCompanyIds()
+    {
+        $role = session()->get('hak_akses') ?? $this->hakAksesId;
+        $currentCompany = session()->get('company');
+        $username = session()->get('username') ?? $this->user;
+
+        // Admin Pusat
+        if ($role == "1" || $role == "44") {
+            return Company::where('company_status', '!=', '0')->pluck('company_id')->toArray();
+        }
+
+        $managedIds = [$currentCompany];
+
+        // Admin Regional (Role 45)
+        if ($role == "45" && preg_match('/admin_reg(\d+)/', $username, $matches)) {
+            $regionalId = $matches[1];
+            $regionalIds = Company::where('company_nama', 'LIKE', '%Regional ' . $regionalId . ' %')
+                                  ->where('company_status', '!=', '0')
+                                  ->pluck('company_id')->toArray();
+            $managedIds = array_unique(array_merge($managedIds, $regionalIds));
+        }
+
+        return $managedIds;
+    }
+
     public function index()
     {
-        $currentCompany = session()->get('company');
+        $role = session()->get('hak_akses');
 
-        $cetakBuktiKas = CetakBuktiKas::with(['company'])->where('company_id', $currentCompany)->get();
-
-        $companies = Company::where('company_status', '!=', '0')
-            ->where('company_id', $currentCompany)
-            ->get();
+        if ($role == "1" || $role == "44") {
+            $cetakBuktiKas = CetakBuktiKas::with(['company'])->orderBy('company_id', 'asc')->get();
+            
+            // Get list of company IDs that already have configurations
+            $existingCompanyIds = CetakBuktiKas::pluck('company_id')->toArray();
+            
+            $companies = Company::where('company_status', '!=', '0')
+                ->whereNotIn('company_id', $existingCompanyIds)
+                ->get();
+        } else {
+            $managedCompanyIds = $this->getManagedCompanyIds();
+            
+            $cetakBuktiKas = CetakBuktiKas::with(['company'])->whereIn('company_id', $managedCompanyIds)->get();
+            
+            $existingCompanyIds = $cetakBuktiKas->pluck('company_id')->toArray();
+            
+            $companies = Company::where('company_status', '!=', '0')
+                ->whereIn('company_id', $managedCompanyIds)
+                ->whereNotIn('company_id', $existingCompanyIds)
+                ->get();
+        }
 
         $view_data = [
             'hakAkses' => $this->hakAksesId,
@@ -52,64 +94,113 @@ class CetakBuktiKasController extends Controller
 
     public function getData()
     {
-        $currentCompany = session()->get('company');
-        $role=$this->hakAksesId;
-        if($role == "1" || $role == "44"){
+        $role = $this->hakAksesId;
+
+        $query = CetakBuktiKas::with(['company']);
+
+        if (!($role == "1" || $role == "44")) {
+            $managedCompanyIds = $this->getManagedCompanyIds();
+            $query->whereIn('company_id', $managedCompanyIds);
+        }
+
+        $data = $query->orderBy('company_id', 'asc')->get();
+
+        // Group by company to show 1 row per company in the main table
+        $grouped = $data->groupBy('company_id')->map(function ($items) {
+            $first = $items->first();
             
-            $cetakBuktiKas = CetakBuktiKas::with(['company'])->orderBy('company_id', 'asc')->get();
-            //dd($cetakBuktiKas);
-        }
-        else{
-            $cetakBuktiKas = CetakBuktiKas::with(['company'])
-            ->where('company_id', $currentCompany)
-            ->get();
-        }
-        
-        return response()->json($cetakBuktiKas);
+            $valid_count = 0;
+            $combinations = [
+                ['b' => 0, 'm5' => 0, 'j25' => 0],
+                ['b' => 0, 'm5' => 0, 'j25' => 1],
+                ['b' => 1, 'm5' => 0, 'j25' => 0],
+                ['b' => 1, 'm5' => 1, 'j25' => 0],
+            ];
+            
+            foreach ($combinations as $combo) {
+                $exists = $items->where('is_bank', $combo['b'])
+                                ->where('lebih_dari_5_m', $combo['m5'])
+                                ->where('lebih_dari_25_jt', $combo['j25'])
+                                ->isNotEmpty();
+                if ($exists) {
+                    $valid_count++;
+                }
+            }
+
+            return [
+                'company_id' => $first->company_id,
+                'company_nama' => $first->company->company_nama ?? 'N/A',
+                'valid_scenarios' => $valid_count,
+                'total_records' => $items->count(),
+                'id' => $first->id 
+            ];
+        })->values();
+
+        return response()->json($grouped);
     }
 
-    public function getDataById($id)
+    public function getDataByCompany($company_id)
     {
         try {
-            $cetakBuktiKas = CetakBuktiKas::with(['company'])->find($id);
+            $scenarios = CetakBuktiKas::where('company_id', $company_id)->get();
+            $company = Company::find($company_id);
+
             return response()->json([
                 'success' => true,
-                'data' => $cetakBuktiKas
+                'company' => $company,
+                'data' => $scenarios
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()
-            ], $th->getCode());
+            ], 500);
         }
     }
 
-    public function store(StoreCetakBuktiKasRequest $request)
+    public function store(Request $request)
     {
-        try {
-            $cetakBuktiKas = new CetakBuktiKas();
-            $cetakBuktiKas->company_id = $request->company;
-            $cetakBuktiKas->dibuat_sub_bagian = $request->sub_bagian_pembuat;
-            $cetakBuktiKas->dibuat_sub_bagian_nama = $request->nama_pembuat ?? null;
-            $cetakBuktiKas->diperiksa_oleh_sub_bagian = $request->sub_bagian_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_sub_bagian_nama = $request->nama_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_bagian = $request->bagian_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_bagian_nama = $request->nama_bagian_pemeriksa;
-            $cetakBuktiKas->disetujui_oleh = $request->yang_menyetujui;
-            $cetakBuktiKas->disetujui_oleh_nama = $request->nama_yang_menyetujui;
-            $cetakBuktiKas->is_bank = $request->is_bank;
-            $cetakBuktiKas->lebih_dari_5_m = $request->lebih_dari_5_m;
-            $cetakBuktiKas->lebih_dari_25_jt = $request->lebih_dari_25_jt;
-            $cetakBuktiKas->created_at = Carbon::now()->format('Y-m-d H:i:s');
-            $cetakBuktiKas->updated_at = Carbon::now()->format('Y-m-d H:i:s');
-            $cetakBuktiKas->save();
+        $company_id = $request->company;
 
+        // Check if company already has configurations
+        $exists = CetakBuktiKas::where('company_id', $company_id)->exists();
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Perusahaan ini sudah terdaftar. Silakan gunakan fitur Edit untuk mengubah data.',
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $scenarios = $request->scenarios; // Expected array of 4 scenarios
+
+            foreach ($scenarios as $item) {
+                CetakBuktiKas::create([
+                    'company_id' => $company_id,
+                    'is_bank' => $item['is_bank'],
+                    'lebih_dari_5_m' => $item['lebih_dari_5_m'],
+                    'lebih_dari_25_jt' => $item['lebih_dari_25_jt'],
+                    'dibuat_sub_bagian' => $item['dibuat_sub_bagian'] ?? null,
+                    'dibuat_sub_bagian_nama' => $item['dibuat_sub_bagian_nama'] ?? null,
+                    'diperiksa_oleh_sub_bagian' => $item['diperiksa_oleh_sub_bagian'],
+                    'diperiksa_oleh_sub_bagian_nama' => $item['diperiksa_oleh_sub_bagian_nama'] ?? null,
+                    'diperiksa_oleh_bagian' => $item['diperiksa_oleh_bagian'],
+                    'diperiksa_oleh_bagian_nama' => $item['diperiksa_oleh_bagian_nama'] ?? null,
+                    'disetujui_oleh' => $item['disetujui_oleh'],
+                    'disetujui_oleh_nama' => $item['disetujui_oleh_nama'] ?? null,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            }
+
+            DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'data berhasil disimpan',
-                'data' => $cetakBuktiKas,
-            ], 201);
+                'message' => 'Seluruh skenario berhasil ditambahkan',
+            ], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan: ' . $th->getMessage(),
@@ -117,38 +208,42 @@ class CetakBuktiKasController extends Controller
         }
     }
 
-    public function update(UpdateCetakBuktiKasRequest $request, $id)
+    public function update(Request $request, $company_id)
     {
+        // $company_id here is actually company_id, not record id
+        DB::beginTransaction();
         try {
-            $cetakBuktiKas = CetakBuktiKas::find($id);
-            if (!$cetakBuktiKas) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'data tidak ditemukan'
-                ], 404);
+            $scenarios = $request->scenarios; // Expected array of 4 scenarios
+
+            // Hapus semua record lama untuk company ini agar tidak ada data sampah/duplikat
+            CetakBuktiKas::where('company_id', $company_id)->delete();
+
+            foreach ($scenarios as $item) {
+                CetakBuktiKas::create([
+                    'company_id' => $company_id,
+                    'is_bank' => $item['is_bank'],
+                    'lebih_dari_5_m' => $item['lebih_dari_5_m'],
+                    'lebih_dari_25_jt' => $item['lebih_dari_25_jt'],
+                    'dibuat_sub_bagian' => $item['dibuat_sub_bagian'] ?? null,
+                    'dibuat_sub_bagian_nama' => $item['dibuat_sub_bagian_nama'] ?? null,
+                    'diperiksa_oleh_sub_bagian' => $item['diperiksa_oleh_sub_bagian'],
+                    'diperiksa_oleh_sub_bagian_nama' => $item['diperiksa_oleh_sub_bagian_nama'] ?? null,
+                    'diperiksa_oleh_bagian' => $item['diperiksa_oleh_bagian'],
+                    'diperiksa_oleh_bagian_nama' => $item['diperiksa_oleh_bagian_nama'] ?? null,
+                    'disetujui_oleh' => $item['disetujui_oleh'],
+                    'disetujui_oleh_nama' => $item['disetujui_oleh_nama'] ?? null,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
             }
 
-            $cetakBuktiKas->company_id = $request->ubah_company_id;
-            $cetakBuktiKas->dibuat_sub_bagian = $request->ubah_sub_bagian_pembuat;
-            $cetakBuktiKas->dibuat_sub_bagian_nama = $request->ubah_nama_pembuat ?? null;
-            $cetakBuktiKas->diperiksa_oleh_sub_bagian = $request->ubah_sub_bagian_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_sub_bagian_nama = $request->ubah_nama_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_bagian = $request->ubah_bagian_pemeriksa;
-            $cetakBuktiKas->diperiksa_oleh_bagian_nama = $request->ubah_nama_bagian_pemeriksa;
-            $cetakBuktiKas->disetujui_oleh = $request->ubah_yang_menyetujui;
-            $cetakBuktiKas->disetujui_oleh_nama = $request->ubah_nama_yang_menyetujui;
-            $cetakBuktiKas->is_bank = $request->ubah_is_bank;
-            $cetakBuktiKas->lebih_dari_5_m = $request->ubah_lebih_dari_5_m;
-            $cetakBuktiKas->lebih_dari_25_jt = $request->ubah_lebih_dari_25_jt;
-            $cetakBuktiKas->updated_at = Carbon::now()->format('Y-m-d H:i:s');
-            $cetakBuktiKas->save();
-
+            DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Update data berhasil disimpan',
-                'data' => $cetakBuktiKas,
-            ], 201);
+                'message' => 'Seluruh skenario berhasil diperbarui',
+            ], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi Kesalahan: ' . $th->getMessage(),
@@ -156,20 +251,13 @@ class CetakBuktiKasController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($company_id)
     {
         try {
-            $cetakBuktiKas = CetakBuktiKas::find($id);
-            if (!$cetakBuktiKas) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'data tidak ditemukan'
-                ], 404);
-            }
-            $cetakBuktiKas->delete();
+            CetakBuktiKas::where('company_id', $company_id)->delete();
             return response()->json([
                 'success' => true,
-                'message' => 'data berhasil di hapus',
+                'message' => 'Semua skenario untuk perusahaan ini berhasil dihapus',
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
