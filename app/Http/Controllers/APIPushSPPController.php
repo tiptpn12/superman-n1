@@ -270,6 +270,7 @@ class APIPushSPPController extends Controller
                 'isi_sppn.*.sppn_uraian.*.sppn_uraian_pajak' => 'nullable|integer',
                 'isi_sppn.*.sppn_uraian.*.sppn_uraian_total_pajak' => 'nullable|integer',
                 'isi_sppn.*.sppn_uraian.*.sppn_uraian_potongan' => 'nullable|integer',
+                'isi_sppn.*.sppn_uraian.*.sppn_uraian_pajak_pph' => 'nullable|string',
             ]);
 
             $validatedKaryawanRequest = $request->validate([
@@ -295,14 +296,10 @@ class APIPushSPPController extends Controller
                 'atas_nama_bank_sppb_vendor' => 'nullable|string',
                 'nama_bank_sppb_vendor' => 'nullable|string',
                 'rekening_bank_sppb_vendor' => 'nullable|string',
-                'karyawan_sppb' => 'nullable|array',
+                'karyawan_sppb.*' => 'required|array',
                 'karyawan_sppb.*.nama' => 'nullable|string',
                 'karyawan_sppb.*.bank' => 'nullable|string',
                 'karyawan_sppb.*.no_rek' => 'nullable|string',
-                'karyawan_sppb_input' => 'nullable|array',
-                'karyawan_sppb_input.*.nama' => 'nullable|string',
-                'karyawan_sppb_input.*.bank' => 'nullable|string',
-                'karyawan_sppb_input.*.no_rek' => 'nullable|string',
                 'pilih_data_sppb_vendor' => 'nullable|string',
             ]);
 
@@ -425,9 +422,10 @@ class APIPushSPPController extends Controller
                             'sppn_isi_id' => $isiSppn->sppn_isi_id,
                             'sppn_uraian_uraian' => $uraian['sppn_uraian_uraian'] ?? null,
                             'sppn_uraian_nominal' => $uraian['sppn_uraian_nominal'] ?? 0,
-                            'sppn_nominal_pajak' => $uraian['sppn_uraian_pajak'] ?? 0,
-                            'sppn_nominal_akhir' => $uraian['sppn_uraian_total_pajak'] ?? $uraian['sppn_uraian_total'] ?? $uraian['sppn_uraian_nominal'] ?? 0,
+                            'sppn_uraian_pph' => $uraian['sppn_uraian_pajak'] ?? 0,
+                            'sppn_nominal_akhir' => $uraian['sppn_uraian_total'] ?? $uraian['sppn_uraian_nominal'] ?? 0,
                             'sppn_potongan' => $uraian['sppn_uraian_potongan'] ?? 0,
+                            'sppn_pajak_pph' => $uraian['sppn_uraian_pajak_pph'],
                         ];
                         IsiUraianSppn::create($uraianData);
                         $total1 += $uraianData['sppn_nominal_akhir'];
@@ -468,6 +466,17 @@ class APIPushSPPController extends Controller
                 }
             }
 
+            foreach ($validatedKaryawanRequest['karyawan_sppb'] as $v) {
+                NamaKaryawanModel::create([
+                    'sppb_id' => $sppb->sppb_id,
+                    'sppn_id' => null,
+                    'karyawan_nama' => $v['nama'] ?? null,
+                    'karyawan_nama_bank' => $v['bank'] ?? null,
+                    'karyawan_no_rek' => $v['no_rek'] ?? null,
+                    'karyawan_alamat' => "-",
+                ]);
+            }
+
             NamaKaryawanModel::create([
                 'sppb_id' => null,
                 'sppn_id' => $sppn->sppn_id,
@@ -476,39 +485,6 @@ class APIPushSPPController extends Controller
                 'karyawan_no_rek' => '-',
                 'karyawan_alamat' => $validatedKaryawanRequest['alamat_sppn'] ?? '-',
             ]);
-
-            $metodeSppb = $validatedSppbRequest['sppb_metode_pembayaran'] ?? '';
-            $pilihVendor = $validatedKaryawanRequest['pilih_data_sppb_vendor'] ?? '';
-            if ($metodeSppb == 'kas_negara') {
-                NamaKaryawanModel::create([
-                    'sppb_id' => $sppb->sppb_id,
-                    'sppn_id' => null,
-                    'karyawan_nama' => $validatedKaryawanRequest['nama_kas_negara_sppb_input'] ?? null,
-                    'karyawan_nama_bank' => "-",
-                    'karyawan_no_rek' => "-",
-                    'karyawan_alamat' => $validatedKaryawanRequest['alamat_kas_negara_sppb_input'] ?? null,
-                ]);
-            } elseif ($metodeSppb == 'kas') {
-                NamaKaryawanModel::create([
-                    'sppb_id' => $sppb->sppb_id,
-                    'sppn_id' => null,
-                    'karyawan_nama' => $validatedKaryawanRequest['nama_kas_negara_sppb_input'] ?? null,
-                    'karyawan_nama_bank' => "-",
-                    'karyawan_no_rek' => "-",
-                    'karyawan_alamat' => $validatedKaryawanRequest['alamat_kas_negara_sppb_input'] ?? null,
-                ]);
-            } else {
-                if ($pilihVendor == 'input_data') {
-                    NamaKaryawanModel::create([
-                        'sppb_id' => $sppb->sppb_id,
-                        'sppn_id' => null,
-                        'karyawan_nama' => $validatedKaryawanRequest['atas_nama_bank_sppb_vendor'] ?? null,
-                        'karyawan_nama_bank' => $validatedKaryawanRequest['nama_bank_sppb_vendor'] ?? null,
-                        'karyawan_no_rek' => $validatedKaryawanRequest['rekening_bank_sppb_vendor'] ?? null,
-                        'karyawan_alamat' => $validatedKaryawanRequest['karyawan_alamat_sppb_input'] ?? null,
-                    ]);
-                }
-            }
 
             $rekamJejak = RekamJejak::create([
                 'spp_id' => $spp->spp_id,
